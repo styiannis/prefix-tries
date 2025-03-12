@@ -1,3 +1,5 @@
+import { AbstractTrie, Trie } from '../src/classes';
+
 /* ----------------------------------------- */
 /* ---------- // Helper functions ---------- */
 /* ----------------------------------------- */
@@ -57,4 +59,46 @@ export function isValidObjectInstance(
       'value',
     ]);
   }
+}
+
+export function isValidClassInstance(instance: unknown, instanceType: 'Trie') {
+  if ('object' !== typeof instance) {
+    return false;
+  }
+
+  // Own property names (sorted)
+  const props = Object.getOwnPropertyNames(instance).sort();
+
+  // Prototype property names (sorted)
+  const protoProps = Object.getOwnPropertyNames(
+    Object.getPrototypeOf(instance)
+  ).sort();
+
+  if ('Trie' === instanceType) {
+    if (
+      !areIdenticalArrays(props, []) ||
+      !areIdenticalArrays(protoProps, [
+        'add',
+        'clear',
+        'constructor',
+        'delete',
+        'entries',
+        'find',
+        'forEach',
+        'has',
+        'size',
+      ])
+    ) {
+      return false;
+    }
+
+    return (
+      instance instanceof Trie &&
+      instance instanceof AbstractTrie &&
+      Object.getPrototypeOf(instance) === Trie.prototype &&
+      Object.getPrototypeOf(instance) !== AbstractTrie.prototype
+    );
+  }
+
+  return false;
 }
