@@ -100,11 +100,11 @@ import {
 
 ## Getting Started
 
+Here's a quick guide to help you get started with the library.
+
 ### Using Tries
 
-Tries are tree-like data structures optimized for storing and retrieving strings. They're particularly useful for implementing dictionaries, autocomplete features, and prefix-based searches.
-
-Here's a basic example using the memory-optimized `CompressedTrie`:
+A basic example using the memory-optimized `CompressedTrie`:
 
 ```typescript
 import { CompressedTrie } from 'prefix-tries';
@@ -152,9 +152,7 @@ console.log(trie.size); // 0
 
 ### Using Trie Maps
 
-Trie Maps combine the prefix-matching capabilities of tries with key-value storage. They're ideal for scenarios where you need to associate values with string keys while maintaining prefix search functionality.
-
-Here's a basic example using the memory-optimized `CompressedTrieMap`:
+A basic example using the memory-optimized `CompressedTrieMap`:
 
 ```typescript
 import { CompressedTrieMap } from 'prefix-tries';
