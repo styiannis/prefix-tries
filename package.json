@@ -1,6 +1,17 @@
 {
   "name": "prefix-tries",
-  "version": "0.9.0",
+  "version": "1.0.0",
+  "description": "A TypeScript library offering efficient standard (prefix) and compressed (radix) tries for optimized string storage and operations, featuring trie-map variants for key-value storage.",
+  "keywords": [
+    "data structures",
+    "trie",
+    "tries",
+    "prefix trie",
+    "prefix tree",
+    "compressed trie",
+    "radix trie",
+    "radix tree"
+  ],
   "author": "Yiannis Stergiou <hello@styiannis.dev>",
   "license": "MIT",
   "repository": {
