@@ -15,6 +15,8 @@ export function isValidObjectInstance(
   instanceType:
     | 'trie'
     | 'trie-node'
+    | 'trie-map'
+    | 'trie-map-node'
     | 'compressed-trie'
     | 'compressed-trie-node'
 ) {
@@ -28,7 +30,11 @@ export function isValidObjectInstance(
   // Own property names (sorted).
   const props = Object.getOwnPropertyNames(instance).sort();
 
-  if ('trie' === instanceType || 'compressed-trie' === instanceType) {
+  if (
+    'trie' === instanceType ||
+    'trie-map' === instanceType ||
+    'compressed-trie' === instanceType
+  ) {
     return areIdenticalArrays(props, ['list', 'root']);
   }
 
@@ -36,5 +42,13 @@ export function isValidObjectInstance(
     return areIdenticalArrays(props, ['children', 'key', 'listNode', 'parent']);
   }
 
-  return false;
+  if ('trie-map-node' === instanceType) {
+    return areIdenticalArrays(props, [
+      'children',
+      'key',
+      'listNode',
+      'parent',
+      'value',
+    ]);
+  }
 }
