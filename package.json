@@ -1,7 +1,7 @@
 {
   "name": "prefix-tries",
   "version": "1.0.0",
-  "description": "A TypeScript library providing efficient trie data structures for string storage and retrieval. Features both standard tries (prefix trees) and compressed tries (radix trees) for optimized memory usage, plus trie-map variants for key-value storage.",
+  "description": "A TypeScript library offering efficient standard (prefix) and compressed (radix) tries for optimized string storage and operations, featuring trie-map variants for key-value storage.",
   "keywords": [
     "data structures",
     "trie",
