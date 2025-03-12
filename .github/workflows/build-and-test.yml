@@ -1,0 +1,41 @@
+name: Build and test
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.head_ref ||  github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [22]
+    runs-on: ${{ matrix.os }}
+    name: '${{ matrix.os }} - node v${{ matrix.node }}'
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: CI script (type checks, linting, build, exports validation)
+        run: npm run ci
+
+      - name: Test script with coverage reporting
+        run: npm run test-coverage
+
+      - name: Environment reset
+        run: npm run reset

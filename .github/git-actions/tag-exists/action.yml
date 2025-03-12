@@ -1,0 +1,26 @@
+name: Tag exists
+description:
+
+inputs:
+  tag:
+    type: string
+    required: true
+
+outputs:
+  exists:
+    value: ${{ steps.check-tag-exists.outputs.exists }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: check-tag-exists
+      shell: bash
+      run: |
+        tag=${{ inputs.tag }}
+        if git rev-parse $tag >/dev/null 2>&1; then
+          exists=true
+        else
+          exists=false
+        fi
+        echo "Tag '$tag' exists: $exists"
+        echo "exists=$exists" >> "$GITHUB_OUTPUT"

@@ -1,0 +1,66 @@
+############################
+# Linux
+############################
+
+*~
+
+############################
+# OS X
+############################
+
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+.Spotlight-V100
+.Trashes
+._*
+
+############################
+# Windows
+############################
+
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msm
+*.msp
+
+############################
+# npm, yarn, pnpm
+############################
+
+node_modules
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+############################
+# Dotenv
+############################
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+
+############################
+# VS Code
+############################
+.vscode
+
+############################
+# Folders
+############################
+build
+code_documentation
+coverage_report
+dist
+
+############################
+# Exclude folders
+############################
+!.github/**

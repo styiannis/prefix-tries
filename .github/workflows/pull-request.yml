@@ -1,0 +1,76 @@
+name: Pull request
+
+on:
+  pull_request:
+    types:
+      - opened
+      - reopened
+      - edited
+      - synchronize
+
+concurrency:
+  group: ${{ github.head_ref ||  github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pull-request:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Get package.json version
+        uses: ./.github/package-actions/get-version
+        id: package-version
+
+      - name: Check if release exists
+        uses: ./.github/github-actions/release-exists
+        id: release-exists
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 'v${{ steps.package-version.outputs.version }}'
+
+      - name: Check if tag exists
+        uses: ./.github/git-actions/tag-exists
+        id: tag-exists
+        with:
+          tag: 'v${{ steps.package-version.outputs.version }}'
+
+      - name: Exit if the release or tag already exists
+        if: steps.release-exists.outputs.exists == 'true' || steps.tag-exists.outputs.exists == 'true'
+        run: |
+          echo "Release already exists: ${{ steps.release-exists.outputs.exists }}"
+          echo "Tag already exists: ${{ steps.tag-exists.outputs.exists }}"
+          exit 1
+
+      - name: Run Commitlint on commits
+        id: commitlint-commits
+        continue-on-error: true
+        run: npm i @commitlint/config-conventional && npx commitlint -V --from 'origin/${{ github.base_ref }}' --to ${{ github.event.pull_request.head.sha }}
+
+      - name: Run Commitlint on PR title
+        if: steps.commitlint-commits.outcome == 'failure'
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: npm i @commitlint/config-conventional && echo "$PR_TITLE" | npx commitlint -V
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: CI script (type checks, linting, build, exports validation)
+        run: npm run ci
+
+      - name: Test script with coverage reporting
+        run: npm run test-coverage
+
+      - name: Environment reset
+        run: npm run reset

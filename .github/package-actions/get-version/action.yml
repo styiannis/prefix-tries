@@ -1,0 +1,17 @@
+name: Get package.json version
+description:
+
+outputs:
+  version:
+    description: Package version
+    value: ${{ steps.get-package-version.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: get-package-version
+      shell: bash
+      run: |
+        version=$(node -p "require('./package.json').version")
+        echo "Package version: $version"
+        echo "version=$version" >> "$GITHUB_OUTPUT"

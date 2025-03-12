@@ -1,0 +1,31 @@
+name: Release exists
+description:
+
+inputs:
+  github_token:
+    type: string
+    required: true
+  tag:
+    type: string
+    required: true
+
+outputs:
+  exists:
+    value: ${{ steps.check-release-exists.outputs.exists }}
+
+runs:
+  using: 'composite'
+  steps:
+    - id: check-release-exists
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        tag=${{ inputs.tag }}
+        if [ "$(gh release view $tag 2>&1)" == "release not found" ]; then
+          exists=false
+        else
+          exists=true
+        fi
+        echo "Release '$tag' exists: $exists"
+        echo "exists=$exists" >> "$GITHUB_OUTPUT"
