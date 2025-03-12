@@ -12,7 +12,11 @@ function areIdenticalArrays(a: any[], b: any[]) {
 
 export function isValidObjectInstance(
   instance: unknown,
-  instanceType: 'trie' | 'trie-node'
+  instanceType:
+    | 'trie'
+    | 'trie-node'
+    | 'compressed-trie'
+    | 'compressed-trie-node'
 ) {
   if (
     'object' !== typeof instance ||
@@ -24,11 +28,11 @@ export function isValidObjectInstance(
   // Own property names (sorted).
   const props = Object.getOwnPropertyNames(instance).sort();
 
-  if ('trie' === instanceType) {
+  if ('trie' === instanceType || 'compressed-trie' === instanceType) {
     return areIdenticalArrays(props, ['list', 'root']);
   }
 
-  if ('trie-node' === instanceType) {
+  if ('trie-node' === instanceType || 'compressed-trie-node' === instanceType) {
     return areIdenticalArrays(props, ['children', 'key', 'listNode', 'parent']);
   }
 
