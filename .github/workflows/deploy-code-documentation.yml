@@ -1,0 +1,50 @@
+name: Deploy code documentation
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: 'deploy-code-documentation'
+  cancel-in-progress: false
+
+jobs:
+  deploy-code-documentation:
+    environment:
+      name: 'code-documentation'
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate code documentation
+        run: npm run docs
+
+      - name: Setup github pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload code documentation artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './code_documentation'
+
+      - name: Deploy to github pages
+        uses: actions/deploy-pages@v4
+        id: deployment
+
+      - name: Environment reset
+        run: npm run reset

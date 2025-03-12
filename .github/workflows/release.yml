@@ -1,0 +1,81 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: 'release'
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # Validate code
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: CI script (type checks, linting, build, exports validation)
+        run: npm run ci
+
+      - name: Test script with coverage reporting
+        run: npm run test-coverage
+
+      - name: Environment reset
+        run: npm run reset
+
+      # Create tag and release
+
+      - name: Configure git identity
+        uses: ./.github/git-actions/configure-identity
+
+      - name: Fetch repository tags
+        run: git fetch --tags
+
+      - name: Get package.json version
+        uses: ./.github/package-actions/get-version
+        id: package-version
+
+      - name: Check if release exists
+        uses: ./.github/github-actions/release-exists
+        id: release-exists
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 'v${{ steps.package-version.outputs.version }}'
+
+      - name: Check if tag exists
+        uses: ./.github/git-actions/tag-exists
+        id: tag-exists
+        with:
+          tag: 'v${{ steps.package-version.outputs.version }}'
+
+      - name: Exit if the release or tag already exists
+        if: steps.release-exists.outputs.exists == 'true' || steps.tag-exists.outputs.exists == 'true'
+        run: |
+          echo "Release already exists: ${{ steps.release-exists.outputs.exists }}"
+          echo "Tag already exists: ${{ steps.tag-exists.outputs.exists }}"
+          exit 1
+
+      - name: Create tag
+        uses: ./.github/git-actions/create-tag
+        with:
+          tag: 'v${{ steps.package-version.outputs.version }}'
+
+      - name: Create release
+        uses: ./.github/github-actions/create-release
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: 'v${{ steps.package-version.outputs.version }}'

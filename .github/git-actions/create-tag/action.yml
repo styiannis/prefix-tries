@@ -1,0 +1,17 @@
+name: Create tag
+description:
+
+inputs:
+  tag:
+    type: string
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      run: |
+        tag=${{ inputs.tag }}
+        echo "Creating tag: $tag"
+        git tag -a $tag -m "Version $tag"
+        git push origin $tag

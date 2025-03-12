@@ -1,0 +1,49 @@
+name: Create release
+description:
+
+inputs:
+  github_token:
+    type: string
+    required: true
+  tag:
+    type: string
+    required: true
+  draft:
+    type: boolean
+    required: false
+    default: false
+  prerelease:
+    type: boolean
+    required: false
+    default: false
+
+runs:
+  using: 'composite'
+  steps:
+    - shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+      run: |
+        tag=${{ inputs.tag }}
+        draft=${{ inputs.draft }}
+        prerelease=${{ inputs.prerelease }}
+
+        if [ $draft == "true" ]; then
+          if [ $prerelease == "true" ]; then
+            echo "Creating draft pre-release: $tag"
+            gh release create $tag --generate-notes --draft --prerelease
+          else
+            echo "Creating draft release: $tag"
+            gh release create $tag --generate-notes --draft
+          fi
+        else
+          echo "Creating release: $tag"
+          
+          if [ $prerelease == "true" ]; then
+            echo "Creating pre-release: $tag"
+            gh release create $tag --generate-notes --prerelease
+          else
+            echo "Creating release: $tag"
+            gh release create $tag --generate-notes
+          fi
+        fi

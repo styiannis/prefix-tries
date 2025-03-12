@@ -1,0 +1,34 @@
+name: Publish
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: 'publish'
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Generate release changelog
+        run: echo "# Changelog" > CHANGELOG.md && npx conventional-changelog-cli@latest -r 0 -p conventionalcommits >> CHANGELOG.md
+
+      - name: Publish
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
