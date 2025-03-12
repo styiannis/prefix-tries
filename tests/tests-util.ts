@@ -3,6 +3,7 @@ import {
   AbstractTrieMap,
   CompressedTrie,
   Trie,
+  TrieMap,
 } from '../src/classes';
 
 /* ----------------------------------------- */
@@ -64,13 +65,11 @@ export function isValidObjectInstance(
       'value',
     ]);
   }
-
-  return false;
 }
 
 export function isValidClassInstance(
   instance: unknown,
-  instanceType: 'Trie' | 'CompressedTrie'
+  instanceType: 'Trie' | 'CompressedTrie' | 'TrieMap'
 ) {
   if ('object' !== typeof instance) {
     return false;
@@ -117,6 +116,35 @@ export function isValidClassInstance(
         Object.getPrototypeOf(instance) !== AbstractTrie.prototype
       );
     }
+  }
+
+  if ('TrieMap' === instanceType) {
+    if (
+      !areIdenticalArrays(props, []) ||
+      !areIdenticalArrays(protoProps, [
+        'clear',
+        'constructor',
+        'delete',
+        'entries',
+        'find',
+        'forEach',
+        'get',
+        'has',
+        'keys',
+        'set',
+        'size',
+        'values',
+      ])
+    ) {
+      return false;
+    }
+
+    return (
+      instance instanceof TrieMap &&
+      instance instanceof AbstractTrieMap &&
+      Object.getPrototypeOf(instance) === TrieMap.prototype &&
+      Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
+    );
   }
 
   return false;
