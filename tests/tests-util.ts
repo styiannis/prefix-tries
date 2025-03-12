@@ -2,6 +2,7 @@ import {
   AbstractTrie,
   AbstractTrieMap,
   CompressedTrie,
+  CompressedTrieMap,
   Trie,
   TrieMap,
 } from '../src/classes';
@@ -65,11 +66,13 @@ export function isValidObjectInstance(
       'value',
     ]);
   }
+
+  return false;
 }
 
 export function isValidClassInstance(
   instance: unknown,
-  instanceType: 'Trie' | 'CompressedTrie' | 'TrieMap'
+  instanceType: 'Trie' | 'CompressedTrie' | 'TrieMap' | 'CompressedTrieMap'
 ) {
   if ('object' !== typeof instance) {
     return false;
@@ -118,7 +121,7 @@ export function isValidClassInstance(
     }
   }
 
-  if ('TrieMap' === instanceType) {
+  if ('TrieMap' === instanceType || 'CompressedTrieMap' === instanceType) {
     if (
       !areIdenticalArrays(props, []) ||
       !areIdenticalArrays(protoProps, [
@@ -139,12 +142,21 @@ export function isValidClassInstance(
       return false;
     }
 
-    return (
-      instance instanceof TrieMap &&
-      instance instanceof AbstractTrieMap &&
-      Object.getPrototypeOf(instance) === TrieMap.prototype &&
-      Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
-    );
+    if ('TrieMap' === instanceType) {
+      return (
+        instance instanceof TrieMap &&
+        instance instanceof AbstractTrieMap &&
+        Object.getPrototypeOf(instance) === TrieMap.prototype &&
+        Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
+      );
+    } else if ('CompressedTrieMap' === instanceType) {
+      return (
+        instance instanceof CompressedTrieMap &&
+        instance instanceof AbstractTrieMap &&
+        Object.getPrototypeOf(instance) === CompressedTrieMap.prototype &&
+        Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
+      );
+    }
   }
 
   return false;
