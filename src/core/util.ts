@@ -1,6 +1,7 @@
-import { ITrie, ITrieNode } from '../types';
+import { ITrie, ITrieMapNode, ITrieNode } from '../types';
 import * as list from './trie-list';
 import * as listNode from './trie-list-node';
+import * as trieMapNode from './trie-map-node';
 import * as trieNode from './trie-node';
 
 export function commonSubstring(a: string, b: string) {
@@ -137,12 +138,83 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
   return instance;
 }
 
+export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
+  instance: N
+) {
+  if (1 === instance.children.size) {
+    const child = instance.children.entries().next().value;
+
+    if (child) {
+      const [childKey, childNode] = child;
+
+      const key = instance.key;
+      const parent = instance.parent;
+
+      instance.key = `${key}${childKey}`;
+      instance.value = childNode.value;
+      instance.children = childNode.children;
+      instance.children.forEach((n) => (n.parent = instance));
+      instance.listNode = childNode.listNode;
+
+      if (instance.listNode) {
+        instance.listNode.trieNode = instance;
+      }
+
+      trieNode.removeChild(instance, childKey);
+
+      childNode.parent = null;
+      childNode.listNode = null;
+
+      if (parent) {
+        parent.children.delete(key);
+        trieNode.insertChildNode(parent, instance);
+      }
+    }
+  }
+
+  return instance;
+}
+
 export function compressedTrieSplitNode<N extends ITrieNode>(
   instance: N,
   splitPrefix: string
 ) {
   const newNode = trieNode.create(
     instance.key.substring(splitPrefix.length),
+    instance,
+    instance.children,
+    instance.listNode
+  );
+
+  newNode.children.forEach((n) => (n.parent = newNode));
+
+  if (newNode.listNode) {
+    newNode.listNode.trieNode = newNode;
+  }
+
+  const parent = instance.parent;
+
+  if (parent) {
+    trieNode.removeChild(parent, instance.key);
+    instance.key = splitPrefix;
+    trieNode.insertChildNode(parent, instance);
+  }
+
+  instance.listNode = null;
+  instance.children = new Map();
+
+  trieNode.insertChildNode(instance, newNode);
+
+  return instance;
+}
+
+export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
+  instance: N,
+  splitPrefix: string
+) {
+  const newNode = trieMapNode.create(
+    instance.key.substring(splitPrefix.length),
+    instance.value,
     instance,
     instance.children,
     instance.listNode
