@@ -1,4 +1,9 @@
-import { AbstractTrie, Trie } from '../src/classes';
+import {
+  AbstractTrie,
+  AbstractTrieMap,
+  CompressedTrie,
+  Trie,
+} from '../src/classes';
 
 /* ----------------------------------------- */
 /* ---------- // Helper functions ---------- */
@@ -59,9 +64,14 @@ export function isValidObjectInstance(
       'value',
     ]);
   }
+
+  return false;
 }
 
-export function isValidClassInstance(instance: unknown, instanceType: 'Trie') {
+export function isValidClassInstance(
+  instance: unknown,
+  instanceType: 'Trie' | 'CompressedTrie'
+) {
   if ('object' !== typeof instance) {
     return false;
   }
@@ -74,7 +84,7 @@ export function isValidClassInstance(instance: unknown, instanceType: 'Trie') {
     Object.getPrototypeOf(instance)
   ).sort();
 
-  if ('Trie' === instanceType) {
+  if ('Trie' === instanceType || 'CompressedTrie' === instanceType) {
     if (
       !areIdenticalArrays(props, []) ||
       !areIdenticalArrays(protoProps, [
@@ -92,12 +102,21 @@ export function isValidClassInstance(instance: unknown, instanceType: 'Trie') {
       return false;
     }
 
-    return (
-      instance instanceof Trie &&
-      instance instanceof AbstractTrie &&
-      Object.getPrototypeOf(instance) === Trie.prototype &&
-      Object.getPrototypeOf(instance) !== AbstractTrie.prototype
-    );
+    if ('Trie' === instanceType) {
+      return (
+        instance instanceof Trie &&
+        instance instanceof AbstractTrie &&
+        Object.getPrototypeOf(instance) === Trie.prototype &&
+        Object.getPrototypeOf(instance) !== AbstractTrie.prototype
+      );
+    } else if ('CompressedTrie' === instanceType) {
+      return (
+        instance instanceof CompressedTrie &&
+        instance instanceof AbstractTrie &&
+        Object.getPrototypeOf(instance) === CompressedTrie.prototype &&
+        Object.getPrototypeOf(instance) !== AbstractTrie.prototype
+      );
+    }
   }
 
   return false;
