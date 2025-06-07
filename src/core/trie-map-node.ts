@@ -22,6 +22,7 @@ export function clear<N extends ITrieMapNode>(instance: N) {
   return clearTrieNode(instance);
 }
 
+// @todo: It should return an iterator.
 export function childrenWordsValues<N extends ITrieMapNode>(
   instance: N,
   prefix: string

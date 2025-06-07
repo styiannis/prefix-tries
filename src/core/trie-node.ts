@@ -45,6 +45,7 @@ export function word<N extends ITrieNode>(instance: N) {
   }
 }
 
+// @todo: It should return an iterator.
 export function childrenWords<N extends ITrieNode>(
   instance: N,
   prefix: string
