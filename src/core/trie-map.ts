@@ -6,7 +6,7 @@ import { ITrieList, ITrieMap } from '../types';
 import * as list from './trie-list';
 import * as trieMapNode from './trie-map-node';
 import * as trieNode from './trie-node';
-import { createListRecord, triePrefixNodes } from './util';
+import { createListRecord, triePrefixNode } from './util';
 
 export function create<T extends ITrieMap>() {
   return {
@@ -50,7 +50,7 @@ export function setWordValue<T extends ITrieMap>(
 }
 
 export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
-  const node = triePrefixNodes(instance, word);
+  const node = triePrefixNode(instance, word);
   return node && trieNode.isEndOfWord(node)
     ? (node.value as T['root']['value'])
     : undefined;
@@ -60,7 +60,7 @@ export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
 ) {
-  const node = triePrefixNodes(instance, prefix);
+  const node = triePrefixNode(instance, prefix);
   return node ? trieMapNode.childrenWordsValues(node, prefix) : [];
 }
 

@@ -4,7 +4,7 @@ import * as trieNode from './trie-node';
 import {
   commonSubstring,
   createListRecord,
-  compressedTriePrefixNodes,
+  compressedTriePrefixNode,
   compressedTrieMergeNode,
   compressedTrieSplitNode,
   removeListRecord,
@@ -72,17 +72,17 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
-  const node = compressedTriePrefixNodes(instance, prefix);
+  const node = compressedTriePrefixNode(instance, prefix);
   return node ? trieNode.childrenWords(node, prefix) : [];
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {
-  const node = compressedTriePrefixNodes(instance, word);
+  const node = compressedTriePrefixNode(instance, word);
   return !!node && trieNode.isEndOfWord(node);
 }
 
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
-  let node = compressedTriePrefixNodes(instance, word);
+  let node = compressedTriePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

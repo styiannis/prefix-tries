@@ -8,7 +8,7 @@ import {
   createListRecord,
   compressedTrieMapMergeNode,
   compressedTrieMapSplitNode,
-  compressedTriePrefixNodes,
+  compressedTriePrefixNode,
   removeListRecord,
 } from './util';
 
@@ -83,7 +83,7 @@ export function setWordValue<T extends ITrieMap>(
 }
 
 export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
-  const node = compressedTriePrefixNodes(instance, word);
+  const node = compressedTriePrefixNode(instance, word);
   return node && trieNode.isEndOfWord(node)
     ? (node.value as T['root']['value'])
     : undefined;
@@ -93,7 +93,7 @@ export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
 ) {
-  const node = compressedTriePrefixNodes(instance, prefix);
+  const node = compressedTriePrefixNode(instance, prefix);
   return node ? trieMapNode.childrenWordsValues(node, prefix) : [];
 }
 
@@ -102,7 +102,7 @@ export function includesWord<T extends ITrieMap>(instance: T, word: string) {
 }
 
 export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
-  let node = compressedTriePrefixNodes(instance, word);
+  let node = compressedTriePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

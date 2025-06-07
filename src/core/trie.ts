@@ -5,7 +5,7 @@ import {
 import { ITrie, ITrieList } from '../types';
 import * as list from './trie-list';
 import * as trieNode from './trie-node';
-import { createListRecord, removeListRecord, triePrefixNodes } from './util';
+import { createListRecord, removeListRecord, triePrefixNode } from './util';
 
 export function create<T extends ITrie>() {
   return {
@@ -43,17 +43,17 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
-  const node = triePrefixNodes(instance, prefix);
+  const node = triePrefixNode(instance, prefix);
   return node ? trieNode.childrenWords(node, prefix) : [];
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {
-  const node = triePrefixNodes(instance, word);
+  const node = triePrefixNode(instance, word);
   return !!node && trieNode.isEndOfWord(node);
 }
 
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
-  let node = triePrefixNodes(instance, word);
+  let node = triePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

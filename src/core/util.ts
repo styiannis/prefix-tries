@@ -31,7 +31,7 @@ export function removeListRecord<T extends ITrie>(
   }
 }
 
-export function triePrefixNodes<T extends ITrie>(instance: T, prefix: string) {
+export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
   let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
@@ -66,7 +66,7 @@ export function triePrefixNodes<T extends ITrie>(instance: T, prefix: string) {
   return prefixNode;
 }
 
-export function compressedTriePrefixNodes<T extends ITrie>(
+export function compressedTriePrefixNode<T extends ITrie>(
   instance: T,
   prefix: string
 ) {
