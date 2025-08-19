@@ -1,5 +1,8 @@
 # Prefix Tries
 
+[![NPM Version](https://img.shields.io/npm/v/prefix-tries)](https://www.npmjs.com/package/prefix-tries)
+[![Coverage Status](https://img.shields.io/coverallsCoverage/github/styiannis/prefix-tries)](https://coveralls.io/github/styiannis/prefix-tries?branch=main)
+
 A high-performance TypeScript library for efficient string manipulation and storage using tree-based data structures. This library provides:
 
 ### Core Data Structures
