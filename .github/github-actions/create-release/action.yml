@@ -18,7 +18,7 @@ inputs:
     default: false
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - shell: bash
       env:

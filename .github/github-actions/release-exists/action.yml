@@ -14,7 +14,7 @@ outputs:
     value: ${{ steps.check-release-exists.outputs.exists }}
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - id: check-release-exists
       shell: bash

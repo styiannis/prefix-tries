@@ -2,7 +2,7 @@ name: Configure git identity
 description:
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - shell: bash
       run: |
