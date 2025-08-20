@@ -32,7 +32,7 @@ import {
  */
 export class CompressedTrie extends AbstractTrie {
   /** Private field holding the internal compressed-trie data structure */
-  #compressedTrie: ITrie;
+  readonly #compressedTrie: ITrie;
 
   /**
    * Creates a new `CompressedTrie` instance.

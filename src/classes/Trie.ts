@@ -32,7 +32,7 @@ import {
  */
 export class Trie extends AbstractTrie {
   /** Private field holding the internal trie data structure */
-  #trie: ITrie;
+  readonly #trie: ITrie;
 
   /**
    * Creates a new `Trie` instance.

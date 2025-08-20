@@ -33,7 +33,7 @@ export interface ITrieNode {
  *
  * @template V - The type of values stored in the trie-map.
  */
-export interface ITrieMapNode<V extends unknown = unknown> {
+export interface ITrieMapNode<V = unknown> {
   key: string;
   value: V;
   parent: ITrieMapNode<V> | null;
@@ -72,7 +72,7 @@ export interface ITrie<N extends ITrieNode = ITrieNode> {
  * @template N - The type of nodes used in the trie-map.
  */
 export interface ITrieMap<
-  V extends unknown = unknown,
+  V = unknown,
   N extends ITrieMapNode<V> = ITrieMapNode<V>
 > {
   root: N;

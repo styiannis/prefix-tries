@@ -30,19 +30,17 @@ export function removeChild<N extends ITrieNode>(instance: N, key: string) {
 }
 
 export function word<N extends ITrieNode>(instance: N) {
-  if (isEndOfWord(instance)) {
-    let ret = instance.key;
-
-    for (
-      let parent = instance.parent;
-      parent && parent.parent;
-      parent = parent.parent
-    ) {
-      ret = `${parent.key}${ret}`;
-    }
-
-    return ret;
+  if (!isEndOfWord(instance)) {
+    return;
   }
+
+  let ret = instance.key;
+
+  for (let parent = instance.parent; parent?.parent; parent = parent.parent) {
+    ret = `${parent.key}${ret}`;
+  }
+
+  return ret;
 }
 
 // @todo: It should return an iterator.

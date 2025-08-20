@@ -7,7 +7,7 @@ import {
   values,
 } from '../../src/core/trie-map';
 import { entries as keys } from '../../src/core/trie';
-import { ALL_WORDS, ALL_WORDS_VALUES } from '../tests-constants';
+import { ALL_WORDS_VALUES } from '../tests-constants';
 import { isValidObjectInstance } from '../tests-util';
 
 describe('core >> trie-map', () => {

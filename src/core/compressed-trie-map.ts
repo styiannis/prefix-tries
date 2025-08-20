@@ -5,11 +5,11 @@ import * as trieMap from './trie-map';
 import * as trieNode from './trie-node';
 import {
   commonSubstring,
-  createListRecord,
   compressedTrieMapMergeNode,
   compressedTrieMapSplitNode,
-  compressedTriePrefixNode,
+  createListRecord,
   removeListRecord,
+  triePrefixNode,
 } from './util';
 
 export function create<T extends ITrieMap>() {
@@ -31,51 +31,41 @@ export function setWordValue<T extends ITrieMap>(
 ) {
   let prefix = word;
   let node = instance.root;
-  let iter = node.children.entries();
+  let iterator = node.children.entries();
+  let current = iterator.next();
 
-  let current = iter.next();
-  let ok = false;
-  while (!current.done && !ok) {
-    while (!current.done) {
-      const [childKey, childNode] = current.value;
-      const common = commonSubstring(childKey, prefix);
+  let found = false;
+  while (!current.done && !found) {
+    const [childKey, childNode] = current.value;
+    const common = commonSubstring(childKey, prefix);
 
-      if (common) {
-        if (common.length === prefix.length) {
-          if (common.length === childKey.length) {
-            if (!trieNode.isEndOfWord(childNode)) {
-              createListRecord(instance, childNode);
-            }
-            childNode.value = value; // Set or update the value.
-          } else {
-            const updatedChildNode = compressedTrieMapSplitNode(
-              childNode,
-              common
-            );
-            updatedChildNode.value = value;
-            createListRecord(instance, updatedChildNode);
-          }
-
-          ok = true;
-        } else {
-          if (common.length !== childKey.length) {
-            compressedTrieMapSplitNode(childNode, common);
-          }
-
-          prefix = prefix.substring(common.length);
-          node = childNode;
-          iter = node.children.entries();
-          current = iter.next();
-        }
-
-        break;
-      }
-
-      current = iter.next();
+    if (!common) {
+      current = iterator.next();
+      continue;
     }
+
+    if (common.length !== childKey.length) {
+      compressedTrieMapSplitNode(childNode, common);
+    }
+
+    found = common.length === prefix.length;
+
+    if (!found) {
+      prefix = prefix.substring(common.length);
+      node = childNode;
+      iterator = node.children.entries();
+      current = iterator.next();
+      continue;
+    }
+
+    if (common.length !== childKey.length || !trieNode.isEndOfWord(childNode)) {
+      createListRecord(instance, childNode);
+    }
+
+    childNode.value = value; // Set or update the value.
   }
 
-  if (!ok) {
+  if (!found) {
     const newNode = trieMapNode.create<T['root']>(prefix, value, node);
     trieNode.insertChildNode(node, newNode);
     createListRecord(instance, newNode);
@@ -83,7 +73,7 @@ export function setWordValue<T extends ITrieMap>(
 }
 
 export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
-  const node = compressedTriePrefixNode(instance, word);
+  const node = triePrefixNode(instance, word);
   return node && trieNode.isEndOfWord(node)
     ? (node.value as T['root']['value'])
     : undefined;
@@ -93,7 +83,7 @@ export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
 ) {
-  const node = compressedTriePrefixNode(instance, prefix);
+  const node = triePrefixNode(instance, prefix);
   return node ? trieMapNode.childrenWordsValues(node, prefix) : [];
 }
 
@@ -102,7 +92,7 @@ export function includesWord<T extends ITrieMap>(instance: T, word: string) {
 }
 
 export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
-  let node = compressedTriePrefixNode(instance, word);
+  let node = triePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

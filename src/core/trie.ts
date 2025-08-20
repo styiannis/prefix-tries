@@ -26,11 +26,11 @@ export function size<T extends ITrie>(instance: T) {
 export function addWord<T extends ITrie>(instance: T, word: string) {
   let parent = instance.root;
 
-  for (let i = 0; i < word.length; i++) {
-    let node = parent.children.get(word[i]);
+  for (const char of word) {
+    let node = parent.children.get(char);
 
     if (!node) {
-      node = trieNode.create<T['root']>(word[i], parent);
+      node = trieNode.create<T['root']>(char, parent);
       trieNode.insertChildNode(parent, node);
     }
 

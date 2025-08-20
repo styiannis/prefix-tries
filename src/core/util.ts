@@ -35,70 +35,29 @@ export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
   let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
+  let iterator = instance.root.children.values();
+  let current = iterator.next();
+
   let found = false;
-
-  let iter = instance.root.children.values();
-  let current = iter.next();
-
   while (!current.done && !found) {
-    while (!current.done) {
-      const node = current.value;
-      const common = commonSubstring(node.key, str);
+    const node = current.value;
+    const common = commonSubstring(node.key, str);
 
-      if (common) {
-        if (common.length === node.key.length) {
-          if (node.key.length === str.length) {
-            prefixNode = node;
-            found = true;
-          } else {
-            str = str.substring(common.length);
-            iter = node.children.values();
-            current = iter.next();
-          }
-          break;
-        }
-      }
-
-      current = iter.next();
+    if (common.length !== node.key.length) {
+      current = iterator.next();
+      continue;
     }
-  }
 
-  return prefixNode;
-}
+    found = str.length === node.key.length;
 
-export function compressedTriePrefixNode<T extends ITrie>(
-  instance: T,
-  prefix: string
-) {
-  let prefixNode: T['root'] | undefined = undefined;
-
-  let str = prefix;
-  let found = false;
-
-  let iter = instance.root.children.values();
-  let current = iter.next();
-
-  while (!current.done && !found) {
-    while (!current.done) {
-      const node = current.value;
-      const common = commonSubstring(node.key, str);
-
-      if (common) {
-        if (common.length === node.key.length) {
-          if (node.key.length === str.length) {
-            prefixNode = node;
-            found = true;
-          } else {
-            str = str.substring(common.length);
-            iter = node.children.values();
-            current = iter.next();
-          }
-          break;
-        }
-      }
-
-      current = iter.next();
+    if (!found) {
+      str = str.substring(common.length);
+      iterator = node.children.values();
+      current = iterator.next();
+      continue;
     }
+
+    prefixNode = node;
   }
 
   return prefixNode;
@@ -192,20 +151,16 @@ export function compressedTrieSplitNode<N extends ITrieNode>(
     newNode.listNode.trieNode = newNode;
   }
 
-  const parent = instance.parent;
-
-  if (parent) {
-    trieNode.removeChild(parent, instance.key);
+  if (instance.parent) {
+    trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(parent, instance);
+    trieNode.insertChildNode(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
   trieNode.insertChildNode(instance, newNode);
-
-  return instance;
 }
 
 export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
@@ -226,18 +181,14 @@ export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
     newNode.listNode.trieNode = newNode;
   }
 
-  const parent = instance.parent;
-
-  if (parent) {
-    trieNode.removeChild(parent, instance.key);
+  if (instance.parent) {
+    trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(parent, instance);
+    trieNode.insertChildNode(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
   trieNode.insertChildNode(instance, newNode);
-
-  return instance;
 }

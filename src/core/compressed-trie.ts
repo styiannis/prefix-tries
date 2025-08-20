@@ -3,11 +3,11 @@ import { clear as clearTrie, create as createTrie } from './trie';
 import * as trieNode from './trie-node';
 import {
   commonSubstring,
-  createListRecord,
-  compressedTriePrefixNode,
   compressedTrieMergeNode,
   compressedTrieSplitNode,
+  createListRecord,
   removeListRecord,
+  triePrefixNode,
 } from './util';
 
 export function create<T extends ITrie>() {
@@ -25,46 +25,39 @@ export function size<T extends ITrie>(instance: T) {
 export function addWord<T extends ITrie>(instance: T, word: string) {
   let prefix = word;
   let node = instance.root;
-  let iter = node.children.entries();
+  let iterator = node.children.entries();
+  let current = iterator.next();
 
-  let current = iter.next();
-  let ok = false;
-  while (!current.done && !ok) {
-    while (!current.done) {
-      const [childKey, childNode] = current.value;
-      const common = commonSubstring(childKey, prefix);
+  let found = false;
+  while (!current.done && !found) {
+    const [childKey, childNode] = current.value;
+    const common = commonSubstring(childKey, prefix);
 
-      if (common) {
-        if (common.length === prefix.length) {
-          if (common.length === childKey.length) {
-            if (!trieNode.isEndOfWord(childNode)) {
-              createListRecord(instance, childNode);
-            }
-          } else {
-            compressedTrieSplitNode(childNode, common);
-            createListRecord(instance, childNode);
-          }
+    if (!common) {
+      current = iterator.next();
+      continue;
+    }
 
-          ok = true;
-        } else {
-          if (common.length !== childKey.length) {
-            compressedTrieSplitNode(childNode, common);
-          }
+    if (common.length !== childKey.length) {
+      compressedTrieSplitNode(childNode, common);
+    }
 
-          prefix = prefix.substring(common.length);
-          node = childNode;
-          iter = node.children.entries();
-          current = iter.next();
-        }
+    found = common.length === prefix.length;
 
-        break;
-      }
+    if (!found) {
+      prefix = prefix.substring(common.length);
+      node = childNode;
+      iterator = node.children.entries();
+      current = iterator.next();
+      continue;
+    }
 
-      current = iter.next();
+    if (common.length !== childKey.length || !trieNode.isEndOfWord(childNode)) {
+      createListRecord(instance, childNode);
     }
   }
 
-  if (!ok) {
+  if (!found) {
     const newNode = trieNode.create<T['root']>(prefix, node);
     trieNode.insertChildNode(node, newNode);
     createListRecord(instance, newNode);
@@ -72,17 +65,17 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
-  const node = compressedTriePrefixNode(instance, prefix);
+  const node = triePrefixNode(instance, prefix);
   return node ? trieNode.childrenWords(node, prefix) : [];
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {
-  const node = compressedTriePrefixNode(instance, word);
+  const node = triePrefixNode(instance, word);
   return !!node && trieNode.isEndOfWord(node);
 }
 
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
-  let node = compressedTriePrefixNode(instance, word);
+  let node = triePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

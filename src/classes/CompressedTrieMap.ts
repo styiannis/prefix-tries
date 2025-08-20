@@ -34,11 +34,9 @@ import {
  * console.log([...trieMap]); // [['apple', 1], ['lemon', 2]]
  * ```
  */
-export class CompressedTrieMap<
-  V extends unknown = unknown
-> extends AbstractTrieMap<V> {
+export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
   /** Private field holding the internal compressed-trie-map data structure */
-  #compressedTrieMap: ITrieMap<V>;
+  readonly #compressedTrieMap: ITrieMap<V>;
 
   /**
    * Creates a new `CompressedTrieMap` instance.

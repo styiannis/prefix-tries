@@ -31,11 +31,11 @@ export function setWordValue<T extends ITrieMap>(
 ) {
   let parent = instance.root;
 
-  for (let i = 0; i < word.length; i++) {
-    let node = parent.children.get(word[i]);
+  for (const char of word) {
+    let node = parent.children.get(char);
 
     if (!node) {
-      node = trieMapNode.create<T['root']>(word[i], undefined, parent);
+      node = trieMapNode.create<T['root']>(char, undefined, parent);
       trieNode.insertChildNode(parent, node);
     }
 

@@ -33,9 +33,9 @@ import {
  * console.log([...trieMap]); // [['apple', 1], ['lemon', 2]]
  * ```
  */
-export class TrieMap<V extends unknown = unknown> extends AbstractTrieMap<V> {
+export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
   /** Private field holding the internal trie-map data structure */
-  #trieMap: ITrieMap<V>;
+  readonly #trieMap: ITrieMap<V>;
 
   /**
    * Creates a new `TrieMap` instance.
