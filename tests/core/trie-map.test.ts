@@ -1,21 +1,25 @@
-import {
-  clear,
-  create,
-  entries,
-  setWordValue,
-  size,
-  values,
-} from '../../src/core/trie-map';
+import * as trieMap from '../../src/core/trie-map';
+import * as compressedTrieMap from '../../src/core/compressed-trie-map';
 import { entries as keys } from '../../src/core/trie';
 import { ALL_WORDS_VALUES } from '../tests-constants';
 import { isValidObjectInstance } from '../tests-util';
 
-describe('core >> trie-map', () => {
+describe.each([
+  ['trie-map' as const, 'trie-map-node' as const, trieMap],
+  [
+    'compressed-trie-map' as const,
+    'compressed-trie-map-node' as const,
+    compressedTrieMap,
+  ],
+])('Core >> %s', (instanceType, nodeInstanceType, trieMapNamespace) => {
+  const { clear, create, entries, setWordValue, size, values } =
+    trieMapNamespace;
+
   const instance = create();
 
   beforeAll(() => {
-    expect(isValidObjectInstance(instance, 'trie-map')).toBe(true);
-    expect(isValidObjectInstance(instance.root, 'trie-map-node')).toBe(true);
+    expect(isValidObjectInstance(instance, instanceType)).toBe(true);
+    expect(isValidObjectInstance(instance.root, nodeInstanceType)).toBe(true);
     expect(size(instance)).toBe(0);
     expect(instance.root.children.size).toBe(0);
   });

@@ -3,11 +3,11 @@ import {
   clear,
   create,
   deleteWord,
+  entries,
   getPrefixEntries,
   includesWord,
   size,
 } from '../core/compressed-trie';
-import { entries } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {

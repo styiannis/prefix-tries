@@ -1,5 +1,9 @@
 import { ITrie } from '../types';
-import { clear as clearTrie, create as createTrie } from './trie';
+import {
+  clear as clearTrie,
+  create as createTrie,
+  entries as trieEntries,
+} from './trie';
 import * as trieNode from './trie-node';
 import {
   commonSubstring,
@@ -108,4 +112,8 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   }
 
   return true;
+}
+
+export function entries<T extends ITrie>(instance: T, reversed = false) {
+  return trieEntries(instance, reversed);
 }

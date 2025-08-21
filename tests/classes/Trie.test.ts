@@ -1,12 +1,15 @@
-import { Trie } from '../../src';
+import { CompressedTrie, Trie } from '../../src';
 import { ALL_WORDS, WORDS_1, WORDS_2 } from '../tests-constants';
 import { isValidClassInstance } from '../tests-util';
 
-describe('classes >> Trie', () => {
+describe.each([
+  ['Trie' as const, Trie],
+  ['CompressedTrie' as const, CompressedTrie],
+])('Classes >> %s', (instanceType, TrieClass) => {
   it('Insert words and clear structure', () => {
-    const instance = new Trie();
+    const instance = new TrieClass();
 
-    expect(isValidClassInstance(instance, 'Trie')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     ALL_WORDS.forEach((word, i) => {
       expect(instance.has(word)).toBe(false);
@@ -23,7 +26,7 @@ describe('classes >> Trie', () => {
     }
 
     // Try to insert the same values.
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       expect(instance.has(word)).toBe(true);
       expect(instance.add(word)).toBe(undefined);
       expect(instance.has(word)).toBe(true);
@@ -36,9 +39,9 @@ describe('classes >> Trie', () => {
   });
 
   it('Insert and delete words', () => {
-    const instance = new Trie(ALL_WORDS);
+    const instance = new TrieClass(ALL_WORDS);
 
-    expect(isValidClassInstance(instance, 'Trie')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     // Try to remove values ​​that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
@@ -62,7 +65,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Insert and search words [1]', () => {
-    const instance = new Trie(WORDS_1);
+    const instance = new TrieClass(WORDS_1);
 
     (
       [
@@ -108,7 +111,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Insert and search words [2]', () => {
-    const instance = new Trie(WORDS_2);
+    const instance = new TrieClass(WORDS_2);
 
     (
       [
@@ -159,7 +162,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Symbol iterator', () => {
-    const instance = new Trie(ALL_WORDS);
+    const instance = new TrieClass(ALL_WORDS);
 
     expect([...instance]).toStrictEqual(ALL_WORDS);
 
@@ -177,7 +180,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Entries iterator', () => {
-    const instance = new Trie(ALL_WORDS);
+    const instance = new TrieClass(ALL_WORDS);
 
     let i = 0;
     for (const entry of instance.entries()) {
@@ -193,7 +196,7 @@ describe('classes >> Trie', () => {
   });
 
   it('For-of iterator', () => {
-    const instance = new Trie(ALL_WORDS);
+    const instance = new TrieClass(ALL_WORDS);
 
     let i = 0;
     for (const entry of instance) {
@@ -204,7 +207,7 @@ describe('classes >> Trie', () => {
   });
 
   it('For-each iterator', () => {
-    const instance = new Trie(ALL_WORDS);
+    const instance = new TrieClass(ALL_WORDS);
 
     let i = 0;
     instance.forEach((entry) => expect(entry).toBe(ALL_WORDS[i++]));
@@ -213,7 +216,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Invalid string arguments', () => {
-    const instance = new Trie();
+    const instance = new TrieClass();
 
     expect(() => instance.add('')).toThrow(TypeError);
     expect(() => instance.add('')).toThrow(
@@ -257,7 +260,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Invalid boolean arguments', () => {
-    const instance = new Trie();
+    const instance = new TrieClass();
 
     const invalidReversed = [null, 'w', 9, {}, [], () => {}] as boolean[];
 
@@ -277,7 +280,7 @@ describe('classes >> Trie', () => {
   });
 
   it('Invalid function arguments', () => {
-    const instance = new Trie();
+    const instance = new TrieClass();
 
     const invalidReversed = [undefined, null, 'w', 9, {}, []] as Array<
       () => any

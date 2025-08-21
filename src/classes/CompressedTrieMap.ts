@@ -2,14 +2,15 @@ import {
   clear,
   create,
   deleteWord,
+  entries,
   getPrefixEntries,
   getWordValue,
   includesWord,
   setWordValue,
   size,
+  values,
 } from '../core/compressed-trie-map';
 import { entries as keys } from '../core/trie';
-import { entries, values } from '../core/trie-map';
 import { ITrieMap } from '../types';
 import { AbstractTrieMap } from './abstract';
 import {

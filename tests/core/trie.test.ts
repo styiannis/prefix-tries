@@ -1,22 +1,28 @@
-import {
-  clear,
-  create,
-  includesWord as includes,
-  addWord as add,
-  getPrefixEntries as find,
-  deleteWord,
-  size,
-  entries,
-} from '../../src/core/trie';
+import * as trie from '../../src/core/trie';
+import * as compressedTrie from '../../src/core/compressed-trie';
 import { ALL_WORDS, WORDS_1, WORDS_2 } from '../tests-constants';
 import { isValidObjectInstance } from '../tests-util';
 
-describe('core >> trie', () => {
+describe.each([
+  ['trie' as const, 'trie-node' as const, trie],
+  ['compressed-trie' as const, 'compressed-trie-node' as const, compressedTrie],
+])('Core >> %s', (instanceType, nodeInstanceType, trieNamespace) => {
+  const {
+    clear,
+    create,
+    entries,
+    includesWord,
+    addWord,
+    getPrefixEntries,
+    deleteWord,
+    size,
+  } = trieNamespace;
+
   const instance = create();
 
   beforeAll(() => {
-    expect(isValidObjectInstance(instance, 'trie')).toBe(true);
-    expect(isValidObjectInstance(instance.root, 'trie-node')).toBe(true);
+    expect(isValidObjectInstance(instance, instanceType)).toBe(true);
+    expect(isValidObjectInstance(instance.root, nodeInstanceType)).toBe(true);
     expect(size(instance)).toBe(0);
     expect(instance.root.children.size).toBe(0);
   });
@@ -28,9 +34,9 @@ describe('core >> trie', () => {
 
   it('Insert words and clear structure', () => {
     ALL_WORDS.forEach((word, i) => {
-      expect(includes(instance, word)).toBe(false);
-      expect(add(instance, word)).toBe(undefined);
-      expect(includes(instance, word)).toBe(true);
+      expect(includesWord(instance, word)).toBe(false);
+      expect(addWord(instance, word)).toBe(undefined);
+      expect(includesWord(instance, word)).toBe(true);
       expect(size(instance)).toBe(i + 1);
     });
 
@@ -44,9 +50,9 @@ describe('core >> trie', () => {
 
     // Try to insert the same values
     ALL_WORDS.forEach((word, i) => {
-      expect(includes(instance, word)).toBe(true);
-      expect(add(instance, word)).toBe(undefined);
-      expect(includes(instance, word)).toBe(true);
+      expect(includesWord(instance, word)).toBe(true);
+      expect(addWord(instance, word)).toBe(undefined);
+      expect(includesWord(instance, word)).toBe(true);
       expect(size(instance)).toBe(ALL_WORDS.length);
     });
 
@@ -54,17 +60,17 @@ describe('core >> trie', () => {
   });
 
   it('Insert and delete words', () => {
-    ALL_WORDS.forEach((word) => add(instance, word));
+    ALL_WORDS.forEach((word) => addWord(instance, word));
 
-    // Try to deleteWord values ​​that are not included
+    // Try to remove values ​​that are not included
     expect(deleteWord(instance, 'gon')).toBe(false); // Valid prefix, invalid word
     expect(deleteWord(instance, 'invalid')).toBe(false); // Invalid prefix
 
     // Remove all values
     ALL_WORDS.forEach((word, i) => {
-      expect(includes(instance, word)).toBe(true);
+      expect(includesWord(instance, word)).toBe(true);
       expect(deleteWord(instance, word)).toBe(true);
-      expect(includes(instance, word)).toBe(false);
+      expect(includesWord(instance, word)).toBe(false);
       expect(size(instance)).toBe(ALL_WORDS.length - i - 1);
 
       const iter = entries(instance);
@@ -77,7 +83,7 @@ describe('core >> trie', () => {
   });
 
   it('Insert and search words [1]', () => {
-    WORDS_1.forEach((word) => add(instance, word));
+    WORDS_1.forEach((word) => addWord(instance, word));
 
     (
       [
@@ -115,16 +121,16 @@ describe('core >> trie', () => {
         ['gone6', []],
       ] as [string, string[]][]
     ).forEach(([search, expected]) =>
-      expect(find(instance, search).every((w) => expected.includes(w))).toBe(
-        true
-      )
+      expect(
+        getPrefixEntries(instance, search).every((w) => expected.includes(w))
+      ).toBe(true)
     );
 
     clear(instance);
   });
 
   it('Insert and search words [2]', () => {
-    WORDS_2.forEach((word) => add(instance, word));
+    WORDS_2.forEach((word) => addWord(instance, word));
 
     (
       [
@@ -167,9 +173,9 @@ describe('core >> trie', () => {
         ['rubicundus_', []],
       ] as [string, string[]][]
     ).forEach(([search, expected]) =>
-      expect(find(instance, search).every((v) => expected.includes(v))).toBe(
-        true
-      )
+      expect(
+        getPrefixEntries(instance, search).every((v) => expected.includes(v))
+      ).toBe(true)
     );
 
     clear(instance);

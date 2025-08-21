@@ -1,4 +1,4 @@
-import { TrieMap } from '../../src';
+import { CompressedTrieMap, TrieMap } from '../../src';
 import {
   ALL_WORDS,
   ALL_WORDS_VALUES,
@@ -7,11 +7,14 @@ import {
 } from '../tests-constants';
 import { isValidClassInstance } from '../tests-util';
 
-describe('classes >> TrieMap', () => {
+describe.each([
+  ['TrieMap' as const, TrieMap],
+  ['CompressedTrieMap' as const, CompressedTrieMap],
+])('Classes >> %s', (instanceType, TrieMapClass) => {
   it('Insert words and clear structure', () => {
-    const instance = new TrieMap();
+    const instance = new TrieMapClass();
 
-    expect(isValidClassInstance(instance, 'TrieMap')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     ALL_WORDS.forEach((word, i) => {
       const key = word;
@@ -49,9 +52,9 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Insert and delete words', () => {
-    const instance = new TrieMap(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
+    const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
-    expect(isValidClassInstance(instance, 'TrieMap')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     // Try to remove values ​​that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
@@ -78,7 +81,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Insert and update words values', () => {
-    const instance = new TrieMap(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
+    const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
     ALL_WORDS.forEach((word, i) => {
       expect(instance.get(word)).toBe(`{{${word}}}`);
@@ -92,7 +95,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Insert and search words [1]', () => {
-    const instance = new TrieMap(WORDS_1.map((w) => [w, `{{${w}}}`]));
+    const instance = new TrieMapClass(WORDS_1.map((w) => [w, `{{${w}}}`]));
 
     (
       [
@@ -140,7 +143,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Insert and search words [2]', () => {
-    const instance = new TrieMap(WORDS_2.map((w) => [w, `{{${w}}}`]));
+    const instance = new TrieMapClass(WORDS_2.map((w) => [w, `{{${w}}}`]));
 
     (
       [
@@ -193,7 +196,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Symbol iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     expect([...instance]).toStrictEqual(ALL_WORDS_VALUES);
 
@@ -211,7 +214,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Entries iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const entry of instance.entries()) {
@@ -227,7 +230,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Keys iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const key of instance.keys()) {
@@ -243,7 +246,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Values iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const value of instance.values()) {
@@ -259,7 +262,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('For-of iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const entry of instance) {
@@ -270,7 +273,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('For-each iterator', () => {
-    const instance = new TrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     instance.forEach((value, word) => {
@@ -283,7 +286,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Invalid string arguments', () => {
-    const instance = new TrieMap();
+    const instance = new TrieMapClass();
 
     const ANY_VALUE = 'ANY_VALUE';
 
@@ -336,7 +339,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Invalid boolean arguments', () => {
-    const instance = new TrieMap();
+    const instance = new TrieMapClass();
 
     const invalidReversed = [null, 'w', 9, {}, [], () => {}] as boolean[];
 
@@ -370,7 +373,7 @@ describe('classes >> TrieMap', () => {
   });
 
   it('Invalid function arguments', () => {
-    const instance = new TrieMap();
+    const instance = new TrieMapClass();
 
     const invalidReversed = [undefined, null, 'w', 9, {}, []] as Array<
       () => any
