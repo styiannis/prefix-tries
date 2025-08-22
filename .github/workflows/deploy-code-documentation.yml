@@ -4,13 +4,13 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: 'deploy-code-documentation'
+  group: deploy-code-documentation
   cancel-in-progress: false
 
 jobs:
   deploy-code-documentation:
     environment:
-      name: 'code-documentation'
+      name: code-documentation
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     permissions:

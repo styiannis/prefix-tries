@@ -1,4 +1,4 @@
-import { CompressedTrieMap } from '../../src';
+import { CompressedTrieMap, TrieMap } from '../../src';
 import {
   ALL_WORDS,
   ALL_WORDS_VALUES,
@@ -7,11 +7,14 @@ import {
 } from '../tests-constants';
 import { isValidClassInstance } from '../tests-util';
 
-describe('classes >> CompressedTrieMap', () => {
+describe.each([
+  ['TrieMap' as const, TrieMap],
+  ['CompressedTrieMap' as const, CompressedTrieMap],
+])('Classes >> %s', (instanceType, TrieMapClass) => {
   it('Insert words and clear structure', () => {
-    const instance = new CompressedTrieMap();
+    const instance = new TrieMapClass();
 
-    expect(isValidClassInstance(instance, 'CompressedTrieMap')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     ALL_WORDS.forEach((word, i) => {
       const key = word;
@@ -32,7 +35,7 @@ describe('classes >> CompressedTrieMap', () => {
     }
 
     // Try to insert the same values.
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       const key = word;
       const value = `{{${word}}}`;
       expect(instance.has(key)).toBe(true);
@@ -49,11 +52,9 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Insert and delete words', () => {
-    const instance = new CompressedTrieMap(
-      ALL_WORDS.map((w) => [w, `{{${w}}}`])
-    );
+    const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
-    expect(isValidClassInstance(instance, 'CompressedTrieMap')).toBe(true);
+    expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
     // Try to remove values ​​that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
@@ -80,9 +81,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Insert and update words values', () => {
-    const instance = new CompressedTrieMap(
-      ALL_WORDS.map((w) => [w, `{{${w}}}`])
-    );
+    const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
     ALL_WORDS.forEach((word, i) => {
       expect(instance.get(word)).toBe(`{{${word}}}`);
@@ -95,8 +94,8 @@ describe('classes >> CompressedTrieMap', () => {
     expect(instance.size).toBe(0);
   });
 
-  it('Insert and search words [2]', () => {
-    const instance = new CompressedTrieMap(WORDS_1.map((w) => [w, `{{${w}}}`]));
+  it('Insert and search words (1)', () => {
+    const instance = new TrieMapClass(WORDS_1.map((w) => [w, `{{${w}}}`]));
 
     (
       [
@@ -132,19 +131,19 @@ describe('classes >> CompressedTrieMap', () => {
         ['gone', ['gone']],
         ['gone6', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
       expect(
-        instance
-          .find(search)
-          .every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
-      ).toBe(true)
-    );
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
 
     instance.clear();
   });
 
-  it('Insert and search words [2]', () => {
-    const instance = new CompressedTrieMap(WORDS_2.map((w) => [w, `{{${w}}}`]));
+  it('Insert and search words (2)', () => {
+    const instance = new TrieMapClass(WORDS_2.map((w) => [w, `{{${w}}}`]));
 
     (
       [
@@ -185,19 +184,74 @@ describe('classes >> CompressedTrieMap', () => {
         ['rubicundus', ['rubicundus']],
         ['rubicundus_', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
       expect(
-        instance
-          .find(search)
-          .every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
-      ).toBe(true)
-    );
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.clear();
+  });
+
+  it('Insert and search words (3)', () => {
+    const instance = new TrieMapClass(['cart'].map((w) => [w, `{{${w}}}`]));
+
+    (
+      [
+        ['c', ['cart']],
+        ['ca', ['cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.set('cat', '{{cat}}');
+
+    (
+      [
+        ['c', ['cat', 'cart']],
+        ['ca', ['cat', 'cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.set('car', '{{car}}');
+
+    (
+      [
+        ['c', ['car', 'cat', 'cart']],
+        ['ca', ['car', 'cat', 'cart']],
+        ['car', ['car', 'cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
 
     instance.clear();
   });
 
   it('Symbol iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     expect([...instance]).toStrictEqual(ALL_WORDS_VALUES);
 
@@ -215,7 +269,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Entries iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const entry of instance.entries()) {
@@ -231,7 +285,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Keys iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const key of instance.keys()) {
@@ -247,7 +301,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Values iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const value of instance.values()) {
@@ -263,7 +317,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('For-of iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     for (const entry of instance) {
@@ -274,7 +328,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('For-each iterator', () => {
-    const instance = new CompressedTrieMap(ALL_WORDS_VALUES);
+    const instance = new TrieMapClass(ALL_WORDS_VALUES);
 
     let i = 0;
     instance.forEach((value, word) => {
@@ -287,7 +341,7 @@ describe('classes >> CompressedTrieMap', () => {
   });
 
   it('Invalid string arguments', () => {
-    const instance = new CompressedTrieMap();
+    const instance = new TrieMapClass();
 
     const ANY_VALUE = 'ANY_VALUE';
 
@@ -306,75 +360,75 @@ describe('classes >> CompressedTrieMap', () => {
     invalidWords.forEach((w) => {
       expect(() => instance.delete(w)).toThrow(TypeError);
       expect(() => instance.delete(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.find(w)).toThrow(TypeError);
       expect(() => instance.find(w)).toThrow(
-        `The "prefix" value must be a string. Current value: "${w}"`
+        `The "prefix" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.get(w)).toThrow(TypeError);
       expect(() => instance.get(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.has(w)).toThrow(TypeError);
       expect(() => instance.has(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.set(w, 'ANY')).toThrow(TypeError);
       expect(() => instance.set(w, 'ANY')).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
   });
 
   it('Invalid boolean arguments', () => {
-    const instance = new CompressedTrieMap();
+    const instance = new TrieMapClass();
 
     const invalidReversed = [null, 'w', 9, {}, [], () => {}] as boolean[];
 
     invalidReversed.forEach((r) => {
       expect(() => instance[Symbol.iterator](r)).toThrow(TypeError);
       expect(() => instance[Symbol.iterator](r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
 
     invalidReversed.forEach((r) => {
       expect(() => instance.entries(r)).toThrow(TypeError);
       expect(() => instance.entries(r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
 
     invalidReversed.forEach((r) => {
       expect(() => instance.keys(r)).toThrow(TypeError);
       expect(() => instance.keys(r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
 
     invalidReversed.forEach((r) => {
       expect(() => instance.values(r)).toThrow(TypeError);
       expect(() => instance.values(r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
   });
 
   it('Invalid function arguments', () => {
-    const instance = new CompressedTrieMap();
+    const instance = new TrieMapClass();
 
     const invalidReversed = [undefined, null, 'w', 9, {}, []] as Array<
       () => any
@@ -383,7 +437,7 @@ describe('classes >> CompressedTrieMap', () => {
     invalidReversed.forEach((f) => {
       expect(() => instance.forEach(f)).toThrow(TypeError);
       expect(() => instance.forEach(f)).toThrow(
-        `The "callback" value must be a function. Current value: "${f}"`
+        `The "callback" value must be a function. Current value: "${f}".`
       );
     });
   });

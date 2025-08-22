@@ -13,7 +13,7 @@
  * }
  * ```
  */
-export abstract class AbstractTrieMap<V extends unknown = unknown> {
+export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Gets the number of entries stored in the trie-map.
    *

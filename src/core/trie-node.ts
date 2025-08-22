@@ -19,41 +19,57 @@ export function isEndOfWord<N extends ITrieNode>(instance: N) {
   return null !== instance.listNode;
 }
 
-export function insertChildNode<N extends ITrieNode>(instance: N, node: N) {
+export function insertChild<N extends ITrieNode>(instance: N, node: N) {
   node.parent = instance;
   instance.children.set(node.key, node);
 }
 
 export function removeChild<N extends ITrieNode>(instance: N, key: string) {
-  const node = instance.children.get(key);
-  return node && instance.children.delete(key) ? (node as N) : undefined;
+  const node = instance.children.get(key) as N | undefined;
+  return node && instance.children.delete(key) ? node : undefined;
+}
+
+export function parentsPrefix<N extends ITrieNode>(instance: N) {
+  let prefix = '';
+
+  for (let nd = instance.parent; nd?.parent; nd = nd.parent) {
+    prefix = `${nd.key}${prefix}`;
+  }
+
+  return prefix;
 }
 
 export function word<N extends ITrieNode>(instance: N) {
-  if (isEndOfWord(instance)) {
-    let ret = instance.key;
-
-    for (
-      let parent = instance.parent;
-      parent && parent.parent;
-      parent = parent.parent
-    ) {
-      ret = `${parent.key}${ret}`;
-    }
-
-    return ret;
-  }
+  return isEndOfWord(instance)
+    ? `${parentsPrefix(instance)}${instance.key}`
+    : undefined;
 }
 
-export function childrenWords<N extends ITrieNode>(
+/**
+ * Returns an iterator of all words in the trie that start with the given prefix.
+ *
+ * Traverses the trie from the given node, yielding each complete word found.
+ *
+ * @typeParam N - The trie node type.
+ * @param instance - The trie node to start traversal from (typically the node matching the prefix).
+ * @param prefix - The prefix to match; all yielded words will start with this prefix.
+ * @returns An iterator yielding each matching word as a string.
+ */
+export function* childrenWords<N extends ITrieNode>(
   instance: N,
   prefix: string
 ) {
-  const arr = isEndOfWord(instance) ? [[prefix]] : [];
+  for (const [childKey, child] of instance.children) {
+    const stack: [N, string][] = [[child as N, `${prefix}${childKey}`]];
 
-  instance.children.forEach((node, char) =>
-    arr.push(childrenWords(node, `${prefix}${char}`))
-  );
+    while (stack.length > 0) {
+      const [node, str] = stack.shift()!;
 
-  return arr.flat();
+      if (isEndOfWord(node)) {
+        yield str;
+      }
+
+      node.children.forEach((n, c) => stack.push([n as N, `${str}${c}`]));
+    }
+  }
 }

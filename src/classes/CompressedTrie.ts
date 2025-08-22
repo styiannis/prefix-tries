@@ -4,10 +4,9 @@ import {
   create,
   deleteWord,
   getPrefixEntries,
-  includesWord,
   size,
 } from '../core/compressed-trie';
-import { entries } from '../core/trie';
+import { entries, includesWord } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
@@ -32,7 +31,7 @@ import {
  */
 export class CompressedTrie extends AbstractTrie {
   /** Private field holding the internal compressed-trie data structure */
-  #compressedTrie: ITrie;
+  readonly #compressedTrie: ITrie;
 
   /**
    * Creates a new `CompressedTrie` instance.
@@ -205,6 +204,7 @@ export class CompressedTrie extends AbstractTrie {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return entries(this.#compressedTrie, reversed);
   }
 
@@ -239,9 +239,9 @@ export class CompressedTrie extends AbstractTrie {
    * const trie = new CompressedTrie(['apple', 'lemon']);
    *
    * const result = [];
-   * trie.forEach((word) => {
-   *   result.push(word.toUpperCase());
-   * });
+   * trie.forEach((word) =>
+   *    result.push(word.toUpperCase())
+   * );
    *
    * console.log(result);
    * // ['APPLE', 'LEMON']
@@ -257,6 +257,7 @@ export class CompressedTrie extends AbstractTrie {
     thisArg?: any
   ) {
     validateFunction(callback, 'callback');
+
     for (const word of this.entries()) {
       callback.call(thisArg, word, this);
     }

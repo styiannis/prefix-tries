@@ -7,7 +7,7 @@ outputs:
     value: ${{ steps.get-package-version.outputs.version }}
 
 runs:
-  using: 'composite'
+  using: composite
   steps:
     - id: get-package-version
       shell: bash

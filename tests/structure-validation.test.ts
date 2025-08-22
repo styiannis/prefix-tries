@@ -74,7 +74,7 @@ describe('core >> trie', () => {
     expect(instance.root.children.size).toBe(0);
   });
 
-  it('Structure validation after each word addition [1]', () => {
+  it('Structure validation after each word addition (1)', () => {
     const expectedStructure: [string[], boolean, number][][] = [
       [
         [[], false, 1],
@@ -230,7 +230,7 @@ describe('core >> trie', () => {
     clear(instance);
   });
 
-  it('Structure validation after each word addition [2]', () => {
+  it('Structure validation after each word addition (2)', () => {
     const expectedStructure: [string[], boolean, number][][] = [
       [
         [[], false, 1],
@@ -392,7 +392,7 @@ describe('core >> trie', () => {
     clear(instance);
   });
 
-  it('Structure validation after each word removal [1]', () => {
+  it('Structure validation after each word removal (1)', () => {
     WORDS_1.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
 
     // Confirm structure before any removal.
@@ -542,7 +542,7 @@ describe('core >> trie', () => {
     }
   });
 
-  it('Structure validation after each word removal [2]', () => {
+  it('Structure validation after each word removal (2)', () => {
     WORDS_2.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
 
     // Confirm structure before any removal.
@@ -745,7 +745,7 @@ describe('core >> compressed-trie', () => {
     expect(instance.root.children.size).toBe(0);
   });
 
-  it('Structure validation after each word addition [1]', () => {
+  it('Structure validation after each word addition (1)', () => {
     const expectedStructure: [string[], boolean, number][][] = [
       [
         [[], false, 1],
@@ -828,7 +828,7 @@ describe('core >> compressed-trie', () => {
     clear(instance);
   });
 
-  it('Structure validation after each word addition [2]', () => {
+  it('Structure validation after each word addition (2)', () => {
     const expectedStructure: [string[], boolean, number][][] = [
       [
         [[], false, 1],
@@ -922,7 +922,7 @@ describe('core >> compressed-trie', () => {
     clear(instance);
   });
 
-  it('Structure validation after each word removal [1]', () => {
+  it('Structure validation after each word removal (1)', () => {
     WORDS_1.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
 
     // Confirm structure before any removal.
@@ -1012,7 +1012,7 @@ describe('core >> compressed-trie', () => {
     }
   });
 
-  it('Structure validation after each word removal [2]', () => {
+  it('Structure validation after each word removal (2)', () => {
     WORDS_2.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
 
     // Confirm structure before any removal.

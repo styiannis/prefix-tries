@@ -111,14 +111,14 @@ export function isValidClassInstance(
         Object.getPrototypeOf(instance) === Trie.prototype &&
         Object.getPrototypeOf(instance) !== AbstractTrie.prototype
       );
-    } else if ('CompressedTrie' === instanceType) {
-      return (
-        instance instanceof CompressedTrie &&
-        instance instanceof AbstractTrie &&
-        Object.getPrototypeOf(instance) === CompressedTrie.prototype &&
-        Object.getPrototypeOf(instance) !== AbstractTrie.prototype
-      );
     }
+
+    return (
+      instance instanceof CompressedTrie &&
+      instance instanceof AbstractTrie &&
+      Object.getPrototypeOf(instance) === CompressedTrie.prototype &&
+      Object.getPrototypeOf(instance) !== AbstractTrie.prototype
+    );
   }
 
   if ('TrieMap' === instanceType || 'CompressedTrieMap' === instanceType) {
@@ -149,14 +149,14 @@ export function isValidClassInstance(
         Object.getPrototypeOf(instance) === TrieMap.prototype &&
         Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
       );
-    } else if ('CompressedTrieMap' === instanceType) {
-      return (
-        instance instanceof CompressedTrieMap &&
-        instance instanceof AbstractTrieMap &&
-        Object.getPrototypeOf(instance) === CompressedTrieMap.prototype &&
-        Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
-      );
     }
+
+    return (
+      instance instanceof CompressedTrieMap &&
+      instance instanceof AbstractTrieMap &&
+      Object.getPrototypeOf(instance) === CompressedTrieMap.prototype &&
+      Object.getPrototypeOf(instance) !== AbstractTrieMap.prototype
+    );
   }
 
   return false;

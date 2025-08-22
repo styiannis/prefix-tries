@@ -63,7 +63,7 @@ export abstract class AbstractTrie {
    * @param prefix - The prefix to search for.
    * @returns An array of matching words.
    */
-  abstract find(prefix: string): Array<string>;
+  abstract find(prefix: string): string[];
 
   /**
    * Executes a callback function for each word in the trie.

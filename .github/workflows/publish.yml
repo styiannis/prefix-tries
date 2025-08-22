@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: 'publish'
+  group: publish
   cancel-in-progress: false
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: https://registry.npmjs.org
 
       - name: Generate release changelog
         run: echo "# Changelog" > CHANGELOG.md && npx conventional-changelog-cli@latest -r 0 -p conventionalcommits >> CHANGELOG.md

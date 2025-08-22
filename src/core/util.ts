@@ -31,74 +31,60 @@ export function removeListRecord<T extends ITrie>(
   }
 }
 
-export function triePrefixNodes<T extends ITrie>(instance: T, prefix: string) {
+export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
   let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
-  let found = false;
+  let iterator = instance.root.children.values();
+  let current = iterator.next();
 
-  let iter = instance.root.children.values();
-  let current = iter.next();
+  while (!current.done) {
+    const node = current.value;
 
-  while (!current.done && !found) {
-    while (!current.done) {
-      const node = current.value;
-      const common = commonSubstring(node.key, str);
-
-      if (common) {
-        if (common.length === node.key.length) {
-          if (node.key.length === str.length) {
-            prefixNode = node;
-            found = true;
-          } else {
-            str = str.substring(common.length);
-            iter = node.children.values();
-            current = iter.next();
-          }
-          break;
-        }
-      }
-
-      current = iter.next();
+    if (str === node.key) {
+      prefixNode = node;
+      break;
     }
+
+    const common = commonSubstring(node.key, str);
+
+    if (common === node.key) {
+      str = str.substring(common.length);
+      iterator = node.children.values();
+    }
+
+    current = iterator.next();
   }
 
   return prefixNode;
 }
 
-export function compressedTriePrefixNodes<T extends ITrie>(
+export function compressedTriePrefixEntriesNode<T extends ITrie>(
   instance: T,
   prefix: string
 ) {
   let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
-  let found = false;
+  let iterator = instance.root.children.values();
+  let current = iterator.next();
 
-  let iter = instance.root.children.values();
-  let current = iter.next();
+  while (!current.done && !prefixNode) {
+    const node = current.value;
+    const common = commonSubstring(node.key, str);
 
-  while (!current.done && !found) {
-    while (!current.done) {
-      const node = current.value;
-      const common = commonSubstring(node.key, str);
-
-      if (common) {
-        if (common.length === node.key.length) {
-          if (node.key.length === str.length) {
-            prefixNode = node;
-            found = true;
-          } else {
-            str = str.substring(common.length);
-            iter = node.children.values();
-            current = iter.next();
-          }
-          break;
-        }
-      }
-
-      current = iter.next();
+    if (!common) {
+      current = iterator.next();
+      continue;
     }
+
+    if (common === node.key && str !== node.key) {
+      str = str.substring(common.length);
+      iterator = node.children.values();
+      continue;
+    }
+
+    prefixNode = node;
   }
 
   return prefixNode;
@@ -130,7 +116,7 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
 
       if (parent) {
         parent.children.delete(key);
-        trieNode.insertChildNode(parent, instance);
+        trieNode.insertChild(parent, instance);
       }
     }
   }
@@ -167,7 +153,7 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
 
       if (parent) {
         parent.children.delete(key);
-        trieNode.insertChildNode(parent, instance);
+        trieNode.insertChild(parent, instance);
       }
     }
   }
@@ -192,20 +178,16 @@ export function compressedTrieSplitNode<N extends ITrieNode>(
     newNode.listNode.trieNode = newNode;
   }
 
-  const parent = instance.parent;
-
-  if (parent) {
-    trieNode.removeChild(parent, instance.key);
+  if (instance.parent) {
+    trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(parent, instance);
+    trieNode.insertChild(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
-  trieNode.insertChildNode(instance, newNode);
-
-  return instance;
+  trieNode.insertChild(instance, newNode);
 }
 
 export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
@@ -226,18 +208,14 @@ export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
     newNode.listNode.trieNode = newNode;
   }
 
-  const parent = instance.parent;
-
-  if (parent) {
-    trieNode.removeChild(parent, instance.key);
+  if (instance.parent) {
+    trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(parent, instance);
+    trieNode.insertChild(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
-  trieNode.insertChildNode(instance, newNode);
-
-  return instance;
+  trieNode.insertChild(instance, newNode);
 }

@@ -32,7 +32,7 @@ import {
  */
 export class Trie extends AbstractTrie {
   /** Private field holding the internal trie data structure */
-  #trie: ITrie;
+  readonly #trie: ITrie;
 
   /**
    * Creates a new `Trie` instance.
@@ -205,6 +205,7 @@ export class Trie extends AbstractTrie {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return entries(this.#trie, reversed);
   }
 
@@ -239,9 +240,9 @@ export class Trie extends AbstractTrie {
    * const trie = new Trie(['apple', 'lemon']);
    *
    * const result = [];
-   * trie.forEach((word) => {
-   *   result.push(word.toUpperCase());
-   * });
+   * trie.forEach((word) =>
+   *    result.push(word.toUpperCase())
+   * );
    *
    * console.log(result);
    * // ['APPLE', 'LEMON']
@@ -257,6 +258,7 @@ export class Trie extends AbstractTrie {
     thisArg?: any
   ) {
     validateFunction(callback, 'callback');
+
     for (const word of this.entries()) {
       callback.call(thisArg, word, this);
     }

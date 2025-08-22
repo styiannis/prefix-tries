@@ -34,6 +34,7 @@ export function removeNode<L extends ITrieList>(
   }
 
   detach(node);
+
   instance.size--;
 
   return node;

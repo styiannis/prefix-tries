@@ -1,6 +1,6 @@
 {
   "name": "prefix-tries",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "A TypeScript library offering efficient standard (prefix) and compressed (radix) tries for optimized string storage and operations, featuring trie-map variants for key-value storage.",
   "keywords": [
     "data structures",
@@ -56,18 +56,21 @@
     "test-watch": "jest --watchAll",
     "validate-exports": "node ./scripts/validate-exports.js"
   },
+  "dependencies": {
+    "abstract-linked-lists": "^1.0.5"
+  },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.1",
-    "@rollup/plugin-typescript": "^12.1.2",
+    "@rollup/plugin-typescript": "^12.1.4",
     "@tsconfig/node22": "^22.0.2",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.15.21",
-    "jest": "^29.7.0",
-    "rollup": "^4.41.1",
-    "rollup-plugin-dts": "^6.2.1",
-    "ts-jest": "^29.3.4",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.3.0",
+    "jest": "^30.0.5",
+    "rollup": "^4.47.1",
+    "rollup-plugin-dts": "^6.2.3",
+    "ts-jest": "^29.4.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "exports": {
     ".": {
@@ -80,8 +83,5 @@
         "default": "./dist/cjs/index.js"
       }
     }
-  },
-  "dependencies": {
-    "abstract-linked-lists": "^1.0.4"
   }
 }

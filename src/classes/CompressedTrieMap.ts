@@ -3,13 +3,11 @@ import {
   create,
   deleteWord,
   getPrefixEntries,
-  getWordValue,
-  includesWord,
   setWordValue,
   size,
 } from '../core/compressed-trie-map';
-import { entries as keys } from '../core/trie';
-import { entries, values } from '../core/trie-map';
+import { entries, getWordValue, values } from '../core/trie-map';
+import { entries as keys, includesWord } from '../core/trie';
 import { ITrieMap } from '../types';
 import { AbstractTrieMap } from './abstract';
 import {
@@ -34,11 +32,9 @@ import {
  * console.log([...trieMap]); // [['apple', 1], ['lemon', 2]]
  * ```
  */
-export class CompressedTrieMap<
-  V extends unknown = unknown
-> extends AbstractTrieMap<V> {
+export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
   /** Private field holding the internal compressed-trie-map data structure */
-  #compressedTrieMap: ITrieMap<V>;
+  readonly #compressedTrieMap: ITrieMap<V>;
 
   /**
    * Creates a new `CompressedTrieMap` instance.
@@ -116,14 +112,14 @@ export class CompressedTrieMap<
    * // Output:
    * // apple: 1
    * // lemon: 2
-   * // orange: 2
+   * // orange: 3
    *
    * // Reverse iteration
    * for (const [word, value] of trieMap[Symbol.iterator](true)) {
    *   console.log(`${word}: ${value}`);
    * }
    * // Output:
-   * // orange: 2
+   * // orange: 3
    * // lemon: 2
    * // apple: 1
    * ```
@@ -214,6 +210,7 @@ export class CompressedTrieMap<
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return entries(this.#compressedTrieMap, reversed);
   }
 
@@ -255,9 +252,9 @@ export class CompressedTrieMap<
    * ]);
    *
    * const result = [];
-   * trieMap.forEach((value, word) => {
-   *   result.push(`${word.toUpperCase()}:${value}`);
-   * });
+   * trieMap.forEach((value, word) =>
+   *    result.push(`${word.toUpperCase()}:${value}`)
+   * );
    *
    * console.log(result);
    * // ['APPLE:1', 'LEMON:2']
@@ -274,6 +271,7 @@ export class CompressedTrieMap<
     thisArg?: any
   ) {
     validateFunction(callback, 'callback');
+
     for (const entry of this.entries()) {
       callback.call(thisArg, entry[1], entry[0], this);
     }
@@ -360,6 +358,7 @@ export class CompressedTrieMap<
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return keys(this.#compressedTrieMap, reversed);
   }
 
@@ -428,6 +427,7 @@ export class CompressedTrieMap<
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return values(this.#compressedTrieMap, reversed);
   }
 }
