@@ -113,14 +113,14 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * // Output:
    * // apple: 1
    * // lemon: 2
-   * // orange: 2
+   * // orange: 3
    *
    * // Reverse iteration
    * for (const [word, value] of trieMap[Symbol.iterator](true)) {
    *   console.log(`${word}: ${value}`);
    * }
    * // Output:
-   * // orange: 2
+   * // orange: 3
    * // lemon: 2
    * // apple: 1
    * ```
@@ -211,6 +211,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return entries(this.#trieMap, reversed);
   }
 
@@ -223,16 +224,16 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * @example
    * ```typescript
    * const trieMap = new TrieMap([
-   *   ['cart', 1],
+   *   ['car', 1],
    *   ['cat', 2],
-   *   ['car', 3],
+   *   ['cart', 3],
    * ]);
    *
    * console.log(trieMap.find('car'));
-   * // [['car', 3], ['cart', 1]]
+   * // [['car', 1], ['cart', 3]]
    *
    * console.log(trieMap.find('ca'));
-   * // [['car', 3], ['cat', 2], ['cart', 1]]
+   * // [['car', 1], ['cart', 3], ['cat', 2]]
    * ```
    */
   find(prefix: string) {
@@ -252,9 +253,9 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * ]);
    *
    * const result = [];
-   * trieMap.forEach((value, word) => {
-   *   result.push(`${word.toUpperCase()}:${value}`);
-   * });
+   * trieMap.forEach((value, word) =>
+   *    result.push(`${word.toUpperCase()}:${value}`)
+   * );
    *
    * console.log(result);
    * // ['APPLE:1', 'LEMON:2']
@@ -271,6 +272,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     thisArg?: any
   ) {
     validateFunction(callback, 'callback');
+
     for (const entry of this.entries()) {
       callback.call(thisArg, entry[1], entry[0], this);
     }
@@ -357,6 +359,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return keys(this.#trieMap, reversed);
   }
 
@@ -425,6 +428,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return values(this.#trieMap, reversed);
   }
 }

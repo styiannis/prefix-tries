@@ -1,4 +1,4 @@
-import { ITrie, ITrieMap, ITrieMapNode, ITrieNode } from '../types';
+import { ITrie, ITrieMapNode, ITrieNode } from '../types';
 import * as list from './trie-list';
 import * as listNode from './trie-list-node';
 import * as trieMapNode from './trie-map-node';

@@ -205,6 +205,7 @@ export class Trie extends AbstractTrie {
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
+
     return entries(this.#trie, reversed);
   }
 
@@ -216,13 +217,13 @@ export class Trie extends AbstractTrie {
    * @throws `TypeError` if `prefix` is not a string or is empty.
    * @example
    * ```typescript
-   * const trie = new Trie(['cart', 'cat', 'car']);
+   * const trie = new Trie(['car', 'cat', 'cart']);
    *
    * console.log(trie.find('car'));
    * // ['car', 'cart']
    *
    * console.log(trie.find('ca'));
-   * // ['car', 'cat', 'cart']
+   * // ['car', 'cart', 'cat']
    * ```
    */
   find(prefix: string) {
@@ -239,9 +240,9 @@ export class Trie extends AbstractTrie {
    * const trie = new Trie(['apple', 'lemon']);
    *
    * const result = [];
-   * trie.forEach((word) => {
-   *   result.push(word.toUpperCase());
-   * });
+   * trie.forEach((word) =>
+   *    result.push(word.toUpperCase())
+   * );
    *
    * console.log(result);
    * // ['APPLE', 'LEMON']
@@ -257,6 +258,7 @@ export class Trie extends AbstractTrie {
     thisArg?: any
   ) {
     validateFunction(callback, 'callback');
+
     for (const word of this.entries()) {
       callback.call(thisArg, word, this);
     }

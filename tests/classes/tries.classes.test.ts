@@ -233,28 +233,28 @@ describe.each([
     invalidWords.forEach((w) => {
       expect(() => instance.add(w)).toThrow(TypeError);
       expect(() => instance.add(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.delete(w)).toThrow(TypeError);
       expect(() => instance.delete(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.find(w)).toThrow(TypeError);
       expect(() => instance.find(w)).toThrow(
-        `The "prefix" value must be a string. Current value: "${w}"`
+        `The "prefix" value must be a string. Current value: "${w}".`
       );
     });
 
     invalidWords.forEach((w) => {
       expect(() => instance.has(w)).toThrow(TypeError);
       expect(() => instance.has(w)).toThrow(
-        `The "word" value must be a string. Current value: "${w}"`
+        `The "word" value must be a string. Current value: "${w}".`
       );
     });
   });
@@ -267,14 +267,14 @@ describe.each([
     invalidReversed.forEach((r) => {
       expect(() => instance[Symbol.iterator](r)).toThrow(TypeError);
       expect(() => instance[Symbol.iterator](r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
 
     invalidReversed.forEach((r) => {
       expect(() => instance.entries(r)).toThrow(TypeError);
       expect(() => instance.entries(r)).toThrow(
-        `The "reversed" value must be a boolean. Current value: "${r}"`
+        `The "reversed" value must be a boolean. Current value: "${r}".`
       );
     });
   });
@@ -289,7 +289,7 @@ describe.each([
     invalidReversed.forEach((f) => {
       expect(() => instance.forEach(f)).toThrow(TypeError);
       expect(() => instance.forEach(f)).toThrow(
-        `The "callback" value must be a function. Current value: "${f}"`
+        `The "callback" value must be a function. Current value: "${f}".`
       );
     });
   });
