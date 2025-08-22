@@ -226,7 +226,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * const trieMap = new TrieMap([
    *   ['car', 1],
    *   ['cat', 2],
-   *   ['cart', 3],
+   *   ['cart', 3]
    * ]);
    *
    * console.log(trieMap.find('car'));
