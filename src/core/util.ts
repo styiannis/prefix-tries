@@ -1,4 +1,4 @@
-import { ITrie, ITrieMapNode, ITrieNode } from '../types';
+import { ITrie, ITrieMap, ITrieMapNode, ITrieNode } from '../types';
 import * as list from './trie-list';
 import * as listNode from './trie-list-node';
 import * as trieMapNode from './trie-map-node';
@@ -38,29 +38,108 @@ export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
   let iterator = instance.root.children.values();
   let current = iterator.next();
 
-  let found = false;
-  while (!current.done && !found) {
+  while (!current.done) {
     const node = current.value;
+
+    if (str === node.key) {
+      prefixNode = node;
+      break;
+    }
+
     const common = commonSubstring(node.key, str);
 
-    if (common.length !== node.key.length) {
-      current = iterator.next();
-      continue;
-    }
-
-    found = str.length === node.key.length;
-
-    if (!found) {
+    if (common === node.key) {
       str = str.substring(common.length);
       iterator = node.children.values();
-      current = iterator.next();
-      continue;
     }
 
-    prefixNode = node;
+    current = iterator.next();
   }
 
   return prefixNode;
+}
+
+export function compressedTriePrefixNode<T extends ITrie>(
+  instance: T,
+  prefix: string
+) {
+  const ret: string[] = [];
+
+  let str = prefix;
+  let iterator = instance.root.children.values();
+  let current = iterator.next();
+
+  while (!current.done) {
+    const node = current.value;
+
+    const common = commonSubstring(node.key, str);
+
+    if (!common) {
+      current = iterator.next();
+      continue;
+    }
+
+    if (common === node.key && str !== node.key) {
+      str = str.substring(common.length);
+      iterator = node.children.values();
+      continue;
+    }
+
+    // @todo: It's ALMOST same with `trieNode.word(node)`
+    /* ======================================== */
+    let w = node.key;
+    for (let parent = node.parent; parent?.parent; parent = parent.parent) {
+      w = `${parent.key}${w}`;
+    }
+    /* ======================================== */
+
+    ret.push(...trieNode.childrenWords(node, w));
+
+    break;
+  }
+
+  return ret;
+}
+
+export function compressedTrieMapPrefixNode<T extends ITrieMap>(
+  instance: T,
+  prefix: string
+) {
+  const ret: [string, T['root']['value']][] = [];
+
+  let str = prefix;
+  let iterator = instance.root.children.values();
+  let current = iterator.next();
+
+  while (!current.done) {
+    const node = current.value;
+    const common = commonSubstring(node.key, str);
+
+    if (!common) {
+      current = iterator.next();
+      continue;
+    }
+
+    if (common === node.key && str !== node.key) {
+      str = str.substring(common.length);
+      iterator = node.children.values();
+      continue;
+    }
+
+    // @todo: It's ALMOST same with `trieNode.word(node)`
+    /* ======================================== */
+    let w = node.key;
+    for (let parent = node.parent; parent?.parent; parent = parent.parent) {
+      w = `${parent.key}${w}`;
+    }
+    /* ======================================== */
+
+    ret.push(...trieMapNode.childrenWordsValues(node, w));
+
+    break;
+  }
+
+  return ret;
 }
 
 export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {

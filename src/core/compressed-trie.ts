@@ -1,13 +1,10 @@
 import { ITrie } from '../types';
-import {
-  clear as clearTrie,
-  create as createTrie,
-  entries as trieEntries,
-} from './trie';
+import { clear as clearTrie, create as createTrie } from './trie';
 import * as trieNode from './trie-node';
 import {
   commonSubstring,
   compressedTrieMergeNode,
+  compressedTriePrefixNode,
   compressedTrieSplitNode,
   createListRecord,
   removeListRecord,
@@ -69,8 +66,7 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
-  const node = triePrefixNode(instance, prefix);
-  return node ? trieNode.childrenWords(node, prefix) : [];
+  return compressedTriePrefixNode(instance, prefix); // @todo: Continue here
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {
@@ -112,8 +108,4 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   }
 
   return true;
-}
-
-export function entries<T extends ITrie>(instance: T, reversed = false) {
-  return trieEntries(instance, reversed);
 }

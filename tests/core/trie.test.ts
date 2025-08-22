@@ -7,10 +7,10 @@ describe.each([
   ['trie' as const, 'trie-node' as const, trie],
   ['compressed-trie' as const, 'compressed-trie-node' as const, compressedTrie],
 ])('Core >> %s', (instanceType, nodeInstanceType, trieNamespace) => {
+  const { entries } = trie;
   const {
     clear,
     create,
-    entries,
     includesWord,
     addWord,
     getPrefixEntries,
@@ -82,7 +82,7 @@ describe.each([
     });
   });
 
-  it('Insert and search words [1]', () => {
+  it('Insert and search words (1)', () => {
     WORDS_1.forEach((word) => addWord(instance, word));
 
     (
@@ -120,16 +120,16 @@ describe.each([
         ['gone', ['gone']],
         ['gone6', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
-      expect(
-        getPrefixEntries(instance, search).every((w) => expected.includes(w))
-      ).toBe(true)
-    );
+    ).forEach(([search, expected]) => {
+      const found = getPrefixEntries(instance, search);
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
 
     clear(instance);
   });
 
-  it('Insert and search words [2]', () => {
+  it('Insert and search words (2)', () => {
     WORDS_2.forEach((word) => addWord(instance, word));
 
     (
@@ -172,11 +172,67 @@ describe.each([
         ['rubicundus', ['rubicundus']],
         ['rubicundus_', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
-      expect(
-        getPrefixEntries(instance, search).every((v) => expected.includes(v))
-      ).toBe(true)
-    );
+    ).forEach(([search, expected]) => {
+      const found = getPrefixEntries(instance, search);
+      // console.log({ search, found });  // @todo: Remove it
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
+
+    clear(instance);
+  });
+
+  it('Insert and search words (3)', () => {
+    addWord(instance, 'cart');
+
+    (
+      [
+        ['', []],
+        ['c', ['cart']],
+        ['ca', ['cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = getPrefixEntries(instance, search);
+      // console.log({ search, found });  // @todo: Remove it
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
+
+    addWord(instance, 'cat');
+
+    (
+      [
+        ['', []],
+        ['c', ['cat', 'cart']],
+        ['ca', ['cat', 'cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = getPrefixEntries(instance, search);
+      // console.log({ search, found });  // @todo: Remove it
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
+
+    addWord(instance, 'car');
+
+    (
+      [
+        ['', []],
+        ['c', ['car', 'cat', 'cart']],
+        ['ca', ['car', 'cat', 'cart']],
+        ['car', ['car', 'cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = getPrefixEntries(instance, search);
+      // console.log({ search, found });  // @todo: Remove it
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
 
     clear(instance);
   });

@@ -64,7 +64,7 @@ describe.each([
     expect(instance.size).toBe(0);
   });
 
-  it('Insert and search words [1]', () => {
+  it('Insert and search words (1)', () => {
     const instance = new TrieClass(WORDS_1);
 
     (
@@ -101,16 +101,16 @@ describe.each([
         ['gone', ['gone']],
         ['gone6', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
-      expect(instance.find(search).every((w) => expected.includes(w))).toBe(
-        true
-      )
-    );
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
 
     instance.clear();
   });
 
-  it('Insert and search words [2]', () => {
+  it('Insert and search words (2)', () => {
     const instance = new TrieClass(WORDS_2);
 
     (
@@ -152,11 +152,11 @@ describe.each([
         ['rubicundus', ['rubicundus']],
         ['rubicundus_', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
-      expect(instance.find(search).every((w) => expected.includes(w))).toBe(
-        true
-      )
-    );
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(expected.every((v) => found.includes(v))).toBe(true);
+    });
 
     instance.clear();
   });

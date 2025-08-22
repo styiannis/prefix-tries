@@ -94,7 +94,7 @@ describe.each([
     expect(instance.size).toBe(0);
   });
 
-  it('Insert and search words [1]', () => {
+  it('Insert and search words (1)', () => {
     const instance = new TrieMapClass(WORDS_1.map((w) => [w, `{{${w}}}`]));
 
     (
@@ -131,18 +131,18 @@ describe.each([
         ['gone', ['gone']],
         ['gone6', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
       expect(
-        instance
-          .find(search)
-          .every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
-      ).toBe(true)
-    );
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
 
     instance.clear();
   });
 
-  it('Insert and search words [2]', () => {
+  it('Insert and search words (2)', () => {
     const instance = new TrieMapClass(WORDS_2.map((w) => [w, `{{${w}}}`]));
 
     (
@@ -184,13 +184,71 @@ describe.each([
         ['rubicundus', ['rubicundus']],
         ['rubicundus_', []],
       ] as [string, string[]][]
-    ).forEach(([search, expected]) =>
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
       expect(
-        instance
-          .find(search)
-          .every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
-      ).toBe(true)
-    );
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.clear();
+  });
+
+  it('Insert and search words (3)', () => {
+    const instance = new TrieMapClass(['cart'].map((w) => [w, `{{${w}}}`]));
+
+    (
+      [
+        // ['', []],  // @todo: Is not allowed to search empty strings
+        ['c', ['cart']],
+        ['ca', ['cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.set('cat', '{{cat}}');
+
+    (
+      [
+        // ['', []],  // @todo: Is not allowed to search empty strings
+        ['c', ['cat', 'cart']],
+        ['ca', ['cat', 'cart']],
+        ['car', ['cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
+
+    instance.set('car', '{{car}}');
+
+    (
+      [
+        // ['', []],  // @todo: Is not allowed to search empty strings
+        ['c', ['car', 'cat', 'cart']],
+        ['ca', ['car', 'cat', 'cart']],
+        ['car', ['car', 'cart']],
+        ['cart', ['cart']],
+      ] as [string, string[]][]
+    ).forEach(([search, expected]) => {
+      const found = instance.find(search);
+      expect(found.length).toBe(expected.length);
+      expect(
+        found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
+      ).toBe(true);
+    });
 
     instance.clear();
   });

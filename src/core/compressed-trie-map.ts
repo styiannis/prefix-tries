@@ -1,16 +1,12 @@
 import { ITrieMap } from '../types';
 import { includesWord as compressedTrieIncludesWord } from './compressed-trie';
+import { clear as clearTrieMap, create as createTrieMap } from './trie-map';
 import * as trieMapNode from './trie-map-node';
-import {
-  clear as clearTrieMap,
-  create as createTrieMap,
-  entries as trieMapEntries,
-  values as trieMapValues,
-} from './trie-map';
 import * as trieNode from './trie-node';
 import {
   commonSubstring,
   compressedTrieMapMergeNode,
+  compressedTrieMapPrefixNode,
   compressedTrieMapSplitNode,
   createListRecord,
   removeListRecord,
@@ -79,6 +75,7 @@ export function setWordValue<T extends ITrieMap>(
 
 export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
   const node = triePrefixNode(instance, word);
+
   return node && trieNode.isEndOfWord(node)
     ? (node.value as T['root']['value'])
     : undefined;
@@ -88,8 +85,7 @@ export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
 ) {
-  const node = triePrefixNode(instance, prefix);
-  return node ? trieMapNode.childrenWordsValues(node, prefix) : [];
+  return compressedTrieMapPrefixNode(instance, prefix); // @todo: Continue here
 }
 
 export function includesWord<T extends ITrieMap>(instance: T, word: string) {
@@ -130,12 +126,4 @@ export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
   }
 
   return true;
-}
-
-export function entries<T extends ITrieMap>(instance: T, reversed = false) {
-  return trieMapEntries(instance, reversed);
-}
-
-export function values<T extends ITrieMap>(instance: T, reversed = false) {
-  return trieMapValues(instance, reversed);
 }

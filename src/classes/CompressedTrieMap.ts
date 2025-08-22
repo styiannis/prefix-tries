@@ -2,14 +2,13 @@ import {
   clear,
   create,
   deleteWord,
-  entries,
   getPrefixEntries,
   getWordValue,
   includesWord,
   setWordValue,
   size,
-  values,
 } from '../core/compressed-trie-map';
+import { entries, values } from '../core/trie-map';
 import { entries as keys } from '../core/trie';
 import { ITrieMap } from '../types';
 import { AbstractTrieMap } from './abstract';
@@ -225,16 +224,16 @@ export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
    * @example
    * ```typescript
    * const trieMap = new CompressedTrieMap([
-   *   ['car', 1],
+   *   ['cart', 1],
    *   ['cat', 2],
-   *   ['cart', 3]
+   *   ['car', 3],
    * ]);
    *
    * console.log(trieMap.find('car'));
-   * // [['car', 1], ['cart', 3]]
+   * // [['car', 3], ['cart', 1]]
    *
    * console.log(trieMap.find('ca'));
-   * // [['car', 1], ['cart', 3], ['cat', 2]]
+   * // [['cat', 2], ['car', 3], ['cart', 1]]
    * ```
    */
   find(prefix: string) {

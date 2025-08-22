@@ -44,7 +44,7 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
   const node = triePrefixNode(instance, prefix);
-  return node ? trieNode.childrenWords(node, prefix) : [];
+  return node ? Array.from(trieNode.childrenWords(node, prefix)) : [];
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {

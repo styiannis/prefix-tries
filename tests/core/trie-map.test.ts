@@ -12,8 +12,8 @@ describe.each([
     compressedTrieMap,
   ],
 ])('Core >> %s', (instanceType, nodeInstanceType, trieMapNamespace) => {
-  const { clear, create, entries, setWordValue, size, values } =
-    trieMapNamespace;
+  const { entries, values } = trieMap;
+  const { clear, create, setWordValue, size } = trieMapNamespace;
 
   const instance = create();
 

@@ -216,13 +216,13 @@ export class Trie extends AbstractTrie {
    * @throws `TypeError` if `prefix` is not a string or is empty.
    * @example
    * ```typescript
-   * const trie = new Trie(['car', 'cat', 'cart']);
+   * const trie = new Trie(['cart', 'cat', 'car']);
    *
    * console.log(trie.find('car'));
    * // ['car', 'cart']
    *
    * console.log(trie.find('ca'));
-   * // ['car', 'cart', 'cat']
+   * // ['car', 'cat', 'cart']
    * ```
    */
   find(prefix: string) {

@@ -51,6 +51,7 @@ export function setWordValue<T extends ITrieMap>(
 
 export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
   const node = triePrefixNode(instance, word);
+
   return node && trieNode.isEndOfWord(node)
     ? (node.value as T['root']['value'])
     : undefined;
@@ -61,7 +62,7 @@ export function getPrefixEntries<T extends ITrieMap>(
   prefix: string
 ) {
   const node = triePrefixNode(instance, prefix);
-  return node ? trieMapNode.childrenWordsValues(node, prefix) : [];
+  return node ? Array.from(trieMapNode.childrenWordsValues(node, prefix)) : [];
 }
 
 export function* entries<T extends ITrieMap>(instance: T, reversed = false) {

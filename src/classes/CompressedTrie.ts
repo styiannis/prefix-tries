@@ -3,11 +3,11 @@ import {
   clear,
   create,
   deleteWord,
-  entries,
   getPrefixEntries,
   includesWord,
   size,
 } from '../core/compressed-trie';
+import { entries } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
@@ -216,13 +216,13 @@ export class CompressedTrie extends AbstractTrie {
    * @throws `TypeError` if `prefix` is not a string or is empty.
    * @example
    * ```typescript
-   * const trie = new CompressedTrie(['car', 'cat', 'cart']);
+   * const trie = new CompressedTrie(['cart', 'cat', 'car']);
    *
    * console.log(trie.find('car'));
    * // ['car', 'cart']
    *
    * console.log(trie.find('ca'));
-   * // ['car', 'cart', 'cat']
+   * // ['cat', 'car', 'cart']
    * ```
    */
   find(prefix: string) {
