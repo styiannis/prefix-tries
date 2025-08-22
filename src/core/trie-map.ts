@@ -36,7 +36,7 @@ export function setWordValue<T extends ITrieMap>(
 
     if (!node) {
       node = trieMapNode.create<T['root']>(char, undefined, parent);
-      trieNode.insertChildNode(parent, node);
+      trieNode.insertChild(parent, node);
     }
 
     parent = node;
@@ -61,29 +61,48 @@ export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
 ) {
+  const ret: [string, T['root']['value']][] = [];
   const node = triePrefixNode(instance, prefix);
-  return node ? Array.from(trieMapNode.childrenWordsValues(node, prefix)) : [];
+
+  if (!node) {
+    return ret;
+  }
+
+  const wv = trieMapNode.wordValuePair(node);
+
+  if (wv) {
+    ret.push(wv);
+  }
+
+  ret.push(
+    ...trieMapNode.childrenWordValuePairs(
+      node,
+      `${trieNode.parentsPrefix(node)}${node.key}`
+    )
+  );
+
+  return ret;
 }
 
 export function* entries<T extends ITrieMap>(instance: T, reversed = false) {
-  const listIterator = reversed
+  const iterator = reversed
     ? inReverseOrder(instance.list.tail)
     : inOrder(instance.list.head);
 
-  for (const listNode of listIterator) {
-    const w = trieNode.word(listNode.trieNode);
+  for (const node of iterator) {
+    const w = trieNode.word(node.trieNode);
     if (w) {
-      yield [w, listNode.trieNode.value] as [string, T['root']['value']];
+      yield [w, node.trieNode.value] as [string, T['root']['value']];
     }
   }
 }
 
 export function* values<T extends ITrieMap>(instance: T, reversed = false) {
-  const listIterator = reversed
+  const iterator = reversed
     ? inReverseOrder(instance.list.tail)
     : inOrder(instance.list.head);
 
-  for (const listNode of listIterator) {
-    yield listNode.trieNode.value as T['root']['value'];
+  for (const node of iterator) {
+    yield node.trieNode.value as T['root']['value'];
   }
 }

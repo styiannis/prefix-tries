@@ -59,59 +59,17 @@ export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
   return prefixNode;
 }
 
-export function compressedTriePrefixNode<T extends ITrie>(
+export function compressedTriePrefixEntriesNode<T extends ITrie>(
   instance: T,
   prefix: string
 ) {
-  const ret: string[] = [];
+  let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
   let iterator = instance.root.children.values();
   let current = iterator.next();
 
-  while (!current.done) {
-    const node = current.value;
-
-    const common = commonSubstring(node.key, str);
-
-    if (!common) {
-      current = iterator.next();
-      continue;
-    }
-
-    if (common === node.key && str !== node.key) {
-      str = str.substring(common.length);
-      iterator = node.children.values();
-      continue;
-    }
-
-    // @todo: It's ALMOST same with `trieNode.word(node)`
-    /* ======================================== */
-    let w = node.key;
-    for (let parent = node.parent; parent?.parent; parent = parent.parent) {
-      w = `${parent.key}${w}`;
-    }
-    /* ======================================== */
-
-    ret.push(...trieNode.childrenWords(node, w));
-
-    break;
-  }
-
-  return ret;
-}
-
-export function compressedTrieMapPrefixNode<T extends ITrieMap>(
-  instance: T,
-  prefix: string
-) {
-  const ret: [string, T['root']['value']][] = [];
-
-  let str = prefix;
-  let iterator = instance.root.children.values();
-  let current = iterator.next();
-
-  while (!current.done) {
+  while (!current.done && !prefixNode) {
     const node = current.value;
     const common = commonSubstring(node.key, str);
 
@@ -126,20 +84,10 @@ export function compressedTrieMapPrefixNode<T extends ITrieMap>(
       continue;
     }
 
-    // @todo: It's ALMOST same with `trieNode.word(node)`
-    /* ======================================== */
-    let w = node.key;
-    for (let parent = node.parent; parent?.parent; parent = parent.parent) {
-      w = `${parent.key}${w}`;
-    }
-    /* ======================================== */
-
-    ret.push(...trieMapNode.childrenWordsValues(node, w));
-
-    break;
+    prefixNode = node;
   }
 
-  return ret;
+  return prefixNode;
 }
 
 export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
@@ -168,7 +116,7 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
 
       if (parent) {
         parent.children.delete(key);
-        trieNode.insertChildNode(parent, instance);
+        trieNode.insertChild(parent, instance);
       }
     }
   }
@@ -205,7 +153,7 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
 
       if (parent) {
         parent.children.delete(key);
-        trieNode.insertChildNode(parent, instance);
+        trieNode.insertChild(parent, instance);
       }
     }
   }
@@ -233,13 +181,13 @@ export function compressedTrieSplitNode<N extends ITrieNode>(
   if (instance.parent) {
     trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(instance.parent, instance);
+    trieNode.insertChild(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
-  trieNode.insertChildNode(instance, newNode);
+  trieNode.insertChild(instance, newNode);
 }
 
 export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
@@ -263,11 +211,11 @@ export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
   if (instance.parent) {
     trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
-    trieNode.insertChildNode(instance.parent, instance);
+    trieNode.insertChild(instance.parent, instance);
   }
 
   instance.listNode = null;
   instance.children = new Map();
 
-  trieNode.insertChildNode(instance, newNode);
+  trieNode.insertChild(instance, newNode);
 }

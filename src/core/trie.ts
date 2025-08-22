@@ -31,7 +31,7 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 
     if (!node) {
       node = trieNode.create<T['root']>(char, parent);
-      trieNode.insertChildNode(parent, node);
+      trieNode.insertChild(parent, node);
     }
 
     parent = node;
@@ -43,8 +43,22 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
+  const ret: string[] = [];
   const node = triePrefixNode(instance, prefix);
-  return node ? Array.from(trieNode.childrenWords(node, prefix)) : [];
+
+  if (!node) {
+    return ret;
+  }
+
+  const w = trieNode.word(node);
+
+  if (w) {
+    ret.push(w);
+  }
+
+  ret.push(...trieNode.childrenWords(node, prefix));
+
+  return ret;
 }
 
 export function includesWord<T extends ITrie>(instance: T, word: string) {
@@ -62,9 +76,8 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   removeListRecord(instance, node);
 
   while (
-    node &&
     node.parent &&
-    0 === node.children.size &&
+    node.children.size === 0 &&
     !trieNode.isEndOfWord(node)
   ) {
     const parent = node.parent as T['root'];
@@ -81,12 +94,12 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
 }
 
 export function* entries<T extends ITrie>(instance: T, reversed = false) {
-  const listIterator = reversed
+  const iterator = reversed
     ? inReverseOrder(instance.list.tail)
     : inOrder(instance.list.head);
 
-  for (const listNode of listIterator) {
-    const w = trieNode.word(listNode.trieNode);
+  for (const node of iterator) {
+    const w = trieNode.word(node.trieNode);
     if (w) {
       yield w;
     }

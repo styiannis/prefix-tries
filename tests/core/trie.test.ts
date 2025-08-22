@@ -7,16 +7,9 @@ describe.each([
   ['trie' as const, 'trie-node' as const, trie],
   ['compressed-trie' as const, 'compressed-trie-node' as const, compressedTrie],
 ])('Core >> %s', (instanceType, nodeInstanceType, trieNamespace) => {
-  const { entries } = trie;
-  const {
-    clear,
-    create,
-    includesWord,
-    addWord,
-    getPrefixEntries,
-    deleteWord,
-    size,
-  } = trieNamespace;
+  const { entries, includesWord } = trie;
+  const { clear, create, addWord, getPrefixEntries, deleteWord, size } =
+    trieNamespace;
 
   const instance = create();
 
@@ -174,7 +167,6 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      // console.log({ search, found });  // @todo: Remove it
       expect(found.length).toBe(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
@@ -195,7 +187,6 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      // console.log({ search, found });  // @todo: Remove it
       expect(found.length).toBe(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
@@ -212,7 +203,6 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      // console.log({ search, found });  // @todo: Remove it
       expect(found.length).toBe(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
@@ -229,7 +219,6 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      // console.log({ search, found });  // @todo: Remove it
       expect(found.length).toBe(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });

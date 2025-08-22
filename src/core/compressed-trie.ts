@@ -4,7 +4,7 @@ import * as trieNode from './trie-node';
 import {
   commonSubstring,
   compressedTrieMergeNode,
-  compressedTriePrefixNode,
+  compressedTriePrefixEntriesNode,
   compressedTrieSplitNode,
   createListRecord,
   removeListRecord,
@@ -39,11 +39,11 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
       continue;
     }
 
-    if (common.length !== childKey.length) {
+    if (common !== childKey) {
       compressedTrieSplitNode(childNode, common);
     }
 
-    found = common.length === prefix.length;
+    found = common === prefix;
 
     if (!found) {
       prefix = prefix.substring(common.length);
@@ -53,25 +53,40 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
       continue;
     }
 
-    if (common.length !== childKey.length || !trieNode.isEndOfWord(childNode)) {
+    if (common !== childKey || !trieNode.isEndOfWord(childNode)) {
       createListRecord(instance, childNode);
     }
   }
 
   if (!found) {
     const newNode = trieNode.create<T['root']>(prefix, node);
-    trieNode.insertChildNode(node, newNode);
+    trieNode.insertChild(node, newNode);
     createListRecord(instance, newNode);
   }
 }
 
 export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
-  return compressedTriePrefixNode(instance, prefix); // @todo: Continue here
-}
+  const ret: string[] = [];
+  const node = compressedTriePrefixEntriesNode(instance, prefix);
 
-export function includesWord<T extends ITrie>(instance: T, word: string) {
-  const node = triePrefixNode(instance, word);
-  return !!node && trieNode.isEndOfWord(node);
+  if (!node) {
+    return ret;
+  }
+
+  const w = trieNode.word(node);
+
+  if (w) {
+    ret.push(w);
+  }
+
+  ret.push(
+    ...trieNode.childrenWords(
+      node,
+      `${trieNode.parentsPrefix(node)}${node.key}`
+    )
+  );
+
+  return ret;
 }
 
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
@@ -84,21 +99,20 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   removeListRecord(instance, node);
 
   while (
-    node &&
     node.parent &&
-    0 === node.children.size &&
+    node.children.size === 0 &&
     !trieNode.isEndOfWord(node)
   ) {
     const parent = node.parent as T['root'];
-    const removedChild = trieNode.removeChild(parent, node.key);
+    const removedNode = trieNode.removeChild(parent, node.key);
 
-    if (removedChild) {
-      trieNode.clear(removedChild);
+    if (removedNode) {
+      trieNode.clear(removedNode);
     }
 
     if (
       parent.parent &&
-      1 === parent.children.size &&
+      parent.children.size === 1 &&
       !trieNode.isEndOfWord(parent)
     ) {
       compressedTrieMergeNode(parent);

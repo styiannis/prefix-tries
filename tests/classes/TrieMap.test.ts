@@ -200,7 +200,6 @@ describe.each([
 
     (
       [
-        // ['', []],  // @todo: Is not allowed to search empty strings
         ['c', ['cart']],
         ['ca', ['cart']],
         ['car', ['cart']],
@@ -218,7 +217,6 @@ describe.each([
 
     (
       [
-        // ['', []],  // @todo: Is not allowed to search empty strings
         ['c', ['cat', 'cart']],
         ['ca', ['cat', 'cart']],
         ['car', ['cart']],
@@ -236,7 +234,6 @@ describe.each([
 
     (
       [
-        // ['', []],  // @todo: Is not allowed to search empty strings
         ['c', ['car', 'cat', 'cart']],
         ['ca', ['car', 'cat', 'cart']],
         ['car', ['car', 'cart']],

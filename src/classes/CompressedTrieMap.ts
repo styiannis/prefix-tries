@@ -3,13 +3,11 @@ import {
   create,
   deleteWord,
   getPrefixEntries,
-  getWordValue,
-  includesWord,
   setWordValue,
   size,
 } from '../core/compressed-trie-map';
-import { entries, values } from '../core/trie-map';
-import { entries as keys } from '../core/trie';
+import { entries, getWordValue, values } from '../core/trie-map';
+import { entries as keys, includesWord } from '../core/trie';
 import { ITrieMap } from '../types';
 import { AbstractTrieMap } from './abstract';
 import {
