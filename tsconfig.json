@@ -9,6 +9,8 @@
     "esModuleInterop": true,
     "isolatedModules": true,
     "forceConsistentCasingInFileNames": true,
+    "exactOptionalPropertyTypes": true,
+    "noUncheckedIndexedAccess": true,
     "allowJs": true,
     "outDir": "build",
     "rootDir": "src"

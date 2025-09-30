@@ -1,6 +1,6 @@
 {
   "name": "prefix-tries",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A TypeScript library offering efficient standard (prefix) and compressed (radix) tries for optimized string storage and operations, featuring trie-map variants for key-value storage.",
   "keywords": [
     "data structures",
@@ -57,18 +57,18 @@
     "validate-exports": "node ./scripts/validate-exports.js"
   },
   "dependencies": {
-    "abstract-linked-lists": "^1.0.5"
+    "abstract-linked-lists": "^1.0.6"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.1",
     "@rollup/plugin-typescript": "^12.1.4",
     "@tsconfig/node22": "^22.0.2",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.3.0",
-    "jest": "^30.0.5",
-    "rollup": "^4.47.1",
+    "@types/node": "^24.6.0",
+    "jest": "^30.2.0",
+    "rollup": "^4.52.3",
     "rollup-plugin-dts": "^6.2.3",
-    "ts-jest": "^29.4.1",
+    "ts-jest": "^29.4.4",
     "tslib": "^2.8.1",
     "typescript": "^5.9.2"
   },
