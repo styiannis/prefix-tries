@@ -40,7 +40,7 @@ jobs:
       - name: Upload code documentation artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './code_documentation'
+          path: ./code_documentation
 
       - name: Deploy to github pages
         uses: actions/deploy-pages@v4

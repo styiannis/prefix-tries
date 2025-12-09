@@ -1,5 +1,5 @@
 name: Create tag
-description:
+description: Create a new tag
 
 inputs:
   tag:
