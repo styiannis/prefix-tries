@@ -1,7 +1,7 @@
 import * as compressedTrie from '../src/core/compressed-trie';
 import * as trie from '../src/core/trie';
 import { ITrie } from '../src/types';
-import { WORDS_1, WORDS_2 } from './tests-constants';
+import { WORDS_1, WORDS_2 } from './constants';
 
 /* ----------------------------------------- */
 /* ---------- // Helper functions ---------- */

@@ -1,8 +1,8 @@
 import * as trieMap from '../../src/core/trie-map';
 import * as compressedTrieMap from '../../src/core/compressed-trie-map';
 import { entries as keys } from '../../src/core/trie';
-import { ALL_WORDS_VALUES } from '../tests-constants';
-import { isValidObjectInstance } from '../tests-util';
+import { ALL_WORDS_VALUES } from '../constants';
+import { isValidObjectInstance } from '../util/isValidObjectInstance';
 
 describe.each([
   ['trie-map' as const, 'trie-map-node' as const, trieMap],

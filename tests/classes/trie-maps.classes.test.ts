@@ -1,11 +1,6 @@
 import { CompressedTrieMap, TrieMap } from '../../src';
-import {
-  ALL_WORDS,
-  ALL_WORDS_VALUES,
-  WORDS_1,
-  WORDS_2,
-} from '../tests-constants';
-import { isValidClassInstance } from '../tests-util';
+import { ALL_WORDS, ALL_WORDS_VALUES, WORDS_1, WORDS_2 } from '../constants';
+import { isValidClassInstance } from '../util/isValidClassInstance';
 
 describe.each([
   ['TrieMap' as const, TrieMap],
@@ -83,7 +78,7 @@ describe.each([
   it('Insert and update words values', () => {
     const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       expect(instance.get(word)).toBe(`{{${word}}}`);
       instance.set(word, `UPDATED_VALUE[${word}]`);
       expect(instance.get(word)).toBe(`UPDATED_VALUE[${word}]`);
