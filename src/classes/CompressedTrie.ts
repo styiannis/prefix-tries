@@ -53,7 +53,9 @@ export class CompressedTrie extends AbstractTrie {
     this.#compressedTrie = create();
 
     if (undefined !== initialWords) {
-      initialWords.forEach((word) => this.add(word));
+      for (const word of initialWords) {
+        this.add(word);
+      }
     }
   }
 

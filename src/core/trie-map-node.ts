@@ -56,7 +56,9 @@ export function* childrenWordValuePairs<N extends ITrieMapNode>(
         yield [str, node.value] as [string, N['value']];
       }
 
-      node.children.forEach((n, c) => stack.push([n as N, `${str}${c}`]));
+      for (const [char, child] of node.children) {
+        stack.push([child as N, `${str}${char}`]);
+      }
     }
   }
 }

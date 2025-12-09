@@ -66,7 +66,9 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     this.#trieMap = create<ITrieMap<V>>();
 
     if (undefined !== initialWordValues) {
-      initialWordValues.forEach(([word, value]) => this.set(word, value));
+      for (const [word, value] of initialWordValues) {
+        this.set(word, value);
+      }
     }
   }
 

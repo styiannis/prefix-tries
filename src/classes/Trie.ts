@@ -54,7 +54,9 @@ export class Trie extends AbstractTrie {
     this.#trie = create();
 
     if (undefined !== initialWords) {
-      initialWords.forEach((word) => this.add(word));
+      for (const word of initialWords) {
+        this.add(word);
+      }
     }
   }
 
