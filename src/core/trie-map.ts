@@ -91,6 +91,8 @@ export function* entries<T extends ITrieMap>(instance: T, reversed = false) {
 
   for (const node of iterator) {
     const w = trieNode.word(node.trieNode);
+
+    // @todo: It's known that the condition is always true
     if (w) {
       yield [w, node.trieNode.value] as [string, T['root']['value']];
     }

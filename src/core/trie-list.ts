@@ -25,6 +25,7 @@ export function removeNode<L extends ITrieList>(
   instance: L,
   node: NonNullable<L['head']>
 ) {
+  // @todo: Need to develop unit-test to cover the "else" case of the condition
   if (node === instance.head) {
     instance.head = node.next;
   }

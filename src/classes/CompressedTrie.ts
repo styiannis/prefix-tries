@@ -203,6 +203,7 @@ export class CompressedTrie extends AbstractTrie {
    * ```
    */
   entries(reversed = false) {
+    // @todo: Need to develop unit-test to cover the "else" case of the condition
     if (undefined !== reversed) {
       validateBoolean(reversed, 'reversed');
     }
