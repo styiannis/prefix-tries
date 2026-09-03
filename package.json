@@ -16,7 +16,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/styiannis/prefix-tries.git"
+    "url": "git+https://github.com/styiannis/prefix-tries.git"
   },
   "bugs": {
     "url": "https://github.com/styiannis/prefix-tries/issues"
@@ -29,9 +29,17 @@
     "CHANGELOG.md",
     "dist"
   ],
+  "sideEffects": false,
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=18.12.0",
     "npm": ">=8.0.0"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=22.12.0",
+      "onFail": "warn"
+    }
   },
   "commitlint": {
     "extends": [
@@ -39,22 +47,24 @@
     ]
   },
   "scripts": {
-    "build": "npx rimraf ./dist && rollup -c",
-    "dev": "npx rimraf ./dist && rollup -c --watch",
+    "build": "node ./scripts/clear.cjs ./dist && rollup -c",
+    "dev": "node ./scripts/clear.cjs ./dist && rollup -c --watch",
+    "check-declared-paths": "node ./scripts/check-declared-paths.cjs",
+    "check-dist-loads": "node ./scripts/check-dist-loads.cjs",
     "check-types": "tsc --noEmit",
-    "check-updates": "npx npm-check-updates",
-    "ci": "npm run check-types && npm run lint && npm run build && npm run validate-exports",
-    "clear": "npx rimraf ./build ./code_documentation ./coverage_report ./dist",
-    "docs": "npx rimraf ./code_documentation && npx typedoc@latest --basePath ./ --entryPoints src/index.ts --entryPointStrategy Expand --readme none --includeVersion --out code_documentation --name 'Prefix Tries'",
-    "format": "npx prettier -w ./",
-    "lint": "npx oxlint@latest src",
+    "check-updates": "npx npm-check-updates@23",
+    "clear": "node ./scripts/clear.cjs ./build ./code_documentation ./coverage_report ./dist",
+    "docs": "node ./scripts/clear.cjs ./code_documentation && typedoc --basePath ./ --entryPoints src/index.ts --entryPointStrategy Expand --readme none --includeVersion --out code_documentation --name \"Prefix Tries\"",
+    "format": "prettier -w ./",
+    "lint": "oxlint --deny-warnings src scripts",
     "prepack": "npm i && npm run build",
-    "reset": "npm run clear && npx rimraf ./node_modules ./package-lock.json ./yarn.lock ./pnpm-lock.yaml",
+    "reset": "npm run clear && node ./scripts/clear.cjs ./node_modules",
+    "reset-hard": "npm run reset && node ./scripts/clear.cjs ./package-lock.json ./yarn.lock ./pnpm-lock.yaml",
     "test": "jest",
-    "test-coverage": "npx rimraf ./coverage_report && jest --coverage --coverageDirectory=coverage_report",
+    "test-coverage": "node ./scripts/clear.cjs ./coverage_report && jest --coverage --coverageDirectory=coverage_report",
     "test-coverage-watch": "npm run test-coverage -- --watchAll",
     "test-watch": "jest --watchAll",
-    "validate-exports": "node ./scripts/validate-exports.js"
+    "verify": "npm run check-types && npm run lint && npm run build && npm run check-declared-paths && npm run check-dist-loads"
   },
   "dependencies": {
     "abstract-linked-lists": "^1.1.0"
@@ -62,14 +72,15 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-typescript": "^12.3.0",
-    "@tsconfig/node22": "^22.0.5",
     "@types/jest": "^30.0.0",
-    "@types/node": "^24.10.2",
-    "jest": "^30.2.0",
-    "rollup": "^4.53.3",
-    "rollup-plugin-dts": "^6.3.0",
-    "ts-jest": "^29.4.6",
+    "jest": "^30.5.1",
+    "oxlint": "^1.81.0",
+    "prettier": "^3.9.6",
+    "rollup": "^4.63.1",
+    "rollup-plugin-dts": "^6.5.1",
+    "ts-jest": "^29.4.12",
     "tslib": "^2.8.1",
+    "typedoc": "^0.28.20",
     "typescript": "^5.9.3"
   },
   "exports": {

@@ -1,0 +1,47 @@
+name: Verify
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js 22 (build & test)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Verify (type checks, linting, build, dist checks)
+        run: npm run verify
+
+      - name: Test script with coverage reporting
+        run: npm run test-coverage
+
+      - name: Set up Node.js 18 (engines floor)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Check dist loads (Node 18)
+        run: npm run check-dist-loads
+
+      - name: Set up Node.js 24 (engines ceiling)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Check dist loads (Node 24)
+        run: npm run check-dist-loads

@@ -28,14 +28,11 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: CI script (type checks, linting, build, exports validation)
-        run: npm run ci
+      - name: Verify (type checks, linting, build, dist checks)
+        run: npm run verify
 
       - name: Test script with coverage reporting
         run: npm run test-coverage
-
-      - name: Environment reset
-        run: npm run reset
 
       # Create tag and release
 
