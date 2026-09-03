@@ -9,7 +9,7 @@ on:
       - synchronize
 
 concurrency:
-  group: ${{ github.head_ref ||  github.ref }}
+  group: pull_request-${{ github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -52,25 +52,28 @@ jobs:
           echo "Tag already exists: ${{ steps.tag-exists.outputs.exists }}"
           exit 1
 
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install commitlint dependencies
+        run: npm i --no-save @commitlint/cli@21.2.2 @commitlint/config-conventional@21.2.2
+
       - name: Run Commitlint on commits
         id: commitlint-commits
         continue-on-error: true
-        run: npm i @commitlint/config-conventional && npx commitlint -V --from 'origin/${{ github.base_ref }}' --to ${{ github.event.pull_request.head.sha }}
+        env:
+          BASE_REF: ${{ github.base_ref }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npx commitlint -V --from "origin/$BASE_REF" --to "$HEAD_SHA"
 
       - name: Run Commitlint on PR title
         if: steps.commitlint-commits.outcome == 'failure'
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
-        run: npm i @commitlint/config-conventional && echo "$PR_TITLE" | npx commitlint -V
+        run: echo "$PR_TITLE" | npx commitlint -V
 
-      - name: Install dependencies
-        run: npm install
-
-      - name: CI script (type checks, linting, build, exports validation)
-        run: npm run ci
+      - name: Verify (type checks, linting, build, dist checks)
+        run: npm run verify
 
       - name: Test script with coverage reporting
         run: npm run test-coverage
-
-      - name: Environment reset
-        run: npm run reset

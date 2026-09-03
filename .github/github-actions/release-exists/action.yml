@@ -20,12 +20,12 @@ runs:
       shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+        TAG: ${{ inputs.tag }}
       run: |
-        tag=${{ inputs.tag }}
-        if [ "$(gh release view $tag 2>&1)" == "release not found" ]; then
-          exists=false
-        else
+        if gh release view "$TAG" >/dev/null 2>&1; then
           exists=true
+        else
+          exists=false
         fi
-        echo "Release '$tag' exists: $exists"
+        echo "Release '$TAG' exists: $exists"
         echo "exists=$exists" >> "$GITHUB_OUTPUT"

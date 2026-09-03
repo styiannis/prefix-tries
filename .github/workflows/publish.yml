@@ -26,7 +26,7 @@ jobs:
           registry-url: https://registry.npmjs.org
 
       - name: Generate release changelog
-        run: echo "# Changelog" > CHANGELOG.md && npx conventional-changelog-cli@latest -r 0 -p conventionalcommits >> CHANGELOG.md
+        run: echo "# Changelog" > CHANGELOG.md && npx -y conventional-changelog-cli@5.0.0 -r 0 -p conventionalcommits >> CHANGELOG.md
 
       - name: Publish
         run: npm publish --provenance --access public

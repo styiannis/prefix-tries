@@ -10,8 +10,9 @@ runs:
   using: composite
   steps:
     - shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
       run: |
-        tag=${{ inputs.tag }}
-        echo "Creating tag: $tag"
-        git tag -a $tag -m "Version $tag"
-        git push origin $tag
+        echo "Creating tag: $TAG"
+        git tag -a "$TAG" -m "Version $TAG"
+        git push origin "$TAG"

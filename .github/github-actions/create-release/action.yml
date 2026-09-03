@@ -23,27 +23,26 @@ runs:
     - shell: bash
       env:
         GITHUB_TOKEN: ${{ inputs.github_token }}
+        TAG: ${{ inputs.tag }}
+        DRAFT: ${{ inputs.draft }}
+        PRERELEASE: ${{ inputs.prerelease }}
       run: |
-        tag=${{ inputs.tag }}
-        draft=${{ inputs.draft }}
-        prerelease=${{ inputs.prerelease }}
-
-        if [ $draft == "true" ]; then
-          if [ $prerelease == "true" ]; then
-            echo "Creating draft pre-release: $tag"
-            gh release create $tag --generate-notes --draft --prerelease
+        if [ "$DRAFT" == "true" ]; then
+          if [ "$PRERELEASE" == "true" ]; then
+            echo "Creating draft pre-release: $TAG"
+            gh release create "$TAG" --generate-notes --draft --prerelease
           else
-            echo "Creating draft release: $tag"
-            gh release create $tag --generate-notes --draft
+            echo "Creating draft release: $TAG"
+            gh release create "$TAG" --generate-notes --draft
           fi
         else
-          echo "Creating release: $tag"
-          
-          if [ $prerelease == "true" ]; then
-            echo "Creating pre-release: $tag"
-            gh release create $tag --generate-notes --prerelease
+          echo "Creating release: $TAG"
+
+          if [ "$PRERELEASE" == "true" ]; then
+            echo "Creating pre-release: $TAG"
+            gh release create "$TAG" --generate-notes --prerelease
           else
-            echo "Creating release: $tag"
-            gh release create $tag --generate-notes
+            echo "Creating release: $TAG"
+            gh release create "$TAG" --generate-notes
           fi
         fi

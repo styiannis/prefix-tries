@@ -13,5 +13,11 @@ runs:
       shell: bash
       run: |
         version=$(node -p "require('./package.json').version")
+
+        if [ -z "$version" ] || [ "$version" = "undefined" ]; then
+          echo "::error::package.json has no version field"
+          exit 1
+        fi
+
         echo "Package version: $version"
         echo "version=$version" >> "$GITHUB_OUTPUT"

@@ -15,12 +15,13 @@ runs:
   steps:
     - id: check-tag-exists
       shell: bash
+      env:
+        TAG: ${{ inputs.tag }}
       run: |
-        tag=${{ inputs.tag }}
-        if git rev-parse $tag >/dev/null 2>&1; then
+        if git rev-parse "$TAG" >/dev/null 2>&1; then
           exists=true
         else
           exists=false
         fi
-        echo "Tag '$tag' exists: $exists"
+        echo "Tag '$TAG' exists: $exists"
         echo "exists=$exists" >> "$GITHUB_OUTPUT"
