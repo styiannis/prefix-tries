@@ -8,10 +8,8 @@ const { join } = require('node:path');
 
 const root = join(__dirname, '..');
 
-const defaultPkgType = 'commonjs';
-
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
-const pkgType = pkg.type ?? defaultPkgType;
+const pkgType = pkg.type ?? 'commonjs';
 
 function exportsEntries(node, label = 'exports', expected = pkgType) {
   if (!node) {

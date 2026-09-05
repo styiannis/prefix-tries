@@ -38,6 +38,7 @@ describe.each([
     for (const entry of entries(instance)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const entry of entries(instance, true)) {
@@ -54,12 +55,13 @@ describe.each([
 
     let i = 0;
     for (const key of keys(instance)) {
-      expect(key).toBe(ALL_WORDS_VALUES[i++][0]);
+      expect(key).toBe(ALL_WORDS_VALUES[i++]?.[0]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const key of keys(instance, true)) {
-      expect(key).toBe(ALL_WORDS_VALUES[i--][0]);
+      expect(key).toBe(ALL_WORDS_VALUES[i--]?.[0]);
     }
 
     clear(instance);
@@ -72,12 +74,13 @@ describe.each([
 
     let i = 0;
     for (const value of values(instance)) {
-      expect(value).toBe(ALL_WORDS_VALUES[i++][1]);
+      expect(value).toBe(ALL_WORDS_VALUES[i++]?.[1]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const value of values(instance, true)) {
-      expect(value).toBe(ALL_WORDS_VALUES[i--][1]);
+      expect(value).toBe(ALL_WORDS_VALUES[i--]?.[1]);
     }
 
     clear(instance);

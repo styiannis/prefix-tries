@@ -33,13 +33,14 @@ describe.each([
       expect(size(instance)).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure
+    // Confirm that all values are included in the structure
     const iter = entries(instance);
     let i = 0;
     for (let word of iter) {
       expect(word).toBe(ALL_WORDS[i]);
       i++;
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     // Try to insert the same values
     ALL_WORDS.forEach((word) => {
@@ -55,7 +56,7 @@ describe.each([
   it('Insert and delete words', () => {
     ALL_WORDS.forEach((word) => addWord(instance, word));
 
-    // Try to remove values ​​that are not included
+    // Try to remove values that are not included
     expect(deleteWord(instance, 'gon')).toBe(false); // Valid prefix, invalid word
     expect(deleteWord(instance, 'invalid')).toBe(false); // Invalid prefix
 

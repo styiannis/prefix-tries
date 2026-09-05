@@ -18,12 +18,13 @@ describe.each([
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let word of instance) {
       expect(word).toBe(ALL_WORDS[i]);
       i++;
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     // Try to insert the same values.
     ALL_WORDS.forEach((word) => {
@@ -43,7 +44,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -170,6 +171,7 @@ describe.each([
     for (let entry of instance[Symbol.iterator]()) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (let entry of instance[Symbol.iterator](true)) {
@@ -186,6 +188,7 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance.entries(true)) {
@@ -202,6 +205,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
   });
@@ -211,6 +215,7 @@ describe.each([
 
     let i = 0;
     instance.forEach((entry) => expect(entry).toBe(ALL_WORDS[i++]));
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
   });

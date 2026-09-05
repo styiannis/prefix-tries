@@ -16,7 +16,13 @@ function confirmStructure(
       let node: typeof instance.root | undefined = instance.root;
 
       for (let i = 0; node && i < nodePrefixes.length; i++) {
-        node = node.children.get(nodePrefixes[i]);
+        const key = nodePrefixes[i];
+
+        expect(key).not.toBe(undefined);
+
+        if (key !== undefined) {
+          node = node.children.get(key);
+        }
       }
 
       expect(node?.listNode).not.toBe(undefined);
@@ -219,12 +225,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_1.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -381,12 +390,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -533,12 +545,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < expectedStructure.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 
@@ -721,12 +736,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 });
@@ -817,12 +835,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_1.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -911,12 +932,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -1003,12 +1027,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < expectedStructure.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 
@@ -1105,12 +1132,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBe(undefined);
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 });

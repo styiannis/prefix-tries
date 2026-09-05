@@ -22,7 +22,7 @@ describe.each([
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let entry of instance) {
       expect(entry).toStrictEqual([ALL_WORDS[i], `{{${ALL_WORDS[i]}}}`]);
@@ -51,7 +51,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -254,6 +254,7 @@ describe.each([
     for (const entry of instance[Symbol.iterator]()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance[Symbol.iterator](true)) {
@@ -270,6 +271,7 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const entry of instance.entries(true)) {
@@ -284,12 +286,13 @@ describe.each([
 
     let i = 0;
     for (const key of instance.keys()) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++]?.[0]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const key of instance.keys(true)) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--]?.[0]);
     }
 
     instance.clear();
@@ -300,12 +303,13 @@ describe.each([
 
     let i = 0;
     for (const value of instance.values()) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++][1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++]?.[1]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const value of instance.values(true)) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--][1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--]?.[1]);
     }
 
     instance.clear();
@@ -318,6 +322,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
   });
@@ -327,10 +332,11 @@ describe.each([
 
     let i = 0;
     instance.forEach((value, word) => {
-      expect(word).toStrictEqual(ALL_WORDS_VALUES[i][0]);
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i][1]);
+      expect(word).toStrictEqual(ALL_WORDS_VALUES[i]?.[0]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i]?.[1]);
       i++;
     });
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
   });
