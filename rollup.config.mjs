@@ -1,3 +1,5 @@
+// For detailed Rollup configuration options, visit: https://rollupjs.org/configuration-options/
+
 import resolve from '@rollup/plugin-node-resolve';
 import typescript from '@rollup/plugin-typescript';
 import fs from 'node:fs';
@@ -5,115 +7,64 @@ import { dts } from 'rollup-plugin-dts';
 
 const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf8'));
 
-function emitPackageManifest(type) {
-  const sideEffects =
-    typeof pkg.sideEffects === 'boolean' ? pkg.sideEffects : true;
+const pkgExternals = [
+  ...Object.keys(pkg.dependencies || {}),
+  ...Object.keys(pkg.peerDependencies || {}),
+  ...Object.keys(pkg.optionalDependencies || {}),
+];
 
-  return {
-    name: 'emit-package-manifest',
-    generateBundle() {
-      this.emitFile({
-        type: 'asset',
-        fileName: 'package.json',
-        source: `${JSON.stringify({ type, sideEffects }, null, 2)}\n`,
-      });
-    },
-  };
-}
+const isExternalModule = (id) =>
+  pkgExternals.some((name) => id === name || id.startsWith(`${name}/`));
 
-function external() {
-  const externalModules = (externals) =>
-    externals.length === 0
-      ? () => false
-      : (id) => new RegExp(`^(${externals.join('|')})($|/)`).test(id);
+const makeOutputOptions = (preserveModulesRoot, dir, format, ext) => ({
+  dir,
+  format,
+  preserveModulesRoot,
+  preserveModules: true,
+  entryFileNames: `[name]${ext}`,
+  chunkFileNames: `[name]${ext}`,
+  // 'auto' (the default) collapses a default-only module to
+  // `module.exports = value`, but the emitted .d.cts always declares it as
+  // `export { value as default }` -- i.e. `exports.default`. Forcing
+  // 'named' keeps the two in sync for CJS.
+  exports: format === 'cjs' ? 'named' : 'auto',
+});
 
-  return externalModules([
-    ...Object.keys(pkg.dependencies || {}),
-    ...Object.keys(pkg.peerDependencies || {}),
-    ...Object.keys(pkg.optionalDependencies || {}),
-  ]);
-}
-
-function output(preserveModulesRoot, dir, format) {
-  return { dir, format, preserveModulesRoot, preserveModules: true };
-}
-
-function CJS(input, srcDir, distDir, useExternal) {
-  const format = 'cjs';
+const buildJS = (format, srcFile, srcDir, distDir, useExternal) => {
   const outDir = `${distDir}/${format}`;
+  const extension = format === 'es' ? '.mjs' : '.cjs';
 
   return {
-    input,
-    output: output(srcDir, outDir, format),
+    input: srcFile,
+    output: makeOutputOptions(srcDir, outDir, format, extension),
     plugins: [
       ...(useExternal ? [] : [resolve()]),
       typescript({ compilerOptions: { outDir } }),
-      emitPackageManifest('commonjs'),
     ],
-    external: useExternal ? external() : undefined,
+    external: useExternal ? isExternalModule : undefined,
   };
-}
+};
 
-function ES(input, srcDir, distDir, useExternal) {
-  const format = 'es';
-  const outDir = `${distDir}/${format}`;
+const buildTypes = (format, srcFile, srcDir, distDir, useExternal) => {
+  const outDir = `${distDir}/@types/${format}`;
+  const extension = format === 'es' ? '.d.mts' : '.d.cts';
 
   return {
-    input,
-    output: output(srcDir, outDir, format),
-    plugins: [
-      ...(useExternal ? [] : [resolve()]),
-      typescript({ compilerOptions: { outDir } }),
-      emitPackageManifest('module'),
-    ],
-    external: useExternal ? external() : undefined,
-  };
-}
-
-function Types(input, srcDir, distDir, useExternal) {
-  const format = 'es';
-  const outDir = `${distDir}/@types`;
-
-  return {
-    input,
-    output: output(srcDir, outDir, format),
+    input: srcFile,
+    output: makeOutputOptions(srcDir, outDir, format, extension),
     plugins: [...(useExternal ? [] : [resolve()]), dts()],
-    external: useExternal ? external() : undefined,
+    external: useExternal ? isExternalModule : undefined,
   };
-}
-
-const BUILDERS = { cjs: CJS, es: ES, types: Types };
-const ALL_BUILD_FORMATS = Object.keys(BUILDERS);
-
-const formats = (process.env.BUILD_FORMATS ?? ALL_BUILD_FORMATS.join(','))
-  .split(',')
-  .map((s) => s.trim().toLowerCase())
-  .filter(Boolean);
-
-if (formats.length === 0) {
-  throw new Error(
-    `BUILD_FORMATS: at least one of "${ALL_BUILD_FORMATS.join(', ')}" is required.`
-  );
-}
-
-const unknownFormats = process.env.BUILD_FORMATS
-  ? formats.filter((f) => !ALL_BUILD_FORMATS.includes(f))
-  : [];
-
-if (unknownFormats.length > 0) {
-  throw new Error(
-    `BUILD_FORMATS: unknown format(s) "${unknownFormats.join(', ')}". Valid: ${ALL_BUILD_FORMATS.join(', ')}.`
-  );
-}
+};
 
 const srcDir = 'src';
+const srcFile = `${srcDir}/index.ts`;
 const distDir = 'dist';
-const inputFile = `${srcDir}/index.ts`;
 
-// Declared dependencies stay external;
-// false inlines them via resolve().
+// Declared dependencies stay external; false inlines them via resolve().
 const useExternal = true;
 
-export default formats.map((f) =>
-  BUILDERS[f](inputFile, srcDir, distDir, useExternal)
-);
+export default ['cjs', 'es'].flatMap((format) => [
+  buildJS(format, srcFile, srcDir, distDir, useExternal),
+  buildTypes(format, srcFile, srcDir, distDir, useExternal),
+]);

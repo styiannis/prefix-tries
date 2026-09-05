@@ -1,52 +1,39 @@
+// Checks the paths package.json declares -- "exports", plus the legacy "main",
+// "module" and "types" -- against what the build actually produced: that each
+// one exists, and that it names the right kind of file for the condition it
+// sits under.
+
 const { readFileSync, existsSync } = require('node:fs');
-const { dirname, join } = require('node:path');
+const { join } = require('node:path');
 
 const root = join(__dirname, '..');
 
+const defaultPkgType = 'commonjs';
+
 const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'));
+const pkgType = pkg.type ?? defaultPkgType;
 
-const pkgTypeDefault = 'commonjs';
-const pkgType = pkg.type ?? pkgTypeDefault;
-
-/**
- * Walks an "exports" map, pairing every string leaf with the module system the
- * conditions enclosing it require. Every leaf comes back, whatever shape the
- * map takes, so no target path gets silently skipped.
- *
- * @param {unknown} node A node of the map, or the map itself.
- * @param {string} [label] Path to `node`, used in error messages.
- * @param {'module' | 'commonjs' | null} [expected] Inherited requirement, or
- *   null once a condition puts it beyond reach.
- * @returns {Array<[label: string, path: string, expected: 'module' | 'commonjs' | null]>}
- */
 function exportsEntries(node, label = 'exports', expected = pkgType) {
   if (!node) {
     return [];
   }
 
   if (typeof node === 'string') {
-    return [[label, node, expected]];
+    return [{ label, path: node, expected }];
   }
 
   return Object.entries(node).flatMap(([key, child]) => {
-    // A .d.ts has no module system, and dist/@types gets no package.json, so
-    // "import" would fail on it -- nor can an "import" nested under "types"
-    // give it one, hence the flattening. Still checked for existence.
-    if (key === 'types') {
-      return exportsEntries(child, `${label} > types`).map(
-        ([leafLabel, path]) => [leafLabel, path, null]
-      );
-    }
-
-    // "default" passes through because Node takes it when nothing else matches.
-    // Any other condition is a bundler's: it settles nothing, hence the null.
+    // "import"/"require" settle the module system; a subpath, "default" or
+    // "types" key inherits it. Any other condition -- "browser", "worker", a
+    // bundler's own -- settles nothing, so leaves under it keep null and are
+    // checked for existence only.
     let newExpected = null;
 
     if (key === 'import') {
       newExpected = 'module';
     } else if (key === 'require') {
       newExpected = 'commonjs';
-    } else if (key.startsWith('.') || key === 'default') {
+    } else if (key.startsWith('.') || key === 'default' || key === 'types') {
       newExpected = expected;
     }
 
@@ -54,95 +41,94 @@ function exportsEntries(node, label = 'exports', expected = pkgType) {
   });
 }
 
-/**
- * Node reads a file's module system off its extension first -- .mjs and .cjs
- * settle it outright -- and only for .js falls back to the nearest package.json
- * above it, which is why the build emits one into dist/cjs and dist/es. Mirrors
- * that order, stopping before the root manifest, already parsed as pkg.
- *
- * @param {string} path Path to a declared file, relative to the package root.
- * @returns {'module' | 'commonjs'} The module system that applies to `path`.
- */
-function moduleSystem(path) {
-  if (path.endsWith('.mjs')) {
-    return 'module';
+function checkModuleSystemMatches(entries) {
+  const mismatched = [
+    { label: 'main', path: pkg.main, expected: pkgType },
+    { label: 'module', path: pkg.module, expected: 'module' },
+    // "types" is the fallback for resolvers that ignore "exports"; those same
+    // resolvers follow "main", so it has to describe main's format, not
+    // module's.
+    { label: 'types', path: pkg.types, expected: pkgType },
+    ...entries,
+  ].filter(
+    ({ path, expected }) =>
+      path &&
+      expected &&
+      !path.includes('*') &&
+      // Extension is the only signal used: the build emits .mjs/.cjs and
+      // .d.mts/.d.cts exclusively, so it always settles. A plain .js would
+      // need the nearest package.json's "type" instead -- deliberately not
+      // handled, since nothing here produces one.
+      (path.endsWith('.mjs') || path.endsWith('.mts')
+        ? 'module'
+        : 'commonjs') !== expected
+  );
+
+  if (mismatched.length === 0) {
+    return;
   }
 
-  if (path.endsWith('.cjs')) {
-    return 'commonjs';
-  }
+  console.error(
+    `Found entry paths pointing at the wrong module system\n\n${mismatched
+      .map(
+        ({ label, path, expected }) => `[${label}] ${path} is not ${expected}`
+      )
+      .join('\n')}\n`
+  );
 
-  for (
-    let dir = dirname(join(root, path));
-    dir !== root && dir !== dirname(dir);
-    dir = dirname(dir)
-  ) {
-    const manifestFile = join(dir, 'package.json');
-
-    if (existsSync(manifestFile)) {
-      const manifest = JSON.parse(readFileSync(manifestFile, 'utf8'));
-      return manifest.type ?? pkgTypeDefault;
-    }
-  }
-
-  return pkgType;
+  process.exitCode = 1;
 }
 
-function main() {
-  const entries = exportsEntries(pkg.exports);
+function checkPathsExist(paths) {
+  const missing = paths.filter(
+    (path) => path && !path.includes('*') && !existsSync(join(root, path))
+  );
 
-  const declared = Array.from(
-    new Set([
-      pkg.main,
-      pkg.module,
-      pkg.types,
-      ...entries.map(([, path]) => path),
-    ])
-  ).filter(Boolean);
+  if (missing.length === 0) {
+    return;
+  }
 
+  console.error(
+    `Found invalid package paths\n\n${missing.map((path, i) => `[${i}] ${path}`).join('\n')}\n`
+  );
+
+  process.exitCode = 1;
+}
+
+function warnOnWildcardPaths(paths) {
   // Node substitutes a pattern's literal "*" at resolution time: unexpanded,
   // neither existence nor module system can be told. Report, do not fail.
-  const wildcards = declared.filter((path) => path.includes('*'));
+  const wildcards = paths.filter((p) => p.includes('*'));
 
-  if (0 < wildcards.length) {
+  if (wildcards.length > 0) {
     console.warn(
       `Warning: wildcard paths are not validated -- skipped\n\n${wildcards
         .map((path, i) => `[${i}] ${path}`)
         .join('\n')}\n`
     );
   }
-
-  const missing = declared.filter(
-    (path) => !path.includes('*') && !existsSync(join(root, path))
-  );
-
-  if (0 < missing.length) {
-    console.error(
-      `Found invalid package paths\n\n${missing.map((path, i) => `[${i}] ${path}`).join('\n')}\n`
-    );
-    process.exitCode = 1;
-    return;
-  }
-
-  const mismatched = [
-    ['main', pkg.main, pkgType],
-    ['module', pkg.module, 'module'],
-    ...entries,
-  ].filter(
-    ([, path, expected]) =>
-      path && expected && !path.includes('*') && moduleSystem(path) !== expected
-  );
-
-  if (0 < mismatched.length) {
-    console.error(
-      `Found entry paths pointing at the wrong module system\n\n${mismatched
-        .map(
-          ([label, path, expected]) => `[${label}] ${path} is not ${expected}`
-        )
-        .join('\n')}\n`
-    );
-    process.exitCode = 1;
-  }
 }
 
-main();
+const exportsPathEntries = exportsEntries(pkg.exports);
+
+const declaredPaths = Array.from(
+  new Set([
+    pkg.source,
+    pkg.main,
+    pkg.module,
+    pkg.types,
+    ...exportsPathEntries.map(({ path }) => path),
+  ])
+).filter(Boolean);
+
+warnOnWildcardPaths(declaredPaths);
+
+checkPathsExist(declaredPaths);
+checkModuleSystemMatches(exportsPathEntries);
+
+if (!process.exitCode) {
+  // Wildcards are counted out: they were skipped, not checked.
+  const checked = declaredPaths.filter((path) => !path.includes('*'));
+
+  console.log(`${checked.length} declared paths ok`);
+}

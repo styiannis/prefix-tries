@@ -27,7 +27,7 @@ export function wordValuePair<N extends ITrieMapNode>(instance: N) {
   return isEndOfWord(instance)
     ? ([`${parentsPrefix(instance)}${instance.key}`, instance.value] as [
         string,
-        N['value']
+        N['value'],
       ])
     : undefined;
 }

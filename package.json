@@ -21,10 +21,11 @@
   "bugs": {
     "url": "https://github.com/styiannis/prefix-tries/issues"
   },
+  "type": "commonjs",
   "source": "src/index.ts",
-  "main": "dist/cjs/index.js",
-  "module": "dist/es/index.js",
-  "types": "dist/@types/index.d.ts",
+  "main": "dist/cjs/index.cjs",
+  "module": "dist/es/index.mjs",
+  "types": "dist/@types/cjs/index.d.cts",
   "files": [
     "CHANGELOG.md",
     "dist"
@@ -56,7 +57,7 @@
     "clear": "node ./scripts/clear.cjs ./build ./code_documentation ./coverage_report ./dist",
     "docs": "node ./scripts/clear.cjs ./code_documentation && typedoc --basePath ./ --entryPoints src/index.ts --entryPointStrategy Expand --readme none --includeVersion --out code_documentation --name \"Prefix Tries\"",
     "format": "prettier -w ./",
-    "lint": "oxlint --deny-warnings src scripts",
+    "lint": "oxlint --deny-warnings ./",
     "prepack": "npm i && npm run build",
     "reset": "npm run clear && node ./scripts/clear.cjs ./node_modules",
     "reset-hard": "npm run reset && node ./scripts/clear.cjs ./package-lock.json ./yarn.lock ./pnpm-lock.yaml",
@@ -86,12 +87,12 @@
   "exports": {
     ".": {
       "import": {
-        "types": "./dist/@types/index.d.ts",
-        "default": "./dist/es/index.js"
+        "types": "./dist/@types/es/index.d.mts",
+        "default": "./dist/es/index.mjs"
       },
       "require": {
-        "types": "./dist/@types/index.d.ts",
-        "default": "./dist/cjs/index.js"
+        "types": "./dist/@types/cjs/index.d.cts",
+        "default": "./dist/cjs/index.cjs"
       }
     }
   }
