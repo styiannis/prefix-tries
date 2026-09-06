@@ -87,7 +87,7 @@ function checkPathsExist(paths) {
   }
 
   console.error(
-    `Found invalid package paths\n\n${missing.map((path, i) => `[${i}] ${path}`).join('\n')}\n`
+    `Found invalid package paths\n\n${missing.map((path, i) => `[${i + 1}] ${path}`).join('\n')}\n`
   );
 
   process.exitCode = 1;
@@ -101,7 +101,7 @@ function warnOnWildcardPaths(paths) {
   if (wildcards.length > 0) {
     console.warn(
       `Warning: wildcard paths are not validated -- skipped\n\n${wildcards
-        .map((path, i) => `[${i}] ${path}`)
+        .map((path, i) => `[${i + 1}] ${path}`)
         .join('\n')}\n`
     );
   }

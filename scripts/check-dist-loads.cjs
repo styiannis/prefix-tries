@@ -1,9 +1,7 @@
 // Loads dist/cjs via require() and dist/es via import() on whichever Node
 // version invokes it. The barrel re-exports the whole graph, so loading it
-// parses every module.
-//
-// Scoped to dist/ only, no config or "exports" map: only built formats load,
-// so pruning a format needs no edit here.
+// parses every module. Scoped to dist/ only, no config or "exports" map: only
+// built formats load, so pruning a format needs no edit here.
 
 const { existsSync } = require('node:fs');
 const { join } = require('node:path');
@@ -11,74 +9,94 @@ const { pathToFileURL } = require('node:url');
 
 const root = join(__dirname, '..');
 
-// Declarations get no loader -- they do not exist at runtime.
-const formats = [
-  { dir: 'dist/@types/es', entry: 'index.d.mts', loader: null },
-  { dir: 'dist/@types/cjs', entry: 'index.d.cts', loader: null },
+const formatEntries = [
   {
-    dir: 'dist/es',
-    entry: 'index.mjs',
+    path: 'dist/es/index.mjs',
     loader: (path) => import(pathToFileURL(path).href),
   },
-  { dir: 'dist/cjs', entry: 'index.cjs', loader: (path) => require(path) },
+  { path: 'dist/cjs/index.cjs', loader: (path) => require(path) },
 ];
 
-function selectBuiltFormats() {
-  // The directory, not the entry file: a pruned format leaves no directory at
-  // all, while one that exists but holds no barrel is a build that went wrong
-  // -- reported per format further down, not treated as "not built".
-  const built = formats.filter(({ dir }) => existsSync(join(root, dir)));
+function exportsNothing(namespace) {
+  // Empty usually means a forgotten src/index.ts, but exporting only subpaths is
+  // valid. Nullish counts as empty (a factory returning nothing); a function
+  // does not: `module.exports = fn` has no keys but works.
+  return (
+    !namespace ||
+    (typeof namespace !== 'function' && Object.keys(namespace).length === 0)
+  );
+}
 
-  if (built.length === 0) {
+function selectBuiltFormats(formats) {
+  const present = formats.filter(({ path }) => existsSync(join(root, path)));
+
+  if (present.length === 0) {
+    const paths = formats.map(({ path }) => path).join(', ');
+
     console.error(
-      `Nothing was built: none of ${formats.map((f) => f.dir).join(', ')}\n` +
-        `exists. Run "npm run build" before this step.`
+      `Nothing was built: none of ${paths} exists.\nRun "npm run build" before this step.`
     );
+
     process.exitCode = 1;
   }
 
-  return built;
+  return present;
 }
 
 async function loadFormats(built) {
-  for (const { dir, entry, loader } of built) {
-    const path = join(root, dir, entry);
+  const problems = [];
+  const warnings = [];
+  const report = [];
 
-    if (!existsSync(path)) {
-      // The build always emits this entry when the format's directory exists
-      // (rollup.config.mjs feeds every format the same src/index.ts input),
-      // so a missing one means a build that failed partway, not a valid state.
-      console.error(`${dir}/ holds no ${entry} -- nothing to load`);
-      process.exitCode = 1;
+  for (const { path, loader } of built) {
+    const file = join(root, path);
+
+    let namespace;
+
+    try {
+      namespace = await loader(file);
+    } catch (error) {
+      problems.push(`${path} threw: ${error?.message ?? error}`);
       continue;
     }
 
-    const namespace = loader ? await loader(path) : null;
+    report.push(`${path} loads`);
 
-    // Empty is usually a forgotten src/index.ts, though a package may legitimately
-    // route everything through subpaths. The typeof guard excludes a default-only
-    // barrel (`module.exports = fn`), whose Object.keys() is empty but valid.
-    if (
-      namespace &&
-      typeof namespace !== 'function' &&
-      Object.keys(namespace).length === 0
-    ) {
-      console.warn(
-        `Warning: ${dir}/${entry} exports nothing -- check src/index.ts`
-      );
+    if (exportsNothing(namespace)) {
+      warnings.push(`${path} exports nothing -- check src/index.ts`);
     }
   }
+
+  return { problems, warnings, report };
 }
 
-const builtFormats = selectBuiltFormats();
+const builtFormats = selectBuiltFormats(formatEntries);
 
 loadFormats(builtFormats)
-  .then(() => {
+  .then(({ problems, warnings, report }) => {
+    if (problems.length > 0) {
+      console.error(
+        `Distribution files do not load correctly\n\n${problems
+          .map((line, i) => `[${i + 1}] ${line}`)
+          .join('\n')}\n`
+      );
+      process.exitCode = 1;
+      return;
+    }
+
+    if (warnings.length > 0) {
+      console.warn(
+        `Warnings\n${warnings
+          .map((line, i) => `[${i + 1}] ${line}`)
+          .join('\n')}\n`
+      );
+    }
+
     if (!process.exitCode) {
       console.log(
-        `${builtFormats.length} built formats ok: ${builtFormats
-          .map(({ dir }) => dir)
-          .join(', ')}`
+        `${report.length} built formats ok\n${report
+          .map((line, i) => `[${i + 1}] ${line}`)
+          .join('\n')}`
       );
     }
   })

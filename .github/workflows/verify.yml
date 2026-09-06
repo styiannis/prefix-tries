@@ -30,10 +30,10 @@ jobs:
       - name: Test script with coverage reporting
         run: npm run test-coverage
 
-      - name: Set up Node.js 18 (engines floor)
+      - name: Set up Node.js 18.12.0 (engines floor)
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: '18.12.0'
 
       - name: Check dist loads (Node 18)
         run: npm run check-dist-loads
