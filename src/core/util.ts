@@ -4,12 +4,37 @@ import * as listNode from './trie-list-node';
 import * as trieMapNode from './trie-map-node';
 import * as trieNode from './trie-node';
 
+function isHighSurrogate(str: string, index: number) {
+  const code = str.charCodeAt(index);
+  return code >= 0xd800 && code <= 0xdbff;
+}
+
+function isLowSurrogate(str: string, index: number) {
+  const code = str.charCodeAt(index);
+  return code >= 0xdc00 && code <= 0xdfff;
+}
+
 export function commonSubstring(a: string, b: string) {
   let index = -1;
   for (let i = 0; i < Math.min(a.length, b.length) && a[i] === b[i]; i++) {
     index = i;
   }
-  return -1 === index ? '' : a.substring(0, index + 1);
+
+  if (index === -1) {
+    return '';
+  }
+
+  // A character such as an emoji is stored as two code units (a surrogate
+  // pair). Never end the prefix between them, so it always ends on a whole
+  // character.
+  if (
+    isHighSurrogate(a, index) &&
+    (isLowSurrogate(a, index + 1) || isLowSurrogate(b, index + 1))
+  ) {
+    return a.substring(0, index);
+  }
+
+  return a.substring(0, index + 1);
 }
 
 export function createListRecord<T extends ITrie>(

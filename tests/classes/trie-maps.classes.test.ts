@@ -511,4 +511,20 @@ describe.each([
     expect(instance.delete('\u{1F600}')).toBe(true);
     expect(instance.size).toBe(1);
   });
+
+  it('Words sharing a high surrogate are not split inside the pair', () => {
+    const instance = new TrieMapClass([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+
+    expect(instance.find('a\uD83D')).toEqual([]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+    expect(instance.get('a\u{1F601}c')).toBe(2);
+    expect(instance.delete('a\u{1F600}b')).toBe(true);
+    expect([...instance]).toEqual([['a\u{1F601}c', 2]]);
+  });
 });
