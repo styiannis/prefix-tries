@@ -7,9 +7,16 @@ describe.each([
   ['trie' as const, 'trie-node' as const, trie],
   ['compressed-trie' as const, 'compressed-trie-node' as const, compressedTrie],
 ])('Core >> %s', (instanceType, nodeInstanceType, trieNamespace) => {
-  const { entries, includesWord } = trie;
-  const { clear, create, addWord, getPrefixEntries, deleteWord, size } =
-    trieNamespace;
+  const { entries } = trie;
+  const {
+    clear,
+    create,
+    addWord,
+    getPrefixEntries,
+    includesWord,
+    deleteWord,
+    size,
+  } = trieNamespace;
 
   const instance = create();
 
@@ -229,8 +236,7 @@ describe.each([
 });
 
 describe('Core >> compressed-trie >> merge on delete', () => {
-  const { includesWord } = trie;
-  const { addWord, create, deleteWord } = compressedTrie;
+  const { addWord, create, deleteWord, includesWord } = compressedTrie;
 
   it('Deleting a word merges its node with a single remaining child', () => {
     const instance = create();

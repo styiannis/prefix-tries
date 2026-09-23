@@ -5,10 +5,10 @@ import {
   commonSubstring,
   compressedTrieMergeNode,
   compressedTriePrefixEntriesNode,
+  compressedTriePrefixNode,
   compressedTrieSplitNode,
   createListRecord,
   removeListRecord,
-  triePrefixNode,
 } from './util';
 
 export function create<T extends ITrie>() {
@@ -89,8 +89,13 @@ export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
   return ret;
 }
 
+export function includesWord<T extends ITrie>(instance: T, word: string) {
+  const node = compressedTriePrefixNode(instance, word);
+  return !!node && trieNode.isEndOfWord(node);
+}
+
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
-  let node = triePrefixNode(instance, word);
+  let node = compressedTriePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

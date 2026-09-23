@@ -498,4 +498,17 @@ describe.each([
       ['aab', 2],
     ]);
   });
+
+  it('Inserting a lone high surrogate first keeps the full character reachable', () => {
+    const instance = new TrieMapClass([
+      ['\uD83D', 1],
+      ['\u{1F600}', 2],
+    ]);
+
+    expect(instance.has('\u{1F600}')).toBe(true);
+    expect(instance.get('\u{1F600}')).toBe(2);
+    expect(instance.find('\u{1F600}')).toEqual([['\u{1F600}', 2]]);
+    expect(instance.delete('\u{1F600}')).toBe(true);
+    expect(instance.size).toBe(1);
+  });
 });

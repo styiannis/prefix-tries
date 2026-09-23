@@ -327,4 +327,13 @@ describe.each([
     expect(instance.find('aa')).toEqual(['aab']);
     expect(instance.find('a').sort()).toEqual(['a', 'aab']);
   });
+
+  it('Inserting a lone high surrogate first keeps the full character reachable', () => {
+    const instance = new TrieClass(['\uD83D', '\u{1F600}']);
+
+    expect(instance.has('\u{1F600}')).toBe(true);
+    expect(instance.find('\u{1F600}')).toEqual(['\u{1F600}']);
+    expect(instance.delete('\u{1F600}')).toBe(true);
+    expect(instance.size).toBe(1);
+  });
 });

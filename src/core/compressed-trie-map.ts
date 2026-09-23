@@ -7,9 +7,9 @@ import {
   compressedTrieMapMergeNode,
   compressedTrieMapSplitNode,
   compressedTriePrefixEntriesNode,
+  compressedTriePrefixNode,
   createListRecord,
   removeListRecord,
-  triePrefixNode,
 } from './util';
 
 export function create<T extends ITrieMap>() {
@@ -72,6 +72,14 @@ export function setWordValue<T extends ITrieMap>(
   }
 }
 
+export function getWordValue<T extends ITrieMap>(instance: T, word: string) {
+  const node = compressedTriePrefixNode(instance, word);
+
+  return node && trieNode.isEndOfWord(node)
+    ? (node.value as T['root']['value'])
+    : undefined;
+}
+
 export function getPrefixEntries<T extends ITrieMap>(
   instance: T,
   prefix: string
@@ -100,7 +108,7 @@ export function getPrefixEntries<T extends ITrieMap>(
 }
 
 export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
-  let node = triePrefixNode(instance, word);
+  let node = compressedTriePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;

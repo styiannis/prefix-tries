@@ -88,8 +88,8 @@ describe.each([
 });
 
 describe('Core >> compressed-trie-map >> merge on delete', () => {
-  const { entries, getWordValue } = trieMap;
-  const { create, deleteWord, setWordValue } = compressedTrieMap;
+  const { entries } = trieMap;
+  const { create, deleteWord, getWordValue, setWordValue } = compressedTrieMap;
 
   it('Deleting a word merges its node with a single remaining child', () => {
     const instance = create();
