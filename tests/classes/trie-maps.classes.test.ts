@@ -459,12 +459,13 @@ describe.each([
       ['xy', 1],
       ['xyy', 2],
     ]);
-    expect([...instance].sort()).toEqual([
+    const entries = [...instance].sort();
+    expect(entries).toEqual([
       ['xy', 1],
       ['xyy', 2],
     ]);
 
-    for (const [word] of [...instance]) {
+    for (const [word] of entries) {
       expect(instance.has(word)).toBe(true);
       expect(instance.delete(word)).toBe(true);
     }

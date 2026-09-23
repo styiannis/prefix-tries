@@ -98,7 +98,7 @@ export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
    *
    * Entries are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator for the compressed-trie-map's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example
@@ -180,7 +180,7 @@ export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
    *
    * Entries are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator of the compressed-trie-map's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example
@@ -327,9 +327,9 @@ export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
   /**
    * Returns an iterator of all keys in the compressed-trie-map.
    *
-   * Keys are yielded in their entries' insertion order.
+   * Keys are yielded in their entries' insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, keys are yielded in reverse insertion order.
    * @returns An iterator of the compressed-trie-map's keys.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example
@@ -397,9 +397,9 @@ export class CompressedTrieMap<V = unknown> extends AbstractTrieMap<V> {
   /**
    * Returns an iterator of all values in the compressed-trie-map.
    *
-   * Values are yielded in their corresponding entries' insertion order.
+   * Values are yielded in their corresponding entries' insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, values are yielded in reverse insertion order.
    * @returns An iterator of the compressed-trie-map's values.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example

@@ -308,9 +308,10 @@ describe.each([
     expect(instance.has('xy')).toBe(true);
     expect(instance.has('xyy')).toBe(true);
     expect(instance.find('x').sort()).toEqual(['xy', 'xyy']);
-    expect([...instance].sort()).toEqual(['xy', 'xyy']);
+    const words = [...instance].sort();
+    expect(words).toEqual(['xy', 'xyy']);
 
-    for (const word of [...instance]) {
+    for (const word of words) {
       expect(instance.has(word)).toBe(true);
       expect(instance.delete(word)).toBe(true);
     }
