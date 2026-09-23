@@ -82,10 +82,15 @@ export function compressedTriePrefixEntriesNode<T extends ITrie>(
     if (common === node.key && str !== node.key) {
       str = str.substring(common.length);
       iterator = node.children.values();
+      current = iterator.next();
       continue;
     }
 
-    prefixNode = node;
+    if (common === str) {
+      prefixNode = node;
+    }
+
+    break;
   }
 
   return prefixNode;

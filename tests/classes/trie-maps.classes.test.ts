@@ -471,4 +471,31 @@ describe.each([
 
     expect(instance.size).toBe(0);
   });
+
+  it('Find returns exactly the words that start with the prefix', () => {
+    expect(
+      new TrieMapClass([
+        ['apple', 1],
+        ['banana', 2],
+      ]).find('apricot')
+    ).toEqual([]);
+    expect(
+      new TrieMapClass([
+        ['ab', 1],
+        ['abc', 2],
+        ['abd', 3],
+      ]).find('abab')
+    ).toEqual([]);
+
+    const instance = new TrieMapClass([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+    expect(instance.find('aab')).toEqual([['aab', 2]]);
+    expect(instance.find('aa')).toEqual([['aab', 2]]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+  });
 });
