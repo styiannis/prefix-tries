@@ -60,17 +60,17 @@ export function* childrenWords<N extends ITrieNode>(
   prefix: string
 ) {
   for (const [childKey, child] of instance.children) {
-    const stack: [N, string][] = [[child as N, `${prefix}${childKey}`]];
+    const queue: [N, string][] = [[child as N, `${prefix}${childKey}`]];
 
-    while (stack.length > 0) {
-      const [node, str] = stack.shift()!;
+    for (let i = 0; i < queue.length; i++) {
+      const [node, str] = queue[i]!;
 
       if (isEndOfWord(node)) {
         yield str;
       }
 
       for (const [char, child] of node.children) {
-        stack.push([child as N, `${str}${char}`]);
+        queue.push([child as N, `${str}${char}`]);
       }
     }
   }
