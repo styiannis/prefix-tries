@@ -108,28 +108,27 @@ export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
 
   removeListRecord(instance, node);
 
-  while (
-    node.parent &&
-    node.children.size === 0 &&
-    !trieNode.isEndOfWord(node)
-  ) {
+  while (node.parent && !trieNode.isEndOfWord(node)) {
     const parent = node.parent as T['root'];
-    const removedNode = trieNode.removeChild(parent, node.key);
 
-    // @todo: It's known that the condition is always true
-    if (removedNode) {
-      trieMapNode.clear(removedNode);
+    if (node.children.size === 0) {
+      const removedNode = trieNode.removeChild(parent, node.key);
+
+      // @todo: It's known that the condition is always true
+      if (removedNode) {
+        trieMapNode.clear(removedNode);
+      }
+
+      node = parent;
+
+      continue;
     }
 
-    if (
-      parent.parent &&
-      1 === parent.children.size &&
-      !trieNode.isEndOfWord(parent)
-    ) {
-      compressedTrieMapMergeNode(parent);
+    if (node.children.size === 1) {
+      compressedTrieMapMergeNode(node);
     }
 
-    node = parent;
+    break;
   }
 
   return true;

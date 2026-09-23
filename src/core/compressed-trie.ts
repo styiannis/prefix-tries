@@ -98,25 +98,27 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
 
   removeListRecord(instance, node);
 
-  for (
-    let nd = node, parent = nd.parent;
-    parent && nd.children.size === 0 && !trieNode.isEndOfWord(nd);
-    nd = parent, parent = nd.parent
-  ) {
-    const removedNode = trieNode.removeChild(parent, nd.key);
+  while (node.parent && !trieNode.isEndOfWord(node)) {
+    const parent = node.parent as T['root'];
 
-    // @todo: It's known that the condition is always true
-    if (removedNode) {
-      trieNode.clear(removedNode);
+    if (node.children.size === 0) {
+      const removedNode = trieNode.removeChild(parent, node.key);
+
+      // @todo: It's known that the condition is always true
+      if (removedNode) {
+        trieNode.clear(removedNode);
+      }
+
+      node = parent;
+
+      continue;
     }
 
-    if (
-      parent.parent &&
-      parent.children.size === 1 &&
-      !trieNode.isEndOfWord(parent)
-    ) {
-      compressedTrieMergeNode(parent);
+    if (node.children.size === 1) {
+      compressedTrieMergeNode(node);
     }
+
+    break;
   }
 
   return true;

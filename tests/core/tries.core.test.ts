@@ -227,3 +227,40 @@ describe.each([
     clear(instance);
   });
 });
+
+describe('Core >> compressed-trie >> merge on delete', () => {
+  const { includesWord } = trie;
+  const { addWord, create, deleteWord } = compressedTrie;
+
+  it('Deleting a word merges its node with a single remaining child', () => {
+    const instance = create();
+
+    ['a', 'abc', 'abd'].forEach((word) => addWord(instance, word));
+
+    expect(deleteWord(instance, 'a')).toBe(true);
+
+    expect([...instance.root.children.keys()]).toEqual(['ab']);
+
+    const node = instance.root.children.get('ab');
+    expect(node?.parent).toBe(instance.root);
+    expect([...(node?.children.keys() ?? [])]).toEqual(['c', 'd']);
+    node?.children.forEach((child) => expect(child.parent).toBe(node));
+
+    expect(includesWord(instance, 'abc')).toBe(true);
+    expect(includesWord(instance, 'abd')).toBe(true);
+  });
+
+  it('Deleting every prefix of a word leaves the word as a single node', () => {
+    const instance = create();
+
+    const word = 'abcdefghij';
+    const prefixes = [...word].map((_, i) => word.substring(0, i + 1));
+
+    prefixes.forEach((prefix) => addWord(instance, prefix));
+    prefixes.slice(0, -1).forEach((prefix) => deleteWord(instance, prefix));
+
+    expect([...instance.root.children.keys()]).toEqual([word]);
+    expect(instance.root.children.get(word)?.children.size).toBe(0);
+    expect(includesWord(instance, word)).toBe(true);
+  });
+});

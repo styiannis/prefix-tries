@@ -967,8 +967,7 @@ describe('core >> compressed-trie', () => {
     const expectedStructure: [string[], boolean, number][][] = [
       [
         [[], false, 4],
-        [['test'], false, 1],
-        [['test', 'ing'], true, 0],
+        [['testing'], true, 0],
         [['g'], false, 2],
         [['g', 'o'], true, 1],
         [['g', 'o', 'ne'], true, 0],
