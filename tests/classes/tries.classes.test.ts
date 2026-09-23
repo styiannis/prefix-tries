@@ -298,4 +298,23 @@ describe.each([
       );
     });
   });
+
+  it('Deleting a sibling keeps the remaining subtree reachable', () => {
+    const instance = new TrieClass(['xy', 'xyy', 'xz']);
+
+    expect(instance.delete('xz')).toBe(true);
+
+    expect(instance.size).toBe(2);
+    expect(instance.has('xy')).toBe(true);
+    expect(instance.has('xyy')).toBe(true);
+    expect(instance.find('x').sort()).toEqual(['xy', 'xyy']);
+    expect([...instance].sort()).toEqual(['xy', 'xyy']);
+
+    for (const word of [...instance]) {
+      expect(instance.has(word)).toBe(true);
+      expect(instance.delete(word)).toBe(true);
+    }
+
+    expect(instance.size).toBe(0);
+  });
 });

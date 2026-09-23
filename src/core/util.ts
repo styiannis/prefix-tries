@@ -100,6 +100,8 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
     if (child) {
       const [childKey, childNode] = child;
 
+      trieNode.removeChild(instance, childKey);
+
       const key = instance.key;
       const parent = instance.parent;
 
@@ -115,8 +117,6 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
       if (instance.listNode) {
         instance.listNode.trieNode = instance;
       }
-
-      trieNode.removeChild(instance, childKey);
 
       childNode.parent = null;
       childNode.listNode = null;
@@ -143,6 +143,8 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
     if (child) {
       const [childKey, childNode] = child;
 
+      trieNode.removeChild(instance, childKey);
+
       const key = instance.key;
       const parent = instance.parent;
 
@@ -159,8 +161,6 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
       if (instance.listNode) {
         instance.listNode.trieNode = instance;
       }
-
-      trieNode.removeChild(instance, childKey);
 
       childNode.parent = null;
       childNode.listNode = null;
