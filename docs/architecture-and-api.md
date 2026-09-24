@@ -1,6 +1,6 @@
 # Architecture and API
 
-**Last verified:** 2026-09-24 · v1.1.1
+**Last verified:** 2026-09-24 · v1.2.0
 
 ## A tree and a list in every instance
 

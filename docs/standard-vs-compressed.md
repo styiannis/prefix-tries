@@ -6,7 +6,7 @@ words, and what that costs is worth measuring rather than guessing. This page
 has the measurements and the choice they support. Everything here applies
 equally to `TrieMap` and `CompressedTrieMap`.
 
-**Last verified:** 2026-09-24 · v1.1.1 · Node v22.12.0 on an AMD Ryzen 7 5700G
+**Last verified:** 2026-09-24 · v1.2.0 · Node v22.12.0 on an AMD Ryzen 7 5700G
 
 ## What the two structures do differently
 

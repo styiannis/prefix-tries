@@ -1,6 +1,6 @@
 {
   "name": "prefix-tries",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "description": "Standard and compressed (radix) tries for TypeScript, as sets and maps behind one interface, iterated in the order their words were added.",
   "keywords": [
     "trie",
