@@ -3,241 +3,211 @@
 [![NPM Version](https://img.shields.io/npm/v/prefix-tries)](https://www.npmjs.com/package/prefix-tries)
 [![Coverage Status](https://img.shields.io/coverallsCoverage/github/styiannis/prefix-tries)](https://coveralls.io/github/styiannis/prefix-tries?branch=main)
 
-A high-performance TypeScript library for efficient string manipulation and storage using tree-based data structures. This library provides:
+Standard (prefix) and compressed (radix) tries for TypeScript, each as a set
+of strings and as a map from strings to values, behind one interface. The
+structure answers one question well: **given a prefix, which stored strings
+begin with it**, without reading the strings that do not. Every instance also
+keeps its words in the order they were added, and iterates in that order.
 
-### Core Data Structures
-
-- **Standard Trie** (also known as "_prefix trie_" or "_prefix tree_")
-
-  - Classic implementation optimized for straightforward usage
-  - Ideal for most common string storage and retrieval needs
-  - Perfect for smaller to medium-sized datasets
-
-- **Compressed Trie** (also known as "_radix trie_" or "_radix tree_")
-  - Memory-optimized implementation that merges single-child nodes
-  - Significantly reduces memory footprint for large datasets
-  - Maintains fast lookup performance while using less space
-
-### Extended Functionality
-
-Both implementations are available as pure tries for string storage and trie-maps for key-value associations, making this library suitable for a wide range of applications from autocomplete systems to routing tables.
-
-## Key Features
-
-### Data Structure Options
-
-- **Standard Tries**: Traditional prefix tree implementation for straightforward string operations
-- **Compressed Tries**: Space-efficient radix tree variant for optimized memory usage
-- **Trie Maps**: Associate values with strings while maintaining prefix-based capabilities
-- **Compressed Trie Maps**: Combine key-value storage with memory optimization
-
-### Core Capabilities
-
-- **Efficient Prefix Operations**: Lightning-fast prefix-based searches and pattern matching
-- **Order Preservation**: Maintains insertion order for predictable iteration
-- **Flexible Search**: Find all strings sharing common prefixes instantly
-- **Memory Efficiency**: Optimized data structures for reduced memory consumption
-
-### Developer Experience
-
-- **Type Safety**: Full TypeScript support with comprehensive type definitions
-- **Intuitive API**: Consistent interface across all implementations
-- **Rich Documentation**: Detailed API docs and usage examples
-
-## Table of Contents
-
-- [System Requirements](#system-requirements)
-- [Installation](#installation)
-- [Importing Modules](#importing-modules)
-- [Getting Started](#getting-started)
-  - [Using Tries](#using-tries)
-  - [Using Trie Maps](#using-trie-maps)
-- [Code documentation](#code-documentation)
-- [Issues and Support](#issues-and-support)
-- [License](#license)
-
-## System Requirements
-
-| Package     | Version    |
-| ----------- | ---------- |
-| **Node.js** | ≥ `18.0.0` |
-| **npm**     | ≥ `8.0.0`  |
-
-## Installation
-
-### Install via npm
+## Install
 
 ```bash
 npm install prefix-tries
 ```
 
-### Install via yarn
+`yarn add` and `pnpm add` work the same way. The package requires Node 18.12 or
+later, and ships an ES build and a CommonJS build with type definitions for
+each. Its one runtime dependency is
+[abstract-linked-lists](https://www.npmjs.com/package/abstract-linked-lists).
 
-```bash
-yarn add prefix-tries
-```
+## Prefix search
 
-### Install via pnpm
-
-```bash
-pnpm install prefix-tries
-```
-
-## Importing Modules
-
-The library provides both standard and memory-optimized implementations of tries and trie-maps. You can import the specific classes you need:
+`find` returns every stored word that begins with a prefix. `has` asks a
+different question — whether one exact word was stored — and a prefix of a
+stored word is not itself stored unless it was added:
 
 ```typescript
-import {
-  // Concrete Classes
-  Trie, // Standard trie implementation.
-  TrieMap, // Standard trie-map implementation.
-  CompressedTrie, // Memory-optimized trie implementation.
-  CompressedTrieMap, // Memory-optimized trie-map implementation.
+import { Trie } from 'prefix-tries';
 
-  // Abstract Base Classes
-  AbstractTrie, // Base class for trie implementations.
-  AbstractTrieMap, // Base class for trie-map implementations.
-} from 'prefix-tries';
+const commands = new Trie([
+  'commit',
+  'checkout',
+  'cherry-pick',
+  'clone',
+  'config',
+]);
+
+console.log(commands.find('ch')); // [ 'checkout', 'cherry-pick' ]
+console.log(commands.find('co')); // [ 'commit', 'config' ]
+console.log(commands.find('x')); // []
+
+console.log(commands.has('clone')); // true
+console.log(commands.has('ch')); // false
+console.log(commands.size); // 5
 ```
 
-## Getting Started
+The work `find` does grows with the part of the tree below the prefix, not
+with the number of stored words. A prefix that selects a few words is answered
+without touching the rest; one that selects most of them is not.
 
-Here's a quick guide to help you get started with the library.
+## Values attached to keys
 
-### Using Tries
-
-A basic example using the memory-optimized `CompressedTrie`:
+`TrieMap<V>` and `CompressedTrieMap<V>` associate a value with each string and
+keep the prefix search, which returns `[key, value]` pairs:
 
 ```typescript
-import { CompressedTrie } from 'prefix-tries';
+import { TrieMap } from 'prefix-tries';
 
-// Initialize a trie with some words.
-const words = ['apple', 'orange'];
-const trie = new CompressedTrie(words);
+const routes = new TrieMap<number>([
+  ['/api/users', 1],
+  ['/api/users/:id', 2],
+  ['/api/posts', 3],
+]);
 
-// Add a new word.
-trie.add('apricot');
+console.log(routes.get('/api/users')); // 1
+console.log(routes.get('/api')); // undefined
 
-// Count total words.
-console.log(trie.size); // 3
+console.log(routes.find('/api/users'));
+// [ [ '/api/users', 1 ], [ '/api/users/:id', 2 ] ]
 
-// Check if word exists.
-console.log(trie.has('orange')); // true
-
-// Find words with prefix 'ap'.
-console.log(trie.find('ap')); // ['apple', 'apricot']
-
-// Iterate through all words (in insertion order).
-for (let word of trie) {
-  console.log(word);
-  /*
-    Output:
-    apple
-    orange
-    apricot
-  */
-}
-
-// Successful word removal.
-console.log(trie.delete('apple')); // true
-
-// Check the updated total word count.
-console.log(trie.size); // 2
-
-// Check for word that no longer exists.
-console.log(trie.has('apple')); // false
-
-// Clear all words.
-trie.clear();
-console.log(trie.size); // 0
+routes.set('/api/users', 10);
+console.log([...routes]);
+// [ [ '/api/users', 10 ], [ '/api/users/:id', 2 ], [ '/api/posts', 3 ] ]
 ```
 
-### Using Trie Maps
-
-A basic example using the memory-optimized `CompressedTrieMap`:
+The compressed map takes the same calls and gives the same answers:
 
 ```typescript
 import { CompressedTrieMap } from 'prefix-tries';
 
-// Initialize a trie-map with key-value pairs.
-const wordValuePairs = [
-  ['apple', 'value1'],
-  ['orange', 'value2'],
-];
-const trieMap = new CompressedTrieMap(wordValuePairs);
+const routes = new CompressedTrieMap<number>([
+  ['/api/users', 1],
+  ['/api/users/:id', 2],
+  ['/api/posts', 3],
+]);
 
-// Add a new key-value pair.
-trieMap.set('apricot', 'value3');
+console.log(routes.get('/api/users')); // 1
+console.log(routes.get('/api')); // undefined
 
-// Count total entries.
-console.log(trieMap.size); // 3
+console.log(routes.find('/api/users'));
+// [ [ '/api/users', 1 ], [ '/api/users/:id', 2 ] ]
 
-// Check if key exists.
-console.log(trieMap.has('orange')); // true
-
-// Retrieve value by key.
-console.log(trieMap.get('apricot')); // 'value3'
-
-// Find entries with prefix 'ap'.
-console.log(trieMap.find('ap')); // [['apple', 'value1'], ['apricot', 'value3']]
-
-// Iterate through all entries (in insertion order).
-for (let entry of trieMap) {
-  console.log(entry);
-  /*
-    Output:
-    ['apple', 'value1']
-    ['orange', 'value2']
-    ['apricot', 'value3']
-  */
-}
-
-// Iterate through all keys.
-for (let word of trieMap.keys()) {
-  console.log(word);
-  /*
-    Output:
-    apple
-    orange
-    apricot
-  */
-}
-
-// Iterate through all values.
-for (let value of trieMap.values()) {
-  console.log(value);
-  /*
-    Output:
-    value1
-    value2
-    value3
-  */
-}
-
-// Successful entry removal.
-console.log(trieMap.delete('apple')); // true
-
-// Check the updated total word count.
-console.log(trieMap.size); // 2
-
-// Check for word that no longer exists.
-console.log(trieMap.has('apple')); // false
-console.log(trieMap.get('apple')); // undefined
-
-// Clear all entries.
-trieMap.clear();
-console.log(trieMap.size); // 0
+routes.set('/api/users', 10);
+console.log([...routes]);
+// [ [ '/api/users', 10 ], [ '/api/users/:id', 2 ], [ '/api/posts', 3 ] ]
 ```
 
-## Code documentation
+## Standard or compressed, behind one API
 
-The complete API reference of the library with detailed examples is available at the [code documentation site](https://styiannis.github.io/prefix-tries/).
+A standard trie gives every character its own node. A compressed trie keeps a
+node only where a word ends or the path branches, and merges each chain in
+between into one node holding a substring. It never holds more nodes than a
+standard trie, usually far fewer, and pays for that when writing, unless it
+removes most of the nodes. Both families answer every call identically, apart
+from the order of `find`'s results, so code written against the abstract class
+accepts either:
 
-## Issues and Support
+```typescript
+import { AbstractTrie, CompressedTrie, Trie } from 'prefix-tries';
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/styiannis/prefix-tries/issues).
+const words = ['romane', 'romanus', 'romulus', 'rubens', 'ruber', 'rubicon'];
 
-## License
+function complete(index: AbstractTrie, typed: string) {
+  return index.find(typed).sort();
+}
 
-This project is licensed under the [MIT License](https://github.com/styiannis/prefix-tries?tab=MIT-1-ov-file#readme).
+console.log(complete(new Trie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
+console.log(complete(new CompressedTrie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
+```
+
+How much the compressed variant saves depends on the keys, from most of the
+memory to none of it.
+[The comparison](https://github.com/styiannis/prefix-tries/blob/main/docs/standard-vs-compressed.md)
+measures both over the same corpus.
+
+## Iteration order
+
+Every instance keeps a doubly linked list beside the tree, one node per word,
+so iteration yields the words in insertion order, and adding a word that is
+already stored leaves it where it was:
+
+```typescript
+import { Trie } from 'prefix-tries';
+
+const recent = new Trie(['zebra', 'apple', 'mango']);
+
+recent.add('apple');
+recent.add('kiwi');
+
+console.log([...recent]); // [ 'zebra', 'apple', 'mango', 'kiwi' ]
+console.log([...recent.entries(true)]); // [ 'kiwi', 'mango', 'apple', 'zebra' ]
+```
+
+`find` is the exception. Its results come out in the order the tree holds
+them, which is neither insertion order nor alphabetical and differs between
+the two families. In a compressed trie, an insertion or a deletion can also
+reorder the words already stored. Sort the results when the order matters.
+
+## API
+
+`Trie` and `CompressedTrie` extend `AbstractTrie`; `TrieMap<V>` and
+`CompressedTrieMap<V>` extend `AbstractTrieMap<V>`. All six are exported from
+the package root, which is the only entry point, and the two abstract classes
+are there for implementations of your own. With **m** the length of the word
+or prefix and **σ** the children a compressed trie scans at each node on the
+path:
+
+| Member                                | Tries | Maps | Standard             | Compressed             |
+| ------------------------------------- | :---: | :--: | -------------------- | ---------------------- |
+| `size`                                |   ✓   |  ✓   | `O(1)`               | `O(1)`                 |
+| `add(word)`                           |   ✓   |      | `O(m)`               | `O(m·σ)`               |
+| `set(word, value)`                    |       |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `get(word)`                           |       |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `has(word)`                           |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `delete(word)`                        |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `find(prefix)`                        |   ✓   |  ✓   | `O(m)` + the subtree | `O(m·σ)` + the subtree |
+| `clear()`                             |   ✓   |  ✓   | `O(1)`               | `O(1)`                 |
+| `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` call          | `O(1)` call            |
+| `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` call          | `O(1)` call            |
+| `forEach(callback, thisArg?)`         |   ✓   |  ✓   | —                    | —                      |
+| `[Symbol.iterator](reversed?)`        |   ✓   |  ✓   | `O(1)` call          | `O(1)` call            |
+
+A drained `entries`, `keys` or `[Symbol.iterator]` rebuilds each word by
+walking from its node up to the root, so it costs one step per node on the
+word's path rather than one step per word. That is the word's length in a
+standard trie, and usually fewer steps in a compressed one. `values` rebuilds
+nothing.
+[The architecture write-up](https://github.com/styiannis/prefix-tries/blob/main/docs/architecture-and-api.md#complexity-as-implemented)
+has the full table.
+
+Every method validates its arguments and throws a `TypeError` for a word or
+prefix that is not a string or is empty, a `reversed` that is not a boolean,
+and a callback that is not a function. The empty string can therefore never be
+stored, and `find('')` throws rather than returning everything.
+
+## When not to use it
+
+A trie pays for its prefix query with a node per character or substring, and a
+tree to walk for every other question. The cases below are those where that
+cost buys nothing.
+
+| If this describes the problem                      | Reach for                                                                                                                                                                                                      |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exact membership or lookup only                    | a `Set` or a `Map` — `has` walks the key node by node, several times slower than one hash, in many times the memory                                                                                            |
+| Prefixes that each match thousands of stored words | an `Array` and `filter`, measured against `find` first — `find` builds a string at every node below the prefix, and on a one-letter prefix of an English word list a standard `Trie` already loses to the scan |
+| A few hundred candidates                           | an `Array` and `filter` — the scan is already fast at that size, and simpler to reason about                                                                                                                   |
+| Suffix, infix or fuzzy matching                    | a suffix array for suffix and infix queries, a BK-tree or an edit-distance search for fuzzy ones — this one indexes prefixes only                                                                              |
+| Memory is the binding constraint                   | a sorted `Array` searched by binary search, which finds a prefix's range too — either trie takes many times the memory of the strings it holds                                                                 |
+
+## Documentation
+
+- [Guides, the FAQ and the architecture write-up](https://github.com/styiannis/prefix-tries/tree/main/docs) —
+  getting a trie running, choosing between the two structures, the behaviour
+  that surprises people, and how the library is built.
+- [The generated API reference](https://styiannis.github.io/prefix-tries/) —
+  every signature and every type.
+- [Open an issue](https://github.com/styiannis/prefix-tries/issues) for a
+  question or a bug report.
+
+Released under the
+[MIT License](https://github.com/styiannis/prefix-tries/blob/main/LICENSE).
