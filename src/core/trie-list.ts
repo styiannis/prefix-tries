@@ -2,9 +2,9 @@ import {
   clear as listClear,
   create as listCreate,
   pushNode as listPushNode,
+  removeNode as listRemoveNode,
 } from 'abstract-linked-lists/doubly-linked-list/list';
 import { ITrieList } from '../types';
-import { detach } from './trie-list-node';
 
 export function create<L extends ITrieList>() {
   return listCreate<L>();
@@ -25,18 +25,5 @@ export function removeNode<L extends ITrieList>(
   instance: L,
   node: NonNullable<L['head']>
 ) {
-  // @todo: Need to develop unit-test to cover the "else" case of the condition
-  if (node === instance.head) {
-    instance.head = node.next;
-  }
-
-  if (node === instance.tail) {
-    instance.tail = node.previous;
-  }
-
-  detach(node);
-
-  instance.size--;
-
-  return node;
+  return listRemoveNode(instance, node);
 }
