@@ -154,8 +154,8 @@ reorder the words already stored. Sort the results when the order matters.
 `CompressedTrieMap<V>` extend `AbstractTrieMap<V>`. All six are exported from
 the package root, which is the only entry point, and the two abstract classes
 are there for implementations of your own. With **m** the length of the word
-or prefix and **σ** the children a compressed trie scans at each node on the
-path:
+or prefix, **n** the number of stored words, and **σ** the children a
+compressed trie scans at each node on the path:
 
 | Member                                | Tries | Maps | Standard             | Compressed             |
 | ------------------------------------- | :---: | :--: | -------------------- | ---------------------- |
@@ -166,7 +166,7 @@ path:
 | `has(word)`                           |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
 | `delete(word)`                        |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
 | `find(prefix)`                        |   ✓   |  ✓   | `O(m)` + the subtree | `O(m·σ)` + the subtree |
-| `clear()`                             |   ✓   |  ✓   | `O(1)`               | `O(1)`                 |
+| `clear()`                             |   ✓   |  ✓   | `O(n)`               | `O(n)`                 |
 | `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` call          | `O(1)` call            |
 | `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` call          | `O(1)` call            |
 | `forEach(callback, thisArg?)`         |   ✓   |  ✓   | —                    | —                      |
