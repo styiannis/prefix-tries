@@ -386,6 +386,55 @@ describe.each([
     ).toThrow(`The "word" value must be a string. Current value: "9".`);
   });
 
+  it('Invalid arguments that cannot be converted to a string', () => {
+    const instance = new TrieMapClass();
+
+    const unprintable = [
+      [Symbol('s'), 'Symbol(s)'],
+      [Object.create(null), '[object Object]'],
+      [
+        {
+          toString() {
+            throw new Error('toString');
+          },
+        },
+        '[object Object]',
+      ],
+    ] as const;
+
+    unprintable.forEach(([v, shown]) => {
+      expect(() => new TrieMapClass(v as any)).toThrow(
+        new TypeError(
+          `The "initialWordValues" value must be an array. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => new TrieMapClass([v as any])).toThrow(
+        new TypeError(
+          `The "entry" value must be an array. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.set(v as any, 1)).toThrow(
+        new TypeError(
+          `The "word" value must be a string. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.entries(v as any)).toThrow(
+        new TypeError(
+          `The "reversed" value must be a boolean. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.forEach(v as any)).toThrow(
+        new TypeError(
+          `The "callback" value must be a function. Current value: "${shown}".`
+        )
+      );
+    });
+  });
+
   it('Invalid string arguments', () => {
     const instance = new TrieMapClass();
 
