@@ -1,7 +1,7 @@
 import * as trie from '../../src/core/trie';
 import * as compressedTrie from '../../src/core/compressed-trie';
-import { ALL_WORDS, WORDS_1, WORDS_2 } from '../tests-constants';
-import { isValidObjectInstance } from '../tests-util';
+import { ALL_WORDS, WORDS_1, WORDS_2 } from '../constants';
+import { isValidObjectInstance } from '../util/isValidObjectInstance';
 
 describe.each([
   ['trie' as const, 'trie-node' as const, trie],

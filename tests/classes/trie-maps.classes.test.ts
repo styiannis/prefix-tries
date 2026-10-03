@@ -1,11 +1,6 @@
 import { CompressedTrieMap, TrieMap } from '../../src';
-import {
-  ALL_WORDS,
-  ALL_WORDS_VALUES,
-  WORDS_1,
-  WORDS_2,
-} from '../tests-constants';
-import { isValidClassInstance } from '../tests-util';
+import { ALL_WORDS, ALL_WORDS_VALUES, WORDS_1, WORDS_2 } from '../constants';
+import { isValidClassInstance } from '../util/isValidClassInstance';
 
 describe.each([
   ['TrieMap' as const, TrieMap],
