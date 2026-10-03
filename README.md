@@ -72,6 +72,11 @@ while a compressed trie compares the rest of the word with the node's children
 one by one. An insertion that diverges inside a stored substring also splits
 the node that holds it.
 
+How much memory compression saves depends on the keys, from most of it to
+none.
+[The comparison of the two](https://github.com/styiannis/prefix-tries/blob/main/docs/standard-vs-compressed.md)
+measures both over an English word list and over three generated key sets.
+
 Apart from the order of `find`'s results, the two answer every call
 identically. Both extend the same abstract class, so code written against it
 accepts either:
@@ -164,6 +169,9 @@ a standard and in a compressed trie. **n** is the number of words stored, **m**
 the length of the word or prefix, and **σ** the largest number of children of
 a node on the path to that word or prefix (e.g. at most 26 for lowercase English
 words).
+[The architecture write-up](https://github.com/styiannis/prefix-tries/blob/main/docs/architecture-and-api.md#complexity-as-implemented)
+gives the same costs with the subtree below a prefix and a drained iterator
+counted.
 
 | Member                                | Tries | Maps | Time, standard                | Time, compressed              |
 | ------------------------------------- | :---: | :--: | ----------------------------- | ----------------------------- |
@@ -212,6 +220,9 @@ better:
 
 ## Documentation
 
+- [Guides, the FAQ and the architecture write-up](https://github.com/styiannis/prefix-tries/tree/main/docs) —
+  a first prefix search, the choice between the two structures, behaviour you
+  may not expect and every error message, and how the library is built.
 - [The generated API reference](https://styiannis.github.io/prefix-tries/) —
   every signature and every type.
 - [Open an issue](https://github.com/styiannis/prefix-tries/issues) for a
