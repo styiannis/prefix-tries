@@ -1,11 +1,6 @@
 import { CompressedTrieMap, TrieMap } from '../../src';
-import {
-  ALL_WORDS,
-  ALL_WORDS_VALUES,
-  WORDS_1,
-  WORDS_2,
-} from '../tests-constants';
-import { isValidClassInstance } from '../tests-util';
+import { ALL_WORDS, ALL_WORDS_VALUES, WORDS_1, WORDS_2 } from '../constants';
+import { isValidClassInstance } from '../util/isValidClassInstance';
 
 describe.each([
   ['TrieMap' as const, TrieMap],
@@ -20,14 +15,14 @@ describe.each([
       const key = word;
       const value = `{{${word}}}`;
       expect(instance.has(key)).toBe(false);
-      expect(instance.get(key)).toBe(undefined);
-      expect(instance.set(key, value)).toBe(undefined);
+      expect(instance.get(key)).toBeUndefined();
+      expect(instance.set(key, value)).toBeUndefined();
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let entry of instance) {
       expect(entry).toStrictEqual([ALL_WORDS[i], `{{${ALL_WORDS[i]}}}`]);
@@ -40,7 +35,7 @@ describe.each([
       const value = `{{${word}}}`;
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
-      expect(instance.set(key, value)).toBe(undefined);
+      expect(instance.set(key, value)).toBeUndefined();
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
       expect(instance.size).toBe(ALL_WORDS.length);
@@ -56,7 +51,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -66,7 +61,7 @@ describe.each([
       expect(instance.get(word)).toBe(`{{${word}}}`);
       expect(instance.delete(word)).toBe(true);
       expect(instance.has(word)).toBe(false);
-      expect(instance.get(word)).toBe(undefined);
+      expect(instance.get(word)).toBeUndefined();
       expect(instance.size).toBe(ALL_WORDS.length - i - 1);
 
       let j = 0;
@@ -83,7 +78,7 @@ describe.each([
   it('Insert and update words values', () => {
     const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       expect(instance.get(word)).toBe(`{{${word}}}`);
       instance.set(word, `UPDATED_VALUE[${word}]`);
       expect(instance.get(word)).toBe(`UPDATED_VALUE[${word}]`);
@@ -133,7 +128,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -186,7 +181,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -207,7 +202,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -224,7 +219,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -241,7 +236,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -259,11 +254,13 @@ describe.each([
     for (const entry of instance[Symbol.iterator]()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance[Symbol.iterator](true)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -275,11 +272,13 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const entry of instance.entries(true)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -289,13 +288,15 @@ describe.each([
 
     let i = 0;
     for (const key of instance.keys()) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++]?.[0]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const key of instance.keys(true)) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--]?.[0]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -305,13 +306,15 @@ describe.each([
 
     let i = 0;
     for (const value of instance.values()) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++][1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++]?.[1]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const value of instance.values(true)) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--][1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--]?.[1]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -323,6 +326,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
   });
@@ -332,12 +336,103 @@ describe.each([
 
     let i = 0;
     instance.forEach((value, word) => {
-      expect(word).toStrictEqual(ALL_WORDS_VALUES[i][0]);
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i][1]);
+      expect(word).toStrictEqual(ALL_WORDS_VALUES[i]?.[0]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i]?.[1]);
       i++;
     });
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
+  });
+
+  it('Constructor skips the holes of a sparse array', () => {
+    // Writing past the end leaves index 1 a hole.
+    const entries: [string, number][] = [['apple', 1]];
+    entries[2] = ['lemon', 2];
+
+    expect([...new TrieMapClass(entries)]).toStrictEqual([
+      ['apple', 1],
+      ['lemon', 2],
+    ]);
+  });
+
+  it('Invalid constructor arguments', () => {
+    const invalidArrays = [
+      null,
+      'w',
+      9,
+      {},
+      new Map([['w', 1]]),
+    ] as unknown as [string, number][][];
+
+    invalidArrays.forEach((a) => {
+      expect(() => new TrieMapClass(a)).toThrow(TypeError);
+      expect(() => new TrieMapClass(a)).toThrow(
+        `The "initialWordValues" value must be an array. Current value: "${a}".`
+      );
+    });
+
+    const invalidEntries = [null, 'w', 9, {}] as unknown as [string, number][];
+
+    invalidEntries.forEach((e) => {
+      expect(() => new TrieMapClass([e])).toThrow(TypeError);
+      expect(() => new TrieMapClass([e])).toThrow(
+        `The "entry" value must be an array. Current value: "${e}".`
+      );
+    });
+
+    expect(
+      () => new TrieMapClass([[9, 1]] as unknown as [string, number][])
+    ).toThrow(`The "word" value must be a string. Current value: "9".`);
+  });
+
+  it('Invalid arguments that cannot be converted to a string', () => {
+    const instance = new TrieMapClass();
+
+    const unprintable = [
+      [Symbol('s'), 'Symbol(s)'],
+      [Object.create(null), '[object Object]'],
+      [
+        {
+          toString() {
+            throw new Error('toString');
+          },
+        },
+        '[object Object]',
+      ],
+    ] as const;
+
+    unprintable.forEach(([v, shown]) => {
+      expect(() => new TrieMapClass(v as any)).toThrow(
+        new TypeError(
+          `The "initialWordValues" value must be an array. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => new TrieMapClass([v as any])).toThrow(
+        new TypeError(
+          `The "entry" value must be an array. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.set(v as any, 1)).toThrow(
+        new TypeError(
+          `The "word" value must be a string. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.entries(v as any)).toThrow(
+        new TypeError(
+          `The "reversed" value must be a boolean. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.forEach(v as any)).toThrow(
+        new TypeError(
+          `The "callback" value must be a function. Current value: "${shown}".`
+        )
+      );
+    });
   });
 
   it('Invalid string arguments', () => {

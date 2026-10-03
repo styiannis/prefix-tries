@@ -10,6 +10,7 @@ import { entries, includesWord } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
+  validateArray,
   validateBoolean,
   validateFunction,
   validateNonEmptyString,
@@ -36,8 +37,8 @@ export class CompressedTrie extends AbstractTrie {
   /**
    * Creates a new `CompressedTrie` instance.
    *
-   * @param [initialWords] - Optional array of `[word, value]` pairs to initialize the compressed-trie with.
-   * @throws `TypeError` if `initialWords` is defined and contains an invalid word (empty string or non-string value).
+   * @param [initialWords] - Optional array of words to initialize the compressed-trie with.
+   * @throws `TypeError` if `initialWords` is defined and is not an array or contains an invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie
@@ -53,6 +54,7 @@ export class CompressedTrie extends AbstractTrie {
     this.#compressedTrie = create();
 
     if (undefined !== initialWords) {
+      validateArray(initialWords, 'initialWords');
       initialWords.forEach((word) => this.add(word));
     }
   }
@@ -79,7 +81,7 @@ export class CompressedTrie extends AbstractTrie {
    *
    * Words are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator for the compressed-trie's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example
@@ -174,7 +176,7 @@ export class CompressedTrie extends AbstractTrie {
    *
    * Words are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator of the compressed-trie's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example

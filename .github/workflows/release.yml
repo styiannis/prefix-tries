@@ -9,33 +9,31 @@ concurrency:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
 
       # Validate code
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci --ignore-scripts
 
-      - name: CI script (type checks, linting, build, exports validation)
-        run: npm run ci
+      - name: Verify (type checks, linting, build, dist checks)
+        run: npm run verify
 
       - name: Test script with coverage reporting
         run: npm run test-coverage
-
-      - name: Environment reset
-        run: npm run reset
 
       # Create tag and release
 
@@ -64,9 +62,12 @@ jobs:
 
       - name: Exit if the release or tag already exists
         if: steps.release-exists.outputs.exists == 'true' || steps.tag-exists.outputs.exists == 'true'
+        env:
+          RELEASE_EXISTS: ${{ steps.release-exists.outputs.exists }}
+          TAG_EXISTS: ${{ steps.tag-exists.outputs.exists }}
         run: |
-          echo "Release already exists: ${{ steps.release-exists.outputs.exists }}"
-          echo "Tag already exists: ${{ steps.tag-exists.outputs.exists }}"
+          echo "Release already exists: $RELEASE_EXISTS"
+          echo "Tag already exists: $TAG_EXISTS"
           exit 1
 
       - name: Create tag

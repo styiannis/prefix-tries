@@ -102,7 +102,11 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
 
       instance.key = `${key}${childKey}`;
       instance.children = childNode.children;
-      instance.children.forEach((n) => (n.parent = instance));
+
+      for (const [_, child] of instance.children) {
+        child.parent = instance;
+      }
+
       instance.listNode = childNode.listNode;
 
       if (instance.listNode) {
@@ -139,7 +143,11 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
       instance.key = `${key}${childKey}`;
       instance.value = childNode.value;
       instance.children = childNode.children;
-      instance.children.forEach((n) => (n.parent = instance));
+
+      for (const [_, child] of instance.children) {
+        child.parent = instance;
+      }
+
       instance.listNode = childNode.listNode;
 
       if (instance.listNode) {
@@ -172,7 +180,9 @@ export function compressedTrieSplitNode<N extends ITrieNode>(
     instance.listNode
   );
 
-  newNode.children.forEach((n) => (n.parent = newNode));
+  for (const [_, child] of newNode.children) {
+    child.parent = newNode;
+  }
 
   if (newNode.listNode) {
     newNode.listNode.trieNode = newNode;
@@ -202,7 +212,9 @@ export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
     instance.listNode
   );
 
-  newNode.children.forEach((n) => (n.parent = newNode));
+  for (const [_, child] of newNode.children) {
+    child.parent = newNode;
+  }
 
   if (newNode.listNode) {
     newNode.listNode.trieNode = newNode;

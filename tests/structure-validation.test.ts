@@ -1,7 +1,7 @@
 import * as compressedTrie from '../src/core/compressed-trie';
 import * as trie from '../src/core/trie';
 import { ITrie } from '../src/types';
-import { WORDS_1, WORDS_2 } from './tests-constants';
+import { WORDS_1, WORDS_2 } from './constants';
 
 /* ----------------------------------------- */
 /* ---------- // Helper functions ---------- */
@@ -16,10 +16,16 @@ function confirmStructure(
       let node: typeof instance.root | undefined = instance.root;
 
       for (let i = 0; node && i < nodePrefixes.length; i++) {
-        node = node.children.get(nodePrefixes[i]);
+        const key = nodePrefixes[i];
+
+        expect(key).not.toBeUndefined();
+
+        if (key !== undefined) {
+          node = node.children.get(key);
+        }
       }
 
-      expect(node?.listNode).not.toBe(undefined);
+      expect(node?.listNode).not.toBeUndefined();
 
       if (node?.listNode) {
         expect(!!node.listNode).toBe(isNodeEndOfWord);
@@ -30,7 +36,7 @@ function confirmStructure(
 
         expect(node.children.size).toBe(nodeChildrengetSize);
 
-        node.children.forEach((n) => expect(n.parent === node).toBe(true));
+        node.children.forEach((n) => expect(n.parent).toBe(node));
       }
     }
   );
@@ -42,7 +48,7 @@ function insertWordAndConfirmStructure(
   word: string,
   expectedTreeStructure: [string[], boolean, number][]
 ) {
-  expect(insert(instance, word)).toBe(undefined);
+  expect(insert(instance, word)).toBeUndefined();
   confirmStructure(instance, expectedTreeStructure);
 }
 
@@ -219,12 +225,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_1.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -381,19 +390,22 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
   });
 
   it('Structure validation after each word removal (1)', () => {
-    WORDS_1.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
+    WORDS_1.forEach((word) => expect(addWord(instance, word)).toBeUndefined());
 
     // Confirm structure before any removal.
     confirmStructure(instance, [
@@ -533,17 +545,20 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < expectedStructure.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 
   it('Structure validation after each word removal (2)', () => {
-    WORDS_2.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
+    WORDS_2.forEach((word) => expect(addWord(instance, word)).toBeUndefined());
 
     // Confirm structure before any removal.
     confirmStructure(instance, [
@@ -721,12 +736,15 @@ describe('core >> trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 });
@@ -817,12 +835,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_1.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
@@ -911,19 +932,22 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      insertWordAndConfirmStructure(
-        instance,
-        addWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        insertWordAndConfirmStructure(instance, addWord, word, expected);
+      }
     }
 
     clear(instance);
   });
 
   it('Structure validation after each word removal (1)', () => {
-    WORDS_1.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
+    WORDS_1.forEach((word) => expect(addWord(instance, word)).toBeUndefined());
 
     // Confirm structure before any removal.
     confirmStructure(instance, [
@@ -1003,17 +1027,20 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < expectedStructure.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_1[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_1[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 
   it('Structure validation after each word removal (2)', () => {
-    WORDS_2.forEach((word) => expect(addWord(instance, word)).toBe(undefined));
+    WORDS_2.forEach((word) => expect(addWord(instance, word)).toBeUndefined());
 
     // Confirm structure before any removal.
     confirmStructure(instance, [
@@ -1105,12 +1132,15 @@ describe('core >> compressed-trie', () => {
     ];
 
     for (let i = 0; i < WORDS_2.length; i++) {
-      deleteWordAndConfirmStructure(
-        instance,
-        deleteWord,
-        WORDS_2[i],
-        expectedStructure[i]
-      );
+      const word = WORDS_2[i];
+      const expected = expectedStructure[i];
+
+      expect(word).not.toBeUndefined();
+      expect(expected).toBeDefined();
+
+      if (word !== undefined && expected) {
+        deleteWordAndConfirmStructure(instance, deleteWord, word, expected);
+      }
     }
   });
 });

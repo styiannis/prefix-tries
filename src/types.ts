@@ -8,8 +8,9 @@ import {
  *
  * @template T - The type of trie node (`ITrieNode` or `ITrieMapNode`)
  */
-export interface ITrieListNode<T extends ITrieNode | ITrieMapNode = ITrieNode>
-  extends IDoublyLinkedListNode {
+export interface ITrieListNode<
+  T extends ITrieNode | ITrieMapNode = ITrieNode,
+> extends IDoublyLinkedListNode {
   trieNode: T;
   next: ITrieListNode<T> | null;
   previous: ITrieListNode<T> | null;
@@ -50,7 +51,7 @@ export interface ITrieMapNode<V = unknown> {
  */
 export type ITrieList<
   T extends ITrieNode | ITrieMapNode = ITrieNode,
-  N extends ITrieListNode<T> = ITrieListNode<T>
+  N extends ITrieListNode<T> = ITrieListNode<T>,
 > = IDoublyLinkedList<N>;
 
 /**
@@ -73,7 +74,7 @@ export interface ITrie<N extends ITrieNode = ITrieNode> {
  */
 export interface ITrieMap<
   V = unknown,
-  N extends ITrieMapNode<V> = ITrieMapNode<V>
+  N extends ITrieMapNode<V> = ITrieMapNode<V>,
 > {
   root: N;
   list: ITrieList<N>;

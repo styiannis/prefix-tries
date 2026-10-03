@@ -1,6 +1,6 @@
 import { CompressedTrie, Trie } from '../../src';
-import { ALL_WORDS, WORDS_1, WORDS_2 } from '../tests-constants';
-import { isValidClassInstance } from '../tests-util';
+import { ALL_WORDS, WORDS_1, WORDS_2 } from '../constants';
+import { isValidClassInstance } from '../util/isValidClassInstance';
 
 describe.each([
   ['Trie' as const, Trie],
@@ -13,22 +13,23 @@ describe.each([
 
     ALL_WORDS.forEach((word, i) => {
       expect(instance.has(word)).toBe(false);
-      expect(instance.add(word)).toBe(undefined);
+      expect(instance.add(word)).toBeUndefined();
       expect(instance.has(word)).toBe(true);
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let word of instance) {
       expect(word).toBe(ALL_WORDS[i]);
       i++;
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     // Try to insert the same values.
     ALL_WORDS.forEach((word) => {
       expect(instance.has(word)).toBe(true);
-      expect(instance.add(word)).toBe(undefined);
+      expect(instance.add(word)).toBeUndefined();
       expect(instance.has(word)).toBe(true);
       expect(instance.size).toBe(ALL_WORDS.length);
     });
@@ -43,7 +44,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -103,7 +104,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -154,7 +155,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -170,11 +171,13 @@ describe.each([
     for (let entry of instance[Symbol.iterator]()) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (let entry of instance[Symbol.iterator](true)) {
       expect(entry).toBe(ALL_WORDS[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -186,11 +189,13 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance.entries(true)) {
       expect(entry).toStrictEqual(ALL_WORDS[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -202,6 +207,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
   });
@@ -211,8 +217,81 @@ describe.each([
 
     let i = 0;
     instance.forEach((entry) => expect(entry).toBe(ALL_WORDS[i++]));
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
+  });
+
+  it('Constructor skips the holes of a sparse array', () => {
+    // Writing past the end leaves index 1 a hole.
+    const words = ['apple'];
+    words[2] = 'lemon';
+
+    expect([...new TrieClass(words)]).toStrictEqual(['apple', 'lemon']);
+  });
+
+  it('Invalid constructor arguments', () => {
+    const invalidArrays = [
+      null,
+      'w',
+      9,
+      {},
+      new Set(['w']),
+    ] as unknown as string[][];
+
+    invalidArrays.forEach((a) => {
+      expect(() => new TrieClass(a)).toThrow(TypeError);
+      expect(() => new TrieClass(a)).toThrow(
+        `The "initialWords" value must be an array. Current value: "${a}".`
+      );
+    });
+
+    expect(() => new TrieClass(['w', 9] as string[])).toThrow(
+      `The "word" value must be a string. Current value: "9".`
+    );
+  });
+
+  it('Invalid arguments that cannot be converted to a string', () => {
+    const instance = new TrieClass();
+
+    const unprintable = [
+      [Symbol('s'), 'Symbol(s)'],
+      [Object.create(null), '[object Object]'],
+      [
+        {
+          toString() {
+            throw new Error('toString');
+          },
+        },
+        '[object Object]',
+      ],
+    ] as const;
+
+    unprintable.forEach(([v, shown]) => {
+      expect(() => new TrieClass(v as any)).toThrow(
+        new TypeError(
+          `The "initialWords" value must be an array. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.add(v as any)).toThrow(
+        new TypeError(
+          `The "word" value must be a string. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.entries(v as any)).toThrow(
+        new TypeError(
+          `The "reversed" value must be a boolean. Current value: "${shown}".`
+        )
+      );
+
+      expect(() => instance.forEach(v as any)).toThrow(
+        new TypeError(
+          `The "callback" value must be a function. Current value: "${shown}".`
+        )
+      );
+    });
   });
 
   it('Invalid string arguments', () => {
