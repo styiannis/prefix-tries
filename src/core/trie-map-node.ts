@@ -27,7 +27,7 @@ export function wordValuePair<N extends ITrieMapNode>(instance: N) {
   return isEndOfWord(instance)
     ? ([`${parentsPrefix(instance)}${instance.key}`, instance.value] as [
         string,
-        N['value']
+        N['value'],
       ])
     : undefined;
 }
@@ -47,16 +47,16 @@ export function* childrenWordValuePairs<N extends ITrieMapNode>(
   prefix: string
 ) {
   for (const [childKey, child] of instance.children) {
-    const stack: [N, string][] = [[child as N, `${prefix}${childKey}`]];
+    const queue: [N, string][] = [[child as N, `${prefix}${childKey}`]];
 
-    while (stack.length > 0) {
-      const [node, str] = stack.shift()!;
-
+    for (const [node, str] of queue) {
       if (isEndOfWord(node)) {
         yield [str, node.value] as [string, N['value']];
       }
 
-      node.children.forEach((n, c) => stack.push([n as N, `${str}${c}`]));
+      for (const [char, child] of node.children) {
+        queue.push([child as N, `${str}${char}`]);
+      }
     }
   }
 }
