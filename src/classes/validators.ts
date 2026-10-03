@@ -1,3 +1,11 @@
+export function validateArray(value: any, name: string) {
+  if (!Array.isArray(value)) {
+    throw new TypeError(
+      `The "${name}" value must be an array. Current value: "${value}".`
+    );
+  }
+}
+
 export function validateBoolean(value: any, name: string) {
   if ('boolean' !== typeof value) {
     throw new TypeError(

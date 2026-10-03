@@ -11,6 +11,7 @@ import {
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
+  validateArray,
   validateBoolean,
   validateFunction,
   validateNonEmptyString,
@@ -38,7 +39,7 @@ export class Trie extends AbstractTrie {
    * Creates a new `Trie` instance.
    *
    * @param [initialWords] - Optional array of words to initialize the trie with.
-   * @throws `TypeError` if `initialWords` is defined and contains an invalid word (empty string or non-string value).
+   * @throws `TypeError` if `initialWords` is defined and is not an array or contains an invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie
@@ -54,9 +55,8 @@ export class Trie extends AbstractTrie {
     this.#trie = create();
 
     if (undefined !== initialWords) {
-      for (const word of initialWords) {
-        this.add(word);
-      }
+      validateArray(initialWords, 'initialWords');
+      initialWords.forEach((word) => this.add(word));
     }
   }
 

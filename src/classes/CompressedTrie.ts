@@ -10,6 +10,7 @@ import { entries, includesWord } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
+  validateArray,
   validateBoolean,
   validateFunction,
   validateNonEmptyString,
@@ -36,8 +37,8 @@ export class CompressedTrie extends AbstractTrie {
   /**
    * Creates a new `CompressedTrie` instance.
    *
-   * @param [initialWords] - Optional array of `[word, value]` pairs to initialize the compressed-trie with.
-   * @throws `TypeError` if `initialWords` is defined and contains an invalid word (empty string or non-string value).
+   * @param [initialWords] - Optional array of words to initialize the compressed-trie with.
+   * @throws `TypeError` if `initialWords` is defined and is not an array or contains an invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie
@@ -53,9 +54,8 @@ export class CompressedTrie extends AbstractTrie {
     this.#compressedTrie = create();
 
     if (undefined !== initialWords) {
-      for (const word of initialWords) {
-        this.add(word);
-      }
+      validateArray(initialWords, 'initialWords');
+      initialWords.forEach((word) => this.add(word));
     }
   }
 

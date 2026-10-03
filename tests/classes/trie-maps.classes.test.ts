@@ -345,6 +345,47 @@ describe.each([
     instance.clear();
   });
 
+  it('Constructor skips the holes of a sparse array', () => {
+    // Writing past the end leaves index 1 a hole.
+    const entries: [string, number][] = [['apple', 1]];
+    entries[2] = ['lemon', 2];
+
+    expect([...new TrieMapClass(entries)]).toStrictEqual([
+      ['apple', 1],
+      ['lemon', 2],
+    ]);
+  });
+
+  it('Invalid constructor arguments', () => {
+    const invalidArrays = [
+      null,
+      'w',
+      9,
+      {},
+      new Map([['w', 1]]),
+    ] as unknown as [string, number][][];
+
+    invalidArrays.forEach((a) => {
+      expect(() => new TrieMapClass(a)).toThrow(TypeError);
+      expect(() => new TrieMapClass(a)).toThrow(
+        `The "initialWordValues" value must be an array. Current value: "${a}".`
+      );
+    });
+
+    const invalidEntries = [null, 'w', 9, {}] as unknown as [string, number][];
+
+    invalidEntries.forEach((e) => {
+      expect(() => new TrieMapClass([e])).toThrow(TypeError);
+      expect(() => new TrieMapClass([e])).toThrow(
+        `The "entry" value must be an array. Current value: "${e}".`
+      );
+    });
+
+    expect(
+      () => new TrieMapClass([[9, 1]] as unknown as [string, number][])
+    ).toThrow(`The "word" value must be a string. Current value: "9".`);
+  });
+
   it('Invalid string arguments', () => {
     const instance = new TrieMapClass();
 

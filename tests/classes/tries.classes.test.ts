@@ -222,6 +222,35 @@ describe.each([
     instance.clear();
   });
 
+  it('Constructor skips the holes of a sparse array', () => {
+    // Writing past the end leaves index 1 a hole.
+    const words = ['apple'];
+    words[2] = 'lemon';
+
+    expect([...new TrieClass(words)]).toStrictEqual(['apple', 'lemon']);
+  });
+
+  it('Invalid constructor arguments', () => {
+    const invalidArrays = [
+      null,
+      'w',
+      9,
+      {},
+      new Set(['w']),
+    ] as unknown as string[][];
+
+    invalidArrays.forEach((a) => {
+      expect(() => new TrieClass(a)).toThrow(TypeError);
+      expect(() => new TrieClass(a)).toThrow(
+        `The "initialWords" value must be an array. Current value: "${a}".`
+      );
+    });
+
+    expect(() => new TrieClass(['w', 9] as string[])).toThrow(
+      `The "word" value must be a string. Current value: "9".`
+    );
+  });
+
   it('Invalid string arguments', () => {
     const instance = new TrieClass();
 

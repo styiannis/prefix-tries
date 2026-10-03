@@ -12,6 +12,7 @@ import {
 import { ITrieMap } from '../types';
 import { AbstractTrieMap } from './abstract';
 import {
+  validateArray,
   validateBoolean,
   validateFunction,
   validateNonEmptyString,
@@ -41,7 +42,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * Creates a new `TrieMap` instance.
    *
    * @param [initialWordValues] - Optional array of `[word, value]` pairs to initialize the trie-map with.
-   * @throws `TypeError` if `initialWordValues` is defined and contains an invalid word (empty string or non-string value).
+   * @throws `TypeError` if `initialWordValues` is defined and is not an array, contains an entry that is not an array, or contains an invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie-map
@@ -66,9 +67,12 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
     this.#trieMap = create<ITrieMap<V>>();
 
     if (undefined !== initialWordValues) {
-      for (const [word, value] of initialWordValues) {
-        this.set(word, value);
-      }
+      validateArray(initialWordValues, 'initialWordValues');
+
+      initialWordValues.forEach((entry) => {
+        validateArray(entry, 'entry');
+        this.set(entry[0], entry[1]);
+      });
     }
   }
 
