@@ -40,6 +40,7 @@ describe.each([
       expect(word).toBe(ALL_WORDS[i]);
       i++;
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     // Try to insert the same values
     ALL_WORDS.forEach((word) => {

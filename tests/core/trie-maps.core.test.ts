@@ -38,11 +38,13 @@ describe.each([
     for (const entry of entries(instance)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const entry of entries(instance, true)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i--]);
     }
+    expect(i).toBe(-1);
 
     clear(instance);
   });
@@ -62,6 +64,7 @@ describe.each([
     for (const key of keys(instance, true)) {
       expect(key).toBe(ALL_WORDS_VALUES[i--]?.[0]);
     }
+    expect(i).toBe(-1);
 
     clear(instance);
   });
@@ -81,6 +84,7 @@ describe.each([
     for (const value of values(instance, true)) {
       expect(value).toBe(ALL_WORDS_VALUES[i--]?.[1]);
     }
+    expect(i).toBe(-1);
 
     clear(instance);
   });

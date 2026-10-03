@@ -254,11 +254,13 @@ describe.each([
     for (const entry of instance[Symbol.iterator]()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance[Symbol.iterator](true)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -270,11 +272,13 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const entry of instance.entries(true)) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -286,11 +290,13 @@ describe.each([
     for (const key of instance.keys()) {
       expect(key).toStrictEqual(ALL_WORDS_VALUES[i++]?.[0]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const key of instance.keys(true)) {
       expect(key).toStrictEqual(ALL_WORDS_VALUES[i--]?.[0]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -300,14 +306,15 @@ describe.each([
 
     let i = 0;
     for (const value of instance.values()) {
-      expect(value).toBe(ALL_WORDS_VALUES[i++]?.[1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++]?.[1]);
     }
     expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const value of instance.values(true)) {
-      expect(value).toBe(ALL_WORDS_VALUES[i--]?.[1]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--]?.[1]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -319,6 +326,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toStrictEqual(ALL_WORDS_VALUES[i++]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
   });
@@ -332,6 +340,7 @@ describe.each([
       expect(value).toStrictEqual(ALL_WORDS_VALUES[i]?.[1]);
       i++;
     });
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     instance.clear();
   });

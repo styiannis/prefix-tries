@@ -24,6 +24,7 @@ describe.each([
       expect(word).toBe(ALL_WORDS[i]);
       i++;
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     // Try to insert the same values.
     ALL_WORDS.forEach((word) => {
@@ -170,11 +171,13 @@ describe.each([
     for (let entry of instance[Symbol.iterator]()) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (let entry of instance[Symbol.iterator](true)) {
       expect(entry).toBe(ALL_WORDS[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -186,11 +189,13 @@ describe.each([
     for (const entry of instance.entries()) {
       expect(entry).toStrictEqual(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     i = ALL_WORDS.length - 1;
     for (const entry of instance.entries(true)) {
       expect(entry).toStrictEqual(ALL_WORDS[i--]);
     }
+    expect(i).toBe(-1);
 
     instance.clear();
   });
@@ -202,6 +207,7 @@ describe.each([
     for (const entry of instance) {
       expect(entry).toBe(ALL_WORDS[i++]);
     }
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
   });
@@ -211,6 +217,7 @@ describe.each([
 
     let i = 0;
     instance.forEach((entry) => expect(entry).toBe(ALL_WORDS[i++]));
+    expect(i).toBe(ALL_WORDS.length);
 
     instance.clear();
   });
