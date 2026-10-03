@@ -1,7 +1,7 @@
 {
   "name": "prefix-tries",
   "version": "1.2.0",
-  "description": "Tries for TypeScript that keep insertion order: sets and maps of strings with prefix search, standard or compressed (radix), under a common interface.",
+  "description": "Standard and compressed (radix) tries for TypeScript, behind one interface: sets and maps of strings with prefix search.",
   "keywords": [
     "trie",
     "prefix-trie",
