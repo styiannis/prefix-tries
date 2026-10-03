@@ -34,18 +34,8 @@ $RECYCLE.BIN/
 ############################
 
 node_modules
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
-
-############################
-# Dotenv
-############################
-.env
-.env.development.local
-.env.test.local
-.env.production.local
-.env.local
 
 ############################
 # VS Code
@@ -53,12 +43,18 @@ pnpm-lock.yaml
 .vscode
 
 ############################
-# Folders
+# Build output
 ############################
-build
-code_documentation
-coverage_report
-dist
+/build
+/code_documentation
+/coverage_report
+/dist
+
+############################
+# Environment
+############################
+.env*
+!.env.example
 
 ############################
 # Exclude folders
