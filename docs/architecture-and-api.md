@@ -1,6 +1,6 @@
 # Architecture and API
 
-**Last verified:** 2026-10-03 · v1.3.0
+**Last verified:** 2026-09-25 · v1.4.0
 
 ## A tree and a list in every instance
 
@@ -187,7 +187,7 @@ between a word's node and the root:
 | `delete`                             | `O(m)`                       | `O(m·σ)`, may merge one node |
 | `find`                               | `O(m + S)`                   | `O(m·σ + S)`                 |
 | `size`                               | `O(1)`                       | `O(1)`                       |
-| `clear`                              | `O(1)`                       | `O(1)`                       |
+| `clear`                              | `O(n)`                       | `O(n)`                       |
 | `entries` `keys` `[Symbol.iterator]` | `O(1)` call, `O(Σd)` drained | `O(1)` call, `O(Σd)` drained |
 | `values`                             | `O(1)` call, `O(n)` drained  | `O(1)` call, `O(n)` drained  |
 
@@ -215,10 +215,10 @@ standard one, and usually fewer, so the same words cost it at most as many
 steps. `values` reads each value through the list node's link to its tree
 node, and rebuilds nothing.
 
-`clear` resets the list's three fields — `size`, `head` and `tail` — and
-clears the root's children map. Neither the list nor the tree below the root is
-walked. Both are left to the garbage collector, so the call does the same work
-however many words are stored.
+`clear` walks the list once and unlinks every node, then resets the list's
+three fields — `size`, `head` and `tail` — and clears the root's children map.
+The tree below the root is not walked. It is left to the garbage collector, so
+the call grows with the number of words, not with the number of nodes.
 
 ## Extending
 

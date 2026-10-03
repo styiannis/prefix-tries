@@ -50,6 +50,7 @@ export function removeListRecord<T extends ITrie>(
   instance: T,
   trieNode: T['root']
 ) {
+  // @todo: It's known that the condition is always true
   if (trieNode.listNode) {
     list.removeNode(instance.list, trieNode.listNode);
     trieNode.listNode = null;
@@ -142,9 +143,11 @@ export function compressedTriePrefixEntriesNode<T extends ITrie>(
 }
 
 export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
+  // @todo: It's known that the condition is always true
   if (1 === instance.children.size) {
     const child = instance.children.entries().next().value;
 
+    // @todo: It's known that the condition is always true
     if (child) {
       const [childKey, childNode] = child;
 
@@ -169,6 +172,7 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
       childNode.parent = null;
       childNode.listNode = null;
 
+      // @todo: It's known that the condition is always true
       if (parent) {
         parent.children.delete(key);
         trieNode.insertChild(parent, instance);
@@ -182,9 +186,11 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
 export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
   instance: N
 ) {
+  // @todo: It's known that the condition is always true
   if (1 === instance.children.size) {
     const child = instance.children.entries().next().value;
 
+    // @todo: It's known that the condition is always true
     if (child) {
       const [childKey, childNode] = child;
 
@@ -210,6 +216,7 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
       childNode.parent = null;
       childNode.listNode = null;
 
+      // @todo: It's known that the condition is always true
       if (parent) {
         parent.children.delete(key);
         trieNode.insertChild(parent, instance);
@@ -239,6 +246,7 @@ export function compressedTrieSplitNode<N extends ITrieNode>(
     newNode.listNode.trieNode = newNode;
   }
 
+  // @todo: It's known that the condition is always true
   if (instance.parent) {
     trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;
@@ -271,6 +279,7 @@ export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
     newNode.listNode.trieNode = newNode;
   }
 
+  // @todo: It's known that the condition is always true
   if (instance.parent) {
     trieNode.removeChild(instance.parent, instance.key);
     instance.key = splitPrefix;

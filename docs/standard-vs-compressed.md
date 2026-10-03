@@ -6,7 +6,7 @@ words, and what that costs is worth measuring rather than guessing. This page
 has the measurements and the choice they support. Everything here applies
 equally to `TrieMap` and `CompressedTrieMap`.
 
-**Last verified:** 2026-10-03 · v1.3.0 · Node v22.12.0
+**Last verified:** 2026-09-24 · v1.4.0 · Node v22.12.0
 
 ## What the two structures do differently
 

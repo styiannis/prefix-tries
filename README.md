@@ -46,40 +46,9 @@ console.log(commands.has('ch')); // false
 console.log(commands.size); // 5
 ```
 
-The cost of `find` grows with the part of the tree below the prefix, not with
-the number of stored words. A prefix that few words share leaves most of the
-tree unvisited. A prefix that thousands of words share, such as a single
-letter, visits every one of their nodes.
-
-The simplest alternative, an unsorted array of the same words filtered with
-`startsWith`, reads every word whatever the prefix. That makes `find` far
-faster when few words share the prefix, while the array can be as fast, or
-faster, when thousands do.
-
-## Standard or compressed, behind one API
-
-A standard trie gives every character its own node. A compressed trie stores
-substrings instead: adding a word creates a node only where the word ends or
-where it diverges from a word already stored, so a single node can hold
-several characters. The compressed trie therefore never holds more nodes than
-a standard trie, and usually far fewer. The saving is paid for on insertion,
-in two ways. Each step scans a node's children rather than looking one up by
-its character, and a word that diverges inside a stored substring splits the
-node that holds it. Both extend the same abstract class, so code written
-against it accepts either:
-
-```typescript
-import { AbstractTrie, CompressedTrie, Trie } from 'prefix-tries';
-
-const words = ['romane', 'romanus', 'romulus', 'rubens', 'ruber', 'rubicon'];
-
-function complete(index: AbstractTrie, typed: string) {
-  return index.find(typed).sort();
-}
-
-console.log(complete(new Trie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
-console.log(complete(new CompressedTrie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
-```
+The work `find` does grows with the part of the tree below the prefix, not
+with the number of stored words. A prefix that selects a few words is answered
+without touching the rest; one that selects most of them is not.
 
 ## Values attached to keys
 
@@ -106,7 +75,7 @@ console.log([...routes]);
 // [ [ '/api/users', 10 ], [ '/api/users/:id', 2 ], [ '/api/posts', 3 ] ]
 ```
 
-The compressed map takes the same calls:
+The compressed map takes the same calls and gives the same answers:
 
 ```typescript
 import { CompressedTrieMap } from 'prefix-tries';
@@ -128,6 +97,34 @@ console.log([...routes]);
 // [ [ '/api/users', 10 ], [ '/api/users/:id', 2 ], [ '/api/posts', 3 ] ]
 ```
 
+## Standard or compressed, behind one API
+
+A standard trie gives every character its own node. A compressed trie keeps a
+node only where a word ends or the path branches, and merges each chain in
+between into one node holding a substring. It never holds more nodes than a
+standard trie, usually far fewer, and pays for that when writing, unless it
+removes most of the nodes. Both families answer every call identically, apart
+from the order of `find`'s results, so code written against the abstract class
+accepts either:
+
+```typescript
+import { AbstractTrie, CompressedTrie, Trie } from 'prefix-tries';
+
+const words = ['romane', 'romanus', 'romulus', 'rubens', 'ruber', 'rubicon'];
+
+function complete(index: AbstractTrie, typed: string) {
+  return index.find(typed).sort();
+}
+
+console.log(complete(new Trie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
+console.log(complete(new CompressedTrie(words), 'rub')); // [ 'rubens', 'ruber', 'rubicon' ]
+```
+
+How much the compressed variant saves depends on the keys, from most of the
+memory to none of it.
+[The comparison](https://github.com/styiannis/prefix-tries/blob/main/docs/standard-vs-compressed.md)
+measures both over the same corpus.
+
 ## Iteration order
 
 Every instance keeps a doubly linked list beside the tree, one node per word,
@@ -148,65 +145,45 @@ console.log([...recent.entries(true)]); // [ 'kiwi', 'mango', 'apple', 'zebra' ]
 
 `find` is the exception. Its results come out in the order the tree holds
 them, which is neither insertion order nor alphabetical and differs between
-standard and compressed tries. In a compressed trie, an insertion or a
-deletion can also change the order in which `find` returns the words already
-stored. Sort the results when the order matters.
-
-## Importing
-
-Everything the package exports is available from its root, which is its only
-entry point:
-
-```typescript
-import {
-  Trie, // set of strings
-  CompressedTrie, // set of strings, compressed
-  TrieMap, // map from strings to values
-  CompressedTrieMap, // map from strings to values, compressed
-  AbstractTrie, // abstract base, for an implementation of your own
-  AbstractTrieMap, // abstract base, for an implementation of your own
-} from 'prefix-tries';
-```
+the two families. In a compressed trie, an insertion or a deletion can also
+reorder the words already stored. Sort the results when the order matters.
 
 ## API
 
 `Trie` and `CompressedTrie` extend `AbstractTrie`; `TrieMap<V>` and
-`CompressedTrieMap<V>` extend `AbstractTrieMap<V>`. With **m** the length of
-the word or prefix and **σ** the number of children scanned at each node on
-the path:
+`CompressedTrieMap<V>` extend `AbstractTrieMap<V>`. All six are exported from
+the package root, which is the only entry point, and the two abstract classes
+are there for implementations of your own. With **m** the length of the word
+or prefix, **n** the number of stored words, and **σ** the children a
+compressed trie scans at each node on the path:
 
-| Member                                | Tries | Maps | Standard               | Compressed             |
-| ------------------------------------- | :---: | :--: | ---------------------- | ---------------------- |
-| `size`                                |   ✓   |  ✓   | `O(1)`                 | `O(1)`                 |
-| `add(word)`                           |   ✓   |      | `O(m)`                 | `O(m·σ)`               |
-| `set(word, value)`                    |       |  ✓   | `O(m)`                 | `O(m·σ)`               |
-| `get(word)`                           |       |  ✓   | `O(m·σ)`               | `O(m·σ)`               |
-| `has(word)`                           |   ✓   |  ✓   | `O(m·σ)`               | `O(m·σ)`               |
-| `delete(word)`                        |   ✓   |  ✓   | `O(m·σ)`               | `O(m·σ)`               |
-| `find(prefix)`                        |   ✓   |  ✓   | `O(m·σ)` + the subtree | `O(m·σ)` + the subtree |
-| `clear()`                             |   ✓   |  ✓   | `O(1)`                 | `O(1)`                 |
-| `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` call            | `O(1)` call            |
-| `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` call            | `O(1)` call            |
-| `forEach(callback, thisArg?)`         |   ✓   |  ✓   | —                      | —                      |
-| `[Symbol.iterator](reversed?)`        |   ✓   |  ✓   | `O(1)` call            | `O(1)` call            |
+| Member                                | Tries | Maps | Standard             | Compressed             |
+| ------------------------------------- | :---: | :--: | -------------------- | ---------------------- |
+| `size`                                |   ✓   |  ✓   | `O(1)`               | `O(1)`                 |
+| `add(word)`                           |   ✓   |      | `O(m)`               | `O(m·σ)`               |
+| `set(word, value)`                    |       |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `get(word)`                           |       |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `has(word)`                           |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `delete(word)`                        |   ✓   |  ✓   | `O(m)`               | `O(m·σ)`               |
+| `find(prefix)`                        |   ✓   |  ✓   | `O(m)` + the subtree | `O(m·σ)` + the subtree |
+| `clear()`                             |   ✓   |  ✓   | `O(n)`               | `O(n)`                 |
+| `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` call          | `O(1)` call            |
+| `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` call          | `O(1)` call            |
+| `forEach(callback, thisArg?)`         |   ✓   |  ✓   | —                    | —                      |
+| `[Symbol.iterator](reversed?)`        |   ✓   |  ✓   | `O(1)` call          | `O(1)` call            |
 
-Insertion into a standard trie looks each child up by its character. Every
-other walk, standard or compressed, scans a node's children until one
-matches.
-
-A drained `entries`, `keys` or `[Symbol.iterator]`, and every `forEach` call,
-rebuilds each word by walking from its node up to the root, so it costs one
-step per node on the word's path rather than one step per word. That is the
-word's length in a standard trie, and usually fewer steps in a compressed one.
-`values` rebuilds nothing.
+A drained `entries`, `keys` or `[Symbol.iterator]` rebuilds each word by
+walking from its node up to the root, so it costs one step per node on the
+word's path rather than one step per word. That is the word's length in a
+standard trie, and usually fewer steps in a compressed one. `values` rebuilds
+nothing.
+[The architecture write-up](https://github.com/styiannis/prefix-tries/blob/main/docs/architecture-and-api.md#complexity-as-implemented)
+has the full table.
 
 Every method validates its arguments and throws a `TypeError` for a word or
 prefix that is not a string or is empty, a `reversed` that is not a boolean,
-and a callback that is not a function. The empty string can therefore never
-be stored, and `find('')` throws rather than returning everything. The
-constructors take an optional array to start from (words for the tries,
-`[key, value]` pairs for the maps) and throw the same error for an argument
-that is not an array, or for a map entry that is not one.
+and a callback that is not a function. The empty string can therefore never be
+stored, and `find('')` throws rather than returning everything.
 
 ## When not to use it
 
@@ -214,15 +191,19 @@ A trie pays for its prefix query with a node per character or substring, and a
 tree to walk for every other question. The cases below are those where that
 cost buys nothing.
 
-| If this describes the problem                                         | Reach for                                                                                                                                      |
-| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Exact membership or lookup only                                       | a `Set` or a `Map` — `has` walks the key node by node, many times slower than one hash, in many times the memory                               |
-| A few hundred words in all, or prefixes that thousands of words share | an `Array` and `filter` — at either extreme, a scan of every word is about as fast as `find`, or faster, and needs no tree                     |
-| Suffix, infix or fuzzy matching                                       | a suffix array for suffix and infix queries, a BK-tree or an edit-distance search for fuzzy ones — this one indexes prefixes only              |
-| Memory is the binding constraint                                      | a sorted `Array` searched by binary search, which finds a prefix's range too — either trie takes many times the memory of the strings it holds |
+| If this describes the problem                      | Reach for                                                                                                                                                                                                      |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Exact membership or lookup only                    | a `Set` or a `Map` — `has` walks the key node by node, several times slower than one hash, in many times the memory                                                                                            |
+| Prefixes that each match thousands of stored words | an `Array` and `filter`, measured against `find` first — `find` builds a string at every node below the prefix, and on a one-letter prefix of an English word list a standard `Trie` already loses to the scan |
+| A few hundred candidates                           | an `Array` and `filter` — the scan is already fast at that size, and simpler to reason about                                                                                                                   |
+| Suffix, infix or fuzzy matching                    | a suffix array for suffix and infix queries, a BK-tree or an edit-distance search for fuzzy ones — this one indexes prefixes only                                                                              |
+| Memory is the binding constraint                   | a sorted `Array` searched by binary search, which finds a prefix's range too — either trie takes many times the memory of the strings it holds                                                                 |
 
 ## Documentation
 
+- [Guides, the FAQ and the architecture write-up](https://github.com/styiannis/prefix-tries/tree/main/docs) —
+  getting a trie running, choosing between the two structures, the behaviour
+  that surprises people, and how the library is built.
 - [The generated API reference](https://styiannis.github.io/prefix-tries/) —
   every signature and every type.
 - [Open an issue](https://github.com/styiannis/prefix-tries/issues) for a

@@ -3,7 +3,7 @@
 From an empty project to a prefix search you can add to, iterate in the order
 you filled it, attach values to, and empty again.
 
-**Last verified:** 2026-10-03 · v1.3.0 · Node ≥ 18.12
+**Last verified:** 2026-09-25 · v1.4.0 · Node ≥ 18.12
 
 ## Install
 

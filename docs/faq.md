@@ -3,7 +3,7 @@
 Behaviour that surprises readers of the API, every error the library throws,
 and the questions the package shape raises.
 
-**Last verified:** 2026-10-03 · v1.3.0
+**Last verified:** 2026-09-25 · v1.4.0
 
 ## Behaviour
 
