@@ -19,8 +19,9 @@ export function isValidObjectInstance(
     return false;
   }
 
-  // Own property names (sorted).
-  const props = Object.getOwnPropertyNames(instance).sort();
+  const props = Object.getOwnPropertyNames(instance).sort(
+    (a: string, b: string) => a.localeCompare(b)
+  );
 
   if (
     'trie' === instanceType ||
