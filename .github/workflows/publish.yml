@@ -9,24 +9,31 @@ concurrency:
 
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     permissions:
       contents: read
       id-token: write
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          persist-credentials: false
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Set up Node.js 24
+        uses: actions/setup-node@v7
         with:
-          node-version: 22
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install changelog dependencies
+        run: npm install --ignore-scripts --no-save conventional-changelog-cli@5.0.0
+
       - name: Generate release changelog
-        run: echo "# Changelog" > CHANGELOG.md && npx conventional-changelog-cli@latest -r 0 -p conventionalcommits >> CHANGELOG.md
+        run: echo "# Changelog" > CHANGELOG.md && npx --no-install conventional-changelog -r 0 -p conventionalcommits >> CHANGELOG.md
 
       - name: Publish
         run: npm publish --provenance --access public
