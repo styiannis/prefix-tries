@@ -109,6 +109,7 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
     if (node.children.size === 0) {
       const removedNode = trieNode.removeChild(parent, node.key);
 
+      // @todo: It's known that the condition is always true
       if (removedNode) {
         trieNode.clear(removedNode);
       }
