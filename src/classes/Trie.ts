@@ -54,7 +54,9 @@ export class Trie extends AbstractTrie {
     this.#trie = create();
 
     if (undefined !== initialWords) {
-      initialWords.forEach((word) => this.add(word));
+      for (const word of initialWords) {
+        this.add(word);
+      }
     }
   }
 
@@ -80,7 +82,7 @@ export class Trie extends AbstractTrie {
    *
    * Words are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator for the trie's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example
@@ -175,7 +177,7 @@ export class Trie extends AbstractTrie {
    *
    * Words are yielded in their insertion order by default.
    *
-   * @param [reversed = false] - Optional `boolean` to reverse iteration order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator of the trie's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
    * @example

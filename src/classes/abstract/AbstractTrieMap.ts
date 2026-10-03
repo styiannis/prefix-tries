@@ -24,11 +24,11 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Makes the `AbstractTrieMap` iterable.
    *
-   * @param reversed - If `true`, entries are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator for the trie-map's entries.
    */
   abstract [Symbol.iterator](
-    reversed: boolean
+    reversed?: boolean
   ): Generator<[string, V], void, void>;
 
   /**
@@ -47,10 +47,10 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the entries in the trie-map.
    *
-   * @param reversed - If `true`, entries are yielded in reverse order.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator of the trie's entries.
    */
-  abstract entries(reversed: boolean): Generator<[string, V], void, void>;
+  abstract entries(reversed?: boolean): Generator<[string, V], void, void>;
 
   /**
    * Finds all entries whose keys start with the given prefix.
@@ -93,10 +93,10 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the keys of the entries in the trie-map.
    *
-   * @param reversed - If `true`, keys are yielded in reverse order.
+   * @param [reversed=false] - If `true`, keys are yielded in reverse insertion order.
    * @returns An iterator of the trie-map's entries keys.
    */
-  abstract keys(reversed: boolean): Generator<string, void, void>;
+  abstract keys(reversed?: boolean): Generator<string, void, void>;
 
   /**
    * Adds or updates an entry in the trie-map.
@@ -109,8 +109,8 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the values of the entries in the trie-map.
    *
-   * @param reversed - If `true`, values are yielded in reverse order.
+   * @param [reversed=false] - If `true`, values are yielded in reverse insertion order.
    * @returns An iterator of the trie-map's entries values.
    */
-  abstract values(reversed: boolean): Generator<V, void, void>;
+  abstract values(reversed?: boolean): Generator<V, void, void>;
 }

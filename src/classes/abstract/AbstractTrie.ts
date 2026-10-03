@@ -23,10 +23,10 @@ export abstract class AbstractTrie {
   /**
    * Makes the `AbstractTrie` iterable.
    *
-   * @param reversed - If `true`, words are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator for the trie's entries.
    */
-  abstract [Symbol.iterator](reversed: boolean): Generator<string, void, void>;
+  abstract [Symbol.iterator](reversed?: boolean): Generator<string, void, void>;
 
   /**
    * Adds a word to the trie. If the word already exists, it will not
@@ -52,10 +52,10 @@ export abstract class AbstractTrie {
   /**
    * Returns an iterator for the words in the trie.
    *
-   * @param reversed - If `true`, words are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator of the trie's entries.
    */
-  abstract entries(reversed: boolean): Generator<string, void, void>;
+  abstract entries(reversed?: boolean): Generator<string, void, void>;
 
   /**
    * Finds all words that start with the given prefix.
