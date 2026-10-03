@@ -4,9 +4,10 @@ import {
   create,
   deleteWord,
   getPrefixEntries,
+  includesWord,
   size,
 } from '../core/compressed-trie';
-import { entries, includesWord } from '../core/trie';
+import { entries } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {

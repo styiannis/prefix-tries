@@ -536,4 +536,90 @@ describe.each([
       );
     });
   });
+
+  it('Deleting a sibling keeps the remaining subtree reachable', () => {
+    const instance = new TrieMapClass([
+      ['xy', 1],
+      ['xyy', 2],
+      ['xz', 3],
+    ]);
+
+    expect(instance.delete('xz')).toBe(true);
+
+    expect(instance.size).toBe(2);
+    expect(instance.get('xy')).toBe(1);
+    expect(instance.get('xyy')).toBe(2);
+    expect(instance.find('x').sort()).toEqual([
+      ['xy', 1],
+      ['xyy', 2],
+    ]);
+    const entries = [...instance].sort();
+    expect(entries).toEqual([
+      ['xy', 1],
+      ['xyy', 2],
+    ]);
+
+    for (const [word] of entries) {
+      expect(instance.has(word)).toBe(true);
+      expect(instance.delete(word)).toBe(true);
+    }
+
+    expect(instance.size).toBe(0);
+  });
+
+  it('Find returns exactly the words that start with the prefix', () => {
+    expect(
+      new TrieMapClass([
+        ['apple', 1],
+        ['banana', 2],
+      ]).find('apricot')
+    ).toEqual([]);
+    expect(
+      new TrieMapClass([
+        ['ab', 1],
+        ['abc', 2],
+        ['abd', 3],
+      ]).find('abab')
+    ).toEqual([]);
+
+    const instance = new TrieMapClass([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+    expect(instance.find('aab')).toEqual([['aab', 2]]);
+    expect(instance.find('aa')).toEqual([['aab', 2]]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+  });
+
+  it('Inserting a lone high surrogate first keeps the full character reachable', () => {
+    const instance = new TrieMapClass([
+      ['\uD83D', 1],
+      ['\u{1F600}', 2],
+    ]);
+
+    expect(instance.has('\u{1F600}')).toBe(true);
+    expect(instance.get('\u{1F600}')).toBe(2);
+    expect(instance.find('\u{1F600}')).toEqual([['\u{1F600}', 2]]);
+    expect(instance.delete('\u{1F600}')).toBe(true);
+    expect(instance.size).toBe(1);
+  });
+
+  it('Words sharing a high surrogate are not split inside the pair', () => {
+    const instance = new TrieMapClass([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+
+    expect(instance.find('a\uD83D')).toEqual([]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+    expect(instance.get('a\u{1F601}c')).toBe(2);
+    expect(instance.delete('a\u{1F600}b')).toBe(true);
+    expect([...instance]).toEqual([['a\u{1F601}c', 2]]);
+  });
 });
