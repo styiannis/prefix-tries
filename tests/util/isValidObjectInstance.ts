@@ -36,18 +36,5 @@ export function isValidObjectInstance(
     return arraysEqual(props, ['children', 'key', 'listNode', 'parent']);
   }
 
-  if (
-    'trie-map-node' === instanceType ||
-    'compressed-trie-map-node' === instanceType
-  ) {
-    return arraysEqual(props, [
-      'children',
-      'key',
-      'listNode',
-      'parent',
-      'value',
-    ]);
-  }
-
-  return false;
+  return arraysEqual(props, ['children', 'key', 'listNode', 'parent', 'value']);
 }
