@@ -13,12 +13,12 @@ describe.each([
 
     ALL_WORDS.forEach((word, i) => {
       expect(instance.has(word)).toBe(false);
-      expect(instance.add(word)).toBe(undefined);
+      expect(instance.add(word)).toBeUndefined();
       expect(instance.has(word)).toBe(true);
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let word of instance) {
       expect(word).toBe(ALL_WORDS[i]);
@@ -28,7 +28,7 @@ describe.each([
     // Try to insert the same values.
     ALL_WORDS.forEach((word) => {
       expect(instance.has(word)).toBe(true);
-      expect(instance.add(word)).toBe(undefined);
+      expect(instance.add(word)).toBeUndefined();
       expect(instance.has(word)).toBe(true);
       expect(instance.size).toBe(ALL_WORDS.length);
     });
@@ -43,7 +43,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -103,7 +103,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -154,7 +154,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 

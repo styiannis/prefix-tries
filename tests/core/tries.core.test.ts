@@ -28,12 +28,12 @@ describe.each([
   it('Insert words and clear structure', () => {
     ALL_WORDS.forEach((word, i) => {
       expect(includesWord(instance, word)).toBe(false);
-      expect(addWord(instance, word)).toBe(undefined);
+      expect(addWord(instance, word)).toBeUndefined();
       expect(includesWord(instance, word)).toBe(true);
       expect(size(instance)).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure
+    // Confirm that all values are included in the structure
     const iter = entries(instance);
     let i = 0;
     for (let word of iter) {
@@ -42,9 +42,9 @@ describe.each([
     }
 
     // Try to insert the same values
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       expect(includesWord(instance, word)).toBe(true);
-      expect(addWord(instance, word)).toBe(undefined);
+      expect(addWord(instance, word)).toBeUndefined();
       expect(includesWord(instance, word)).toBe(true);
       expect(size(instance)).toBe(ALL_WORDS.length);
     });
@@ -55,7 +55,7 @@ describe.each([
   it('Insert and delete words', () => {
     ALL_WORDS.forEach((word) => addWord(instance, word));
 
-    // Try to remove values ​​that are not included
+    // Try to remove values that are not included
     expect(deleteWord(instance, 'gon')).toBe(false); // Valid prefix, invalid word
     expect(deleteWord(instance, 'invalid')).toBe(false); // Invalid prefix
 
@@ -115,7 +115,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -167,7 +167,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -187,7 +187,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -203,7 +203,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 
@@ -219,7 +219,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = getPrefixEntries(instance, search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(expected.every((v) => found.includes(v))).toBe(true);
     });
 

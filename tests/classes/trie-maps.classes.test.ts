@@ -20,14 +20,14 @@ describe.each([
       const key = word;
       const value = `{{${word}}}`;
       expect(instance.has(key)).toBe(false);
-      expect(instance.get(key)).toBe(undefined);
-      expect(instance.set(key, value)).toBe(undefined);
+      expect(instance.get(key)).toBeUndefined();
+      expect(instance.set(key, value)).toBeUndefined();
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
       expect(instance.size).toBe(i + 1);
     });
 
-    // Confirm that all values ​​are included in the structure.
+    // Confirm that all values are included in the structure.
     let i = 0;
     for (let entry of instance) {
       expect(entry).toStrictEqual([ALL_WORDS[i], `{{${ALL_WORDS[i]}}}`]);
@@ -40,7 +40,7 @@ describe.each([
       const value = `{{${word}}}`;
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
-      expect(instance.set(key, value)).toBe(undefined);
+      expect(instance.set(key, value)).toBeUndefined();
       expect(instance.has(key)).toBe(true);
       expect(instance.get(key)).toBe(value);
       expect(instance.size).toBe(ALL_WORDS.length);
@@ -56,7 +56,7 @@ describe.each([
 
     expect(isValidClassInstance(instance, instanceType)).toBe(true);
 
-    // Try to remove values ​​that are not included.
+    // Try to remove values that are not included.
     expect(instance.delete('gon')).toBe(false); // Valid prefix, invalid word.
     expect(instance.delete('invalid')).toBe(false); // Invalid prefix.
 
@@ -66,7 +66,7 @@ describe.each([
       expect(instance.get(word)).toBe(`{{${word}}}`);
       expect(instance.delete(word)).toBe(true);
       expect(instance.has(word)).toBe(false);
-      expect(instance.get(word)).toBe(undefined);
+      expect(instance.get(word)).toBeUndefined();
       expect(instance.size).toBe(ALL_WORDS.length - i - 1);
 
       let j = 0;
@@ -83,7 +83,7 @@ describe.each([
   it('Insert and update words values', () => {
     const instance = new TrieMapClass(ALL_WORDS.map((w) => [w, `{{${w}}}`]));
 
-    ALL_WORDS.forEach((word, i) => {
+    ALL_WORDS.forEach((word) => {
       expect(instance.get(word)).toBe(`{{${word}}}`);
       instance.set(word, `UPDATED_VALUE[${word}]`);
       expect(instance.get(word)).toBe(`UPDATED_VALUE[${word}]`);
@@ -133,7 +133,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -186,7 +186,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -207,7 +207,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -224,7 +224,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -241,7 +241,7 @@ describe.each([
       ] as [string, string[]][]
     ).forEach(([search, expected]) => {
       const found = instance.find(search);
-      expect(found.length).toBe(expected.length);
+      expect(found).toHaveLength(expected.length);
       expect(
         found.every(([k, v]) => expected.includes(k) && v === `{{${k}}}`)
       ).toBe(true);
@@ -289,12 +289,12 @@ describe.each([
 
     let i = 0;
     for (const key of instance.keys()) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i++]?.[0]);
     }
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const key of instance.keys(true)) {
-      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--][0]);
+      expect(key).toStrictEqual(ALL_WORDS_VALUES[i--]?.[0]);
     }
 
     instance.clear();
@@ -305,12 +305,13 @@ describe.each([
 
     let i = 0;
     for (const value of instance.values()) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i++][1]);
+      expect(value).toBe(ALL_WORDS_VALUES[i++]?.[1]);
     }
+    expect(i).toBe(ALL_WORDS_VALUES.length);
 
     i = ALL_WORDS_VALUES.length - 1;
     for (const value of instance.values(true)) {
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i--][1]);
+      expect(value).toBe(ALL_WORDS_VALUES[i--]?.[1]);
     }
 
     instance.clear();
@@ -332,8 +333,8 @@ describe.each([
 
     let i = 0;
     instance.forEach((value, word) => {
-      expect(word).toStrictEqual(ALL_WORDS_VALUES[i][0]);
-      expect(value).toStrictEqual(ALL_WORDS_VALUES[i][1]);
+      expect(word).toStrictEqual(ALL_WORDS_VALUES[i]?.[0]);
+      expect(value).toStrictEqual(ALL_WORDS_VALUES[i]?.[1]);
       i++;
     });
 
