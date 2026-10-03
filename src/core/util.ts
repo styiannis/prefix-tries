@@ -50,6 +50,7 @@ export function removeListRecord<T extends ITrie>(
   instance: T,
   trieNode: T['root']
 ) {
+  // @todo: It's known that the condition is always true
   if (trieNode.listNode) {
     list.removeNode(instance.list, trieNode.listNode);
     trieNode.listNode = null;

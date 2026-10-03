@@ -121,6 +121,7 @@ export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
 
       const removedNode = trieNode.removeChild(parent, node.key);
 
+      // @todo: It's known that the condition is always true
       if (removedNode) {
         trieMapNode.clear(removedNode);
       }

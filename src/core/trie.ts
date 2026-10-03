@@ -84,6 +84,7 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   ) {
     const removedNode = trieNode.removeChild(parent, nd.key);
 
+    // @todo: It's known that the condition is always true
     if (removedNode) {
       trieNode.clear(removedNode);
     }
@@ -100,6 +101,7 @@ export function* entries<T extends ITrie>(instance: T, reversed = false) {
   for (const node of iterator) {
     const w = trieNode.word(node.trieNode);
 
+    // @todo: It's known that the condition is always true
     if (w) {
       yield w;
     }
