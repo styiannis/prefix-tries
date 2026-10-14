@@ -372,4 +372,105 @@ describe.each([
       );
     });
   });
+
+  it('Deleting a sibling keeps the remaining subtree reachable', () => {
+    const instance = new TrieClass(['xy', 'xyy', 'xz']);
+
+    expect(instance.delete('xz')).toBe(true);
+
+    expect(instance.size).toBe(2);
+    expect(instance.has('xy')).toBe(true);
+    expect(instance.has('xyy')).toBe(true);
+    expect(instance.find('x').sort()).toEqual(['xy', 'xyy']);
+    const words = [...instance].sort();
+    expect(words).toEqual(['xy', 'xyy']);
+
+    for (const word of words) {
+      expect(instance.has(word)).toBe(true);
+      expect(instance.delete(word)).toBe(true);
+    }
+
+    expect(instance.size).toBe(0);
+  });
+
+  it('Find returns exactly the words that start with the prefix', () => {
+    expect(new TrieClass(['apple', 'banana']).find('apricot')).toEqual([]);
+    expect(new TrieClass(['ab', 'abc', 'abd']).find('abab')).toEqual([]);
+
+    const instance = new TrieClass(['a', 'aab']);
+    expect(instance.find('aab')).toEqual(['aab']);
+    expect(instance.find('aa')).toEqual(['aab']);
+    expect(instance.find('a').sort()).toEqual(['a', 'aab']);
+  });
+
+  it('Inserting a lone high surrogate first keeps the full character reachable', () => {
+    const instance = new TrieClass(['\uD83D', '\u{1F600}']);
+
+    expect(instance.has('\u{1F600}')).toBe(true);
+    expect(instance.find('\u{1F600}')).toEqual(['\u{1F600}']);
+    expect(instance.delete('\u{1F600}')).toBe(true);
+    expect(instance.size).toBe(1);
+  });
+
+  it('Words sharing a high surrogate are not split inside the pair', () => {
+    const instance = new TrieClass(['a\u{1F600}b', 'a\u{1F601}c']);
+
+    expect(instance.find('a\uD83D')).toEqual([]);
+    expect(instance.find('a').sort()).toEqual(['a\u{1F600}b', 'a\u{1F601}c']);
+    expect(instance.has('a\u{1F601}c')).toBe(true);
+    expect(instance.delete('a\u{1F600}b')).toBe(true);
+    expect([...instance]).toEqual(['a\u{1F601}c']);
+  });
+
+  it('Find returns a result larger than the call stack limit', () => {
+    const words = Array.from({ length: 200_000 }, (_, i) => `p${i}`);
+
+    expect(new TrieClass(words).find('p')).toHaveLength(words.length);
+  });
+
+  it('Clearing during iteration ends the loop', () => {
+    const forward = new TrieClass(['a', 'b', 'c']);
+    const seenForward: string[] = [];
+
+    forward.forEach((word) => {
+      seenForward.push(word);
+      forward.clear();
+    });
+
+    const reverse = new TrieClass(['a', 'b', 'c']);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.entries(true)) {
+      seenReverse.push(word);
+      reverse.clear();
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect(forward.size).toBe(0);
+    expect([...reverse]).toEqual([]);
+  });
+
+  it('Deleting the current word during iteration ends the loop', () => {
+    const forward = new TrieClass(['a', 'b', 'c']);
+    const seenForward: string[] = [];
+
+    forward.forEach((word) => {
+      seenForward.push(word);
+      forward.delete(word);
+    });
+
+    const reverse = new TrieClass(['a', 'b', 'c']);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.entries(true)) {
+      seenReverse.push(word);
+      reverse.delete(word);
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect([...forward]).toEqual(['b', 'c']);
+    expect([...reverse]).toEqual(['a', 'b']);
+  });
 });

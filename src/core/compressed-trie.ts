@@ -5,10 +5,10 @@ import {
   commonSubstring,
   compressedTrieMergeNode,
   compressedTriePrefixEntriesNode,
+  compressedTriePrefixNode,
   compressedTrieSplitNode,
   createListRecord,
   removeListRecord,
-  triePrefixNode,
 } from './util';
 
 export function create<T extends ITrie>() {
@@ -79,18 +79,23 @@ export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
     ret.push(w);
   }
 
-  ret.push(
-    ...trieNode.childrenWords(
-      node,
-      `${trieNode.parentsPrefix(node)}${node.key}`
-    )
-  );
+  for (const word of trieNode.childrenWords(
+    node,
+    `${trieNode.parentsPrefix(node)}${node.key}`
+  )) {
+    ret.push(word);
+  }
 
   return ret;
 }
 
+export function includesWord<T extends ITrie>(instance: T, word: string) {
+  const node = compressedTriePrefixNode(instance, word);
+  return !!node && trieNode.isEndOfWord(node);
+}
+
 export function deleteWord<T extends ITrie>(instance: T, word: string) {
-  let node = triePrefixNode(instance, word);
+  let node = compressedTriePrefixNode(instance, word);
 
   if (!node || !trieNode.isEndOfWord(node)) {
     return false;
@@ -98,27 +103,26 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
 
   removeListRecord(instance, node);
 
-  while (
-    node.parent &&
-    node.children.size === 0 &&
-    !trieNode.isEndOfWord(node)
-  ) {
+  while (node.parent && !trieNode.isEndOfWord(node)) {
     const parent = node.parent as T['root'];
-    const removedNode = trieNode.removeChild(parent, node.key);
 
-    if (removedNode) {
-      trieNode.clear(removedNode);
+    if (node.children.size === 0) {
+      const removedNode = trieNode.removeChild(parent, node.key);
+
+      if (removedNode) {
+        trieNode.clear(removedNode);
+      }
+
+      node = parent;
+
+      continue;
     }
 
-    if (
-      parent.parent &&
-      parent.children.size === 1 &&
-      !trieNode.isEndOfWord(parent)
-    ) {
-      compressedTrieMergeNode(parent);
+    if (node.children.size === 1) {
+      compressedTrieMergeNode(node);
     }
 
-    node = parent;
+    break;
   }
 
   return true;

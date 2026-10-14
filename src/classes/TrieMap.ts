@@ -16,6 +16,7 @@ import {
   validateBoolean,
   validateFunction,
   validateNonEmptyString,
+  validatePair,
 } from './validators';
 
 /**
@@ -41,8 +42,11 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
   /**
    * Creates a new `TrieMap` instance.
    *
-   * @param [initialWordValues] - Optional array of `[word, value]` pairs to initialize the trie-map with.
-   * @throws `TypeError` if `initialWordValues` is defined and is not an array, contains an entry that is not an array, or contains an invalid word (empty string or non-string value).
+   * @param [initialWordValues] - Optional array of `[word, value]` pairs to
+   *        initialize the trie-map with.
+   * @throws `TypeError` if `initialWordValues` is defined and is not an array,
+   *          contains an entry that is not a two-element array, or contains an
+   *          invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie-map
@@ -70,7 +74,7 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
       validateArray(initialWordValues, 'initialWordValues');
 
       initialWordValues.forEach((entry) => {
-        validateArray(entry, 'entry');
+        validatePair(entry, 'entry');
         this.set(entry[0], entry[1]);
       });
     }
@@ -100,6 +104,8 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * Makes the `TrieMap` iterable.
    *
    * Entries are yielded in their insertion order by default.
+   *
+   * Deleting the current word ends the iteration.
    *
    * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator for the trie-map's entries.
@@ -183,6 +189,8 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    *
    * Entries are yielded in their insertion order by default.
    *
+   * Deleting the current word ends the iteration.
+   *
    * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
    * @returns An iterator of the trie-map's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
@@ -249,6 +257,8 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
 
   /**
    * Executes a callback for each entry in the trie-map.
+   *
+   * Deleting the current word from the callback ends the iteration.
    *
    * @throws `TypeError` if `callback` is not a function.
    * @example
@@ -331,6 +341,8 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    *
    * Keys are yielded in their entries' insertion order by default.
    *
+   * Deleting the current word ends the iteration.
+   *
    * @param [reversed=false] - If `true`, keys are yielded in reverse insertion order.
    * @returns An iterator of the trie-map's keys.
    * @throws `TypeError` if `reversed` is not a boolean value.
@@ -399,6 +411,8 @@ export class TrieMap<V = unknown> extends AbstractTrieMap<V> {
    * Returns an iterator of all values in the trie-map.
    *
    * Values are yielded in their corresponding entries' insertion order by default.
+   *
+   * Deleting the word of the current value ends the iteration.
    *
    * @param [reversed=false] - If `true`, values are yielded in reverse insertion order.
    * @returns An iterator of the trie-map's values.

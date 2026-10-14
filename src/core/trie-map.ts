@@ -74,12 +74,12 @@ export function getPrefixEntries<T extends ITrieMap>(
     ret.push(wv);
   }
 
-  ret.push(
-    ...trieMapNode.childrenWordValuePairs(
-      node,
-      `${trieNode.parentsPrefix(node)}${node.key}`
-    )
-  );
+  for (const pair of trieMapNode.childrenWordValuePairs(
+    node,
+    `${trieNode.parentsPrefix(node)}${node.key}`
+  )) {
+    ret.push(pair);
+  }
 
   return ret;
 }
@@ -91,6 +91,7 @@ export function* entries<T extends ITrieMap>(instance: T, reversed = false) {
 
   for (const node of iterator) {
     const w = trieNode.word(node.trieNode);
+
     if (w) {
       yield [w, node.trieNode.value] as [string, T['root']['value']];
     }

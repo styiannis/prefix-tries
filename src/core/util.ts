@@ -4,12 +4,37 @@ import * as listNode from './trie-list-node';
 import * as trieMapNode from './trie-map-node';
 import * as trieNode from './trie-node';
 
+function isHighSurrogate(str: string, index: number) {
+  const code = str.charCodeAt(index);
+  return code >= 0xd800 && code <= 0xdbff;
+}
+
+function isLowSurrogate(str: string, index: number) {
+  const code = str.charCodeAt(index);
+  return code >= 0xdc00 && code <= 0xdfff;
+}
+
 export function commonSubstring(a: string, b: string) {
   let index = -1;
   for (let i = 0; i < Math.min(a.length, b.length) && a[i] === b[i]; i++) {
     index = i;
   }
-  return -1 === index ? '' : a.substring(0, index + 1);
+
+  if (index === -1) {
+    return '';
+  }
+
+  // A character such as an emoji is stored as two code units (a surrogate
+  // pair). Never end the prefix between them, so it always ends on a whole
+  // character.
+  if (
+    isHighSurrogate(a, index) &&
+    (isLowSurrogate(a, index + 1) || isLowSurrogate(b, index + 1))
+  ) {
+    return a.substring(0, index);
+  }
+
+  return a.substring(0, index + 1);
 }
 
 export function createListRecord<T extends ITrie>(
@@ -32,6 +57,27 @@ export function removeListRecord<T extends ITrie>(
 }
 
 export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
+  if (!prefix) {
+    return;
+  }
+
+  let prefixNode: T['root'] | undefined = instance.root;
+
+  for (const char of prefix) {
+    prefixNode = prefixNode.children.get(char);
+
+    if (!prefixNode) {
+      return;
+    }
+  }
+
+  return prefixNode;
+}
+
+export function compressedTriePrefixNode<T extends ITrie>(
+  instance: T,
+  prefix: string
+) {
   let prefixNode: T['root'] | undefined = undefined;
 
   let str = prefix;
@@ -81,10 +127,15 @@ export function compressedTriePrefixEntriesNode<T extends ITrie>(
     if (common === node.key && str !== node.key) {
       str = str.substring(common.length);
       iterator = node.children.values();
+      current = iterator.next();
       continue;
     }
 
-    prefixNode = node;
+    if (common === str) {
+      prefixNode = node;
+    }
+
+    break;
   }
 
   return prefixNode;
@@ -96,6 +147,8 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
 
     if (child) {
       const [childKey, childNode] = child;
+
+      trieNode.removeChild(instance, childKey);
 
       const key = instance.key;
       const parent = instance.parent;
@@ -112,8 +165,6 @@ export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
       if (instance.listNode) {
         instance.listNode.trieNode = instance;
       }
-
-      trieNode.removeChild(instance, childKey);
 
       childNode.parent = null;
       childNode.listNode = null;
@@ -137,6 +188,8 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
     if (child) {
       const [childKey, childNode] = child;
 
+      trieNode.removeChild(instance, childKey);
+
       const key = instance.key;
       const parent = instance.parent;
 
@@ -153,8 +206,6 @@ export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
       if (instance.listNode) {
         instance.listNode.trieNode = instance;
       }
-
-      trieNode.removeChild(instance, childKey);
 
       childNode.parent = null;
       childNode.listNode = null;

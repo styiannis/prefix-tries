@@ -1,9 +1,6 @@
 /**
  * Abstract base class for implementing trie (prefix tree) data structures.
- * Provides the core interface for storing and retrieving strings efficiently.
- *
- * A trie is a tree-like data structure that enables fast string operations
- * by storing characters as nodes, where all descendants share a common prefix.
+ * Provides the core interface for storing and retrieving strings.
  *
  * @example
  * ```typescript
@@ -23,14 +20,13 @@ export abstract class AbstractTrie {
   /**
    * Makes the `AbstractTrie` iterable.
    *
-   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse order.
    * @returns An iterator for the trie's entries.
    */
   abstract [Symbol.iterator](reversed?: boolean): Generator<string, void, void>;
 
   /**
-   * Adds a word to the trie. If the word already exists, it will not
-   * create duplicates and the original insertion order is preserved.
+   * Adds a word to the trie.
    *
    * @param word - The word to add.
    */
@@ -52,7 +48,7 @@ export abstract class AbstractTrie {
   /**
    * Returns an iterator for the words in the trie.
    *
-   * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, words are yielded in reverse order.
    * @returns An iterator of the trie's entries.
    */
   abstract entries(reversed?: boolean): Generator<string, void, void>;
