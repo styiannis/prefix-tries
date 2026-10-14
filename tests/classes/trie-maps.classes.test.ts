@@ -381,6 +381,18 @@ describe.each([
       );
     });
 
+    const invalidPairs = [[], ['w'], ['w', 1, 2]] as unknown as [
+      string,
+      number,
+    ][];
+
+    invalidPairs.forEach((e) => {
+      expect(() => new TrieMapClass([e])).toThrow(TypeError);
+      expect(() => new TrieMapClass([e])).toThrow(
+        `The "entry" value must be a [word, value] pair. Current value: "${e}".`
+      );
+    });
+
     expect(
       () => new TrieMapClass([[9, 1]] as unknown as [string, number][])
     ).toThrow(`The "word" value must be a string. Current value: "9".`);
@@ -621,5 +633,70 @@ describe.each([
     expect(instance.get('a\u{1F601}c')).toBe(2);
     expect(instance.delete('a\u{1F600}b')).toBe(true);
     expect([...instance]).toEqual([['a\u{1F601}c', 2]]);
+  });
+
+  it('Find returns a result larger than the call stack limit', () => {
+    const entries = Array.from(
+      { length: 200_000 },
+      (_, i): [string, number] => [`p${i}`, i]
+    );
+
+    expect(new TrieMapClass(entries).find('p')).toHaveLength(entries.length);
+  });
+
+  it('Clearing during iteration ends the loop', () => {
+    const entries: [string, number][] = [
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ];
+    const forward = new TrieMapClass(entries);
+    const seenForward: string[] = [];
+
+    forward.forEach((_, word) => {
+      seenForward.push(word);
+      forward.clear();
+    });
+
+    const reverse = new TrieMapClass(entries);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.keys(true)) {
+      seenReverse.push(word);
+      reverse.clear();
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect(forward.size).toBe(0);
+    expect([...reverse]).toEqual([]);
+  });
+
+  it('Deleting the current word during iteration ends the loop', () => {
+    const entries: [string, number][] = [
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ];
+    const forward = new TrieMapClass(entries);
+    const seenForward: string[] = [];
+
+    forward.forEach((_, word) => {
+      seenForward.push(word);
+      forward.delete(word);
+    });
+
+    const reverse = new TrieMapClass(entries);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.keys(true)) {
+      seenReverse.push(word);
+      reverse.delete(word);
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect([...forward.keys()]).toEqual(['b', 'c']);
+    expect([...reverse.keys()]).toEqual(['a', 'b']);
   });
 });

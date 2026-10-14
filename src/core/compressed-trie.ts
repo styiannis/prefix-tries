@@ -79,12 +79,12 @@ export function getPrefixEntries<T extends ITrie>(instance: T, prefix: string) {
     ret.push(w);
   }
 
-  ret.push(
-    ...trieNode.childrenWords(
-      node,
-      `${trieNode.parentsPrefix(node)}${node.key}`
-    )
-  );
+  for (const word of trieNode.childrenWords(
+    node,
+    `${trieNode.parentsPrefix(node)}${node.key}`
+  )) {
+    ret.push(word);
+  }
 
   return ret;
 }

@@ -421,4 +421,56 @@ describe.each([
     expect(instance.delete('a\u{1F600}b')).toBe(true);
     expect([...instance]).toEqual(['a\u{1F601}c']);
   });
+
+  it('Find returns a result larger than the call stack limit', () => {
+    const words = Array.from({ length: 200_000 }, (_, i) => `p${i}`);
+
+    expect(new TrieClass(words).find('p')).toHaveLength(words.length);
+  });
+
+  it('Clearing during iteration ends the loop', () => {
+    const forward = new TrieClass(['a', 'b', 'c']);
+    const seenForward: string[] = [];
+
+    forward.forEach((word) => {
+      seenForward.push(word);
+      forward.clear();
+    });
+
+    const reverse = new TrieClass(['a', 'b', 'c']);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.entries(true)) {
+      seenReverse.push(word);
+      reverse.clear();
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect(forward.size).toBe(0);
+    expect([...reverse]).toEqual([]);
+  });
+
+  it('Deleting the current word during iteration ends the loop', () => {
+    const forward = new TrieClass(['a', 'b', 'c']);
+    const seenForward: string[] = [];
+
+    forward.forEach((word) => {
+      seenForward.push(word);
+      forward.delete(word);
+    });
+
+    const reverse = new TrieClass(['a', 'b', 'c']);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.entries(true)) {
+      seenReverse.push(word);
+      reverse.delete(word);
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect([...forward]).toEqual(['b', 'c']);
+    expect([...reverse]).toEqual(['a', 'b']);
+  });
 });
