@@ -6,7 +6,7 @@ words, and what that costs is worth measuring rather than guessing. This page
 has the measurements and the choice they support. Everything here applies
 equally to `TrieMap` and `CompressedTrieMap`.
 
-**Last verified:** 2026-10-03 · v1.3.0 · Node v22.12.0
+**Last verified:** 2026-10-14 · v1.3.0 · Node v22.12.0
 
 ## What the two structures do differently
 
@@ -25,12 +25,12 @@ can merge two nodes back into one.
 Both classes maintain the same insertion-ordered list beside the tree, and
 both treat a character outside the Basic Multilingual Plane as one character.
 `find` returns the same set of words from either, in an order that follows
-each tree's shape; the [FAQ](faq.md) covers that order.
+each tree's shape. The [FAQ](faq.md) covers that order.
 
 ## Measurements
 
-Every figure below comes from one corpus, 63,875 words: every line of
-`/usr/share/dict/words` on the measuring machine made of lowercase ASCII
+Every figure in this section comes from one corpus, 63,875 words: every line
+of `/usr/share/dict/words` on the measuring machine made of lowercase ASCII
 letters only. The words average 8.3 characters. Each figure was taken in a
 child process of its own, which read the words from a file and allocated
 nothing else.
@@ -40,9 +40,9 @@ megabytes. The timings are the median of fifteen rounds after two rounds of
 warm-up, taken in three processes per figure, and the median of the three. The
 whole set was run six times, one run after another. Each timing below is the
 range over those six runs, and so is each ratio, taken within one run before
-the range is taken. The timings are this machine's. On
-another machine, compare the columns with each other rather than with a clock.
-The node counts are exact on any machine.
+the range is taken. The timings are this machine's. On another machine,
+compare the columns with each other rather than with a clock. The node counts
+are exact on any machine.
 
 ### Memory
 
@@ -96,7 +96,7 @@ each:
 | `un`    |   1,297 |         4,765 |             1,786 | 0.567–0.574 | 0.364–0.386 |      0.164–0.169 |
 | `a`     |   3,572 |         8,560 |             4,501 | 0.569–0.579 | 0.868–1.242 |      0.457–0.469 |
 
-The `Trie` column is the least stable in the document. Most of its cells sat
+The `Trie` column is the least stable in the document. Half of its cells sat
 near one value and, in one or two of the six runs, landed up to twice as high:
 `car` read 0.038 to 0.041 ms in five runs and 0.079 ms in the sixth. Neither
 of the other two columns did this.
@@ -118,11 +118,10 @@ the compressed trie is still ahead. **A trie is an index for selective
 prefixes.** For the standard trie, selective means a small fraction: `a`
 matches 5.6% of the words, and it already loses there, because each node below
 the prefix costs `find` 11.3 to 16.3 times what one word costs `filter`. The
-compressed
-trie walks about half as many nodes and led on every prefix measured here. If
-your queries routinely match more than a few percent of what you stored,
-measure against a plain scan before adopting either structure, the standard
-one above all.
+compressed trie walks about half as many nodes and led on every prefix
+measured here. If your queries routinely match more than a few percent of what
+you stored, measure against a plain scan before adopting either structure, the
+standard one above all.
 
 ### Exact membership
 
@@ -156,10 +155,12 @@ generated corpora show the range:
 Long keys that share a stem and then diverge are what compression was made
 for: over the digests it keeps under 5% of the nodes and 7% of the memory, and
 builds 3.8 to 4.2 times faster, because creating 26,668 nodes is less work than
-creating 581,393. A dense key set over a small alphabet is the opposite case.
+creating 581,393. It also answers `has` faster than the standard trie, by a
+wide margin over the digests and a smaller one over the paths, where it keeps
+more of the nodes. A dense key set over a small alphabet is the opposite case.
 Every five-digit string is present, so every internal node has ten children,
-no node is ever merged, and the compressed trie is the standard trie with a
-slower write path.
+no node is ever merged, and the compressed trie is the standard trie with
+slower writes and slower lookups.
 
 ## Choosing
 
@@ -167,14 +168,15 @@ slower write path.
 mostly read after it is built, and read by prefix. It uses about a third less
 memory on English words, much less on keys with long shared stems, and
 answers prefix queries 1.6 to 3.2 times faster wherever the result is large
-enough to time. You pay for it on every `has`
-or `get`, and when building, except on keys like the paths and digests above,
-where it removes most of the nodes and builds faster. Dictionaries,
+enough to time. On English words, its `has` and `get` are slower, and so is
+building it. On keys like the paths and digests above, where it removes most
+of the nodes, it builds faster and looks words up faster too. Dictionaries,
 autocomplete indexes and path or route tables fit this shape.
 
 **Use `Trie` or `TrieMap`** when writes are frequent relative to reads, when
-exact lookups outnumber prefix queries, when the keys are dense in a small
-alphabet, or when the structure is small enough that the difference is noise.
+exact lookups outnumber prefix queries and compression would remove few nodes,
+when the keys are dense in a small alphabet, or when the structure is small
+enough that the difference is noise.
 
 **Use neither** if you do not query by prefix. The memory table is the
 argument: tens of megabytes for a set of words a `Set` holds in a few, and

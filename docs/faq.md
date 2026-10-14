@@ -3,7 +3,7 @@
 Behaviour that surprises readers of the API, every error the library throws,
 and the questions the package shape raises.
 
-**Last verified:** 2026-10-03 · v1.3.0
+**Last verified:** 2026-10-14 · v1.3.0
 
 ## Behaviour
 
@@ -130,7 +130,9 @@ console.log(trie.size, [...trie]); // 3 [ 'w', 'y', 'z' ]
 
 The trie itself is correct afterwards. Only the loop ended early. The same
 holds for `forEach`, `entries`, `keys` and `values`, and for reverse
-iteration, which reads the previous link instead.
+iteration, which reads the previous link instead. `clear()` clears the links
+of every word, so calling it inside the loop also ends the loop after the
+current word.
 
 Deleting any other word is safe: the list is relinked around it, and the
 iterator follows the new links. To delete the current word, iterate over a
@@ -170,6 +172,26 @@ const trie = new Trie([typed]);
 
 console.log(trie.find(typed.slice(0, 2))); // []
 console.log(trie.find([...typed].slice(0, 2).join(''))); // [ 'a😀b' ]
+```
+
+Nothing is normalized either. An accented letter such as `é` can be written as
+one code point or as a letter followed by a combining accent. The two look the
+same and are stored as two different words, and a search string in one form
+does not match words stored in the other. When the input can mix the two,
+normalize every word and every search string the same way, with
+`normalize()`:
+
+```typescript
+import { Trie } from 'prefix-tries';
+
+const words = ['caf\u00E9', 'cafe\u0301']; // 'café' twice: é, then e and an accent
+
+const trie = new Trie(words);
+console.log(trie.size); // 2
+
+const normalized = new Trie(words.map((word) => word.normalize()));
+console.log(normalized.size, normalized.has('cafe\u0301'.normalize())); // 1 true
+console.log(normalized.has('cafe\u0301')); // false
 ```
 
 ### `get()` returned `undefined` for a key I set
@@ -217,7 +239,7 @@ constructing, or add in a loop that handles each failure.
 
 ### Why is `Trie.find()` on one letter slower than filtering an array?
 
-Because `find` pays for every node below the prefix, and one letter leaves
+Because `find` visits every node below the prefix, and one letter leaves
 thousands of nodes below it. The standard trie builds a string at each of those
 nodes, not only at the ones that end a word, whereas a filter reads strings
 that already exist. On a 63,875-word corpus, `find('a')` on a `Trie` takes
@@ -249,17 +271,18 @@ to 17.7 times. If exact membership is all you need, use a `Set`.
 Every public method validates its arguments before touching the structure, so
 a rejected call leaves the instance unchanged. Every failure is a `TypeError`:
 
-| Message                                                                 | Thrown by                                                                       | Fix                                    |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------- |
-| `The "word" value must be a string. Current value: "<v>".`              | `add`, `set`, `get`, `has`, `delete` given a non-string                         | Convert to a string first              |
-| `The "word" value should not be empty.`                                 | the same methods given `''`                                                     | The empty string cannot be stored      |
-| `The "prefix" value must be a string. Current value: "<v>".`            | `find` given a non-string                                                       | Convert to a string first              |
-| `The "prefix" value should not be empty.`                               | `find('')`                                                                      | Iterate the instance to get every word |
-| `The "reversed" value must be a boolean. Current value: "<v>".`         | `entries`, `keys`, `values` or the iterator, given a non-boolean                | Pass `true`, `false` or nothing        |
-| `The "callback" value must be a function. Current value: "<v>".`        | `forEach` given a non-function                                                  | Pass a function                        |
-| `The "initialWords" value must be an array. Current value: "<v>".`      | the `Trie` and `CompressedTrie` constructors given a non-array, such as a `Set` | Spread it: `new Trie([...words])`      |
-| `The "initialWordValues" value must be an array. Current value: "<v>".` | the map constructors given a non-array, such as a `Map`                         | Spread it: `new TrieMap([...map])`     |
-| `The "entry" value must be an array. Current value: "<v>".`             | the map constructors given an entry that is not a `[key, value]` pair           | Pass `[key, value]` pairs              |
+| Message                                                                 | Thrown by                                                                                     | Fix                                    |
+| ----------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------- |
+| `The "word" value must be a string. Current value: "<v>".`              | `add`, `set`, `get`, `has`, `delete` given a non-string, and the constructors, for an element | Convert to a string first              |
+| `The "word" value should not be empty.`                                 | the same calls given `''`                                                                     | The empty string cannot be stored      |
+| `The "prefix" value must be a string. Current value: "<v>".`            | `find` given a non-string                                                                     | Convert to a string first              |
+| `The "prefix" value should not be empty.`                               | `find('')`                                                                                    | Iterate the instance to get every word |
+| `The "reversed" value must be a boolean. Current value: "<v>".`         | `entries`, `keys`, `values` or the iterator, given a non-boolean                              | Pass `true`, `false` or nothing        |
+| `The "callback" value must be a function. Current value: "<v>".`        | `forEach` given a non-function                                                                | Pass a function                        |
+| `The "initialWords" value must be an array. Current value: "<v>".`      | the `Trie` and `CompressedTrie` constructors given a non-array, such as a `Set`               | Spread it: `new Trie([...words])`      |
+| `The "initialWordValues" value must be an array. Current value: "<v>".` | the map constructors given a non-array, such as a `Map`                                       | Spread it: `new TrieMap([...map])`     |
+| `The "entry" value must be an array. Current value: "<v>".`             | the map constructors given an entry that is not an array                                      | Pass `[word, value]` pairs             |
+| `The "entry" value must be a [word, value] pair. Current value: "<v>".` | the map constructors given an entry that is not two elements long                             | Pass `[word, value]` pairs             |
 
 ```typescript
 import { Trie, TrieMap } from 'prefix-tries';
@@ -291,10 +314,8 @@ for (const call of calls) {
 // TypeError: The "initialWords" value must be an array. Current value: "[object Set]".
 ```
 
-Two consequences of the empty-string rule: `''` can never be a stored word,
-and `find('')` throws rather than returning everything. To get every word,
-iterate the instance. The `reversed` check runs when the iterator is
-requested, not when it is first advanced, so it throws on the call itself.
+The `reversed` check runs when the iterator is requested, not when it is first
+advanced, so it throws on the call itself.
 
 ## Environment and integration
 
@@ -302,7 +323,7 @@ requested, not when it is first advanced, so it throws on the call itself.
 
 Yes. `src/` references no platform API — no `process`, no `document`, no
 `Buffer`, no timers — so the built modules run unmodified in browsers, Node,
-Deno, Bun, workers and edge runtimes. There is nothing to polyfill.
+Bun, workers and edge runtimes. There is nothing to polyfill.
 
 ### ESM or CommonJS?
 
@@ -344,4 +365,5 @@ no runtime dependencies of its own.
 
 ### What are the version requirements?
 
-Node 18.12 or later, and npm 8 or later. The published code targets ES2022.
+Node 18.12 or later and npm 8 or later, as `engines` in `package.json`
+declares. The published code targets ES2022.

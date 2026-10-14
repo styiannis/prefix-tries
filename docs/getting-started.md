@@ -3,7 +3,7 @@
 From an empty project to a prefix search you can add to, iterate in the order
 you filled it, attach values to, and empty again.
 
-**Last verified:** 2026-10-03 · v1.3.0 · Node ≥ 18.12
+**Last verified:** 2026-10-14 · v1.3.0 · Node ≥ 18.12
 
 ## Install
 
@@ -130,7 +130,7 @@ console.log([...routes.keys()]); // [ '/api/users', '/api/users/:id', '/api/post
 console.log([...routes.values()]); // [ 10, 2, 3 ]
 ```
 
-`find` on a map returns `[key, value]` pairs. `set` on an existing key
+`find` on a map returns `[word, value]` pairs. `set` on an existing key
 replaces the value and leaves the key where it was in the iteration order.
 `get` on a string that is not a stored key returns `undefined`, including when
 it is the start of stored keys, which is the same exact-match rule `has`
@@ -168,9 +168,11 @@ the instance in one call, and the instance stays usable.
 Everything above works unchanged with `CompressedTrie` and
 `CompressedTrieMap`: the same methods, with the same signatures and the same
 answers, apart from the order of `find`'s results. They store the same words
-in a tree that never has more nodes and usually has far fewer, and they pay
-for it when writing, unless the compression removes most of the nodes.
-Switching is one word:
+in a tree that never has more nodes and usually has far fewer. On English
+words, that makes each exact lookup and each write slower than in a standard
+trie. On keys with long shared stems, where the compression removes most of
+the nodes, they build faster and look words up faster too. Switching is one
+word:
 
 ```typescript
 import { CompressedTrie } from 'prefix-tries';

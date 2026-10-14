@@ -1,6 +1,6 @@
 # Architecture and API
 
-**Last verified:** 2026-10-03 · v1.3.0
+**Last verified:** 2026-10-14 · v1.3.0
 
 ## A tree and a list in every instance
 
@@ -135,9 +135,10 @@ add(word: string) {
 
 Validation lives in this layer only, and `core/` assumes its input is valid.
 That is why a rejected call leaves the instance unchanged: nothing in `core/`
-has run. Four validators cover everything that is checked — array, non-empty
-string, boolean, function. A map's `value` and `forEach`'s `thisArg` pass through
-unchecked, since any value is legitimate for either.
+has run. Five validators cover everything that is checked — array,
+`[word, value]` pair, non-empty string, boolean, function. A map's `value` and
+`forEach`'s `thisArg` pass through unchecked, since any value is legitimate for
+either.
 
 The two families share every function whose behaviour does not depend on how
 keys are cut, and nothing else. The compressed `create` and `clear` call the
@@ -187,13 +188,14 @@ between a word's node and the root:
 | `delete`                             | `O(m)`                       | `O(m·σ)`, may merge one node |
 | `find`                               | `O(m + S)`                   | `O(m·σ + S)`                 |
 | `size`                               | `O(1)`                       | `O(1)`                       |
-| `clear`                              | `O(1)`                       | `O(1)`                       |
+| `clear`                              | `O(n)`                       | `O(n)`                       |
 | `entries` `keys` `[Symbol.iterator]` | `O(1)` call, `O(Σd)` drained | `O(1)` call, `O(Σd)` drained |
+| `forEach`                            | `O(Σd)`                      | `O(Σd)`                      |
 | `values`                             | `O(1)` call, `O(n)` drained  | `O(1)` call, `O(n)` drained  |
 
 Four of the rows need explaining.
 
-`find` pays for every node below the prefix, not for every result. It walks
+`find` costs one visit per node below the prefix, not per result. It walks
 the subtree breadth-first, one top-level child at a time, and builds a string
 at every node it visits, whether or not a word ends there. A prefix that
 selects a small subtree is cheap. A prefix whose subtree holds a few percent
@@ -212,13 +214,15 @@ Iteration is linear in the total depth of the stored words, **Σd**, not in
 **n**. The list holds no strings, so every word is rebuilt from its node by
 walking up to the root. A compressed path never holds more nodes than the
 standard one, and usually fewer, so the same words cost it at most as many
-steps. `values` reads each value through the list node's link to its tree
-node, and rebuilds nothing.
+steps. `forEach` drains `entries` on the call, and costs the same. `values`
+reads each value through the list node's link to its tree node, and rebuilds
+nothing.
 
-`clear` resets the list's three fields — `size`, `head` and `tail` — and
-clears the root's children map. Neither the list nor the tree below the root is
-walked. Both are left to the garbage collector, so the call does the same work
-however many words are stored.
+`clear` walks the list once and unlinks every node, so that an iteration in
+progress ends after the current word, as it does when that word is deleted. It
+then resets the list's three fields — `size`, `head` and `tail` — and clears
+the root's children map. The tree below the root is not walked, and is left to
+the garbage collector.
 
 ## Extending
 

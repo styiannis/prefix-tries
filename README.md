@@ -72,6 +72,11 @@ while a compressed trie compares the rest of the word with the node's children
 one by one. An insertion that diverges inside a stored substring also splits
 the node that holds it.
 
+How much memory compression saves depends on the keys, from most of it to
+none.
+[The comparison of the two](https://github.com/styiannis/prefix-tries/blob/main/docs/standard-vs-compressed.md)
+measures both over an English word list and over three generated key sets.
+
 Apart from the order of `find`'s results, the two answer every call
 identically. Both extend the same abstract class, so code written against it
 accepts either:
@@ -164,6 +169,9 @@ members the tries and the maps have, and gives the time complexity of each in
 a standard and in a compressed trie. **n** is the number of words stored, **m**
 the length of the word or prefix, and **σ** the number of children a
 compressed trie compares at each node on the path.
+[The architecture write-up](https://github.com/styiannis/prefix-tries/blob/main/docs/architecture-and-api.md#complexity-as-implemented)
+gives the same costs with the subtree below a prefix and a drained iterator
+counted.
 
 | Member                                | Tries | Maps | Time, standard         | Time, compressed       |
 | ------------------------------------- | :---: | :--: | ---------------------- | ---------------------- |
@@ -191,16 +199,9 @@ prefix that is not a string or is empty, a `reversed` argument that is not a
 boolean, and a callback that is not a function. The empty string can therefore
 never be stored, and `find('')` throws rather than returning everything. The
 constructors take an optional array to start from (words for the tries,
-<<<<<<< HEAD
 `[word, value]` pairs for the maps) and also throw a `TypeError` for an
 argument that is not an array, or for a map entry that is not a two-element
 array.
-=======
-
-`[word, value]` pairs for the maps) and throw the same error for an argument
-that is not an array, or for a map entry that is not a two-element array.
-
-> > > > > > > c76980e (docs: align the readme and the abstract classes with the code)
 
 ## When not to use it
 
@@ -218,6 +219,9 @@ better:
 
 ## Documentation
 
+- [Guides, the FAQ and the architecture write-up](https://github.com/styiannis/prefix-tries/tree/main/docs) —
+  a first prefix search, the choice between the two structures, behaviour you
+  may not expect and every error message, and how the library is built.
 - [The generated API reference](https://styiannis.github.io/prefix-tries/) —
   every signature and every type.
 - [Open an issue](https://github.com/styiannis/prefix-tries/issues) for a
