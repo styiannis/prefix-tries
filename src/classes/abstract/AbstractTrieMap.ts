@@ -1,9 +1,9 @@
 /**
  * Abstract base class for implementing trie-based map data structures.
- * Provides the core interface for associating values with string keys efficiently.
+ * Provides the core interface for associating values with string keys.
  *
- * A trie-map combines the prefix-matching capabilities of tries with key-value storage,
- * similar to how a `Map` associates values with keys, but optimized for string-based keys.
+ * A trie-map combines the prefix matching of tries with key-value storage,
+ * similar to how a `Map` associates values with keys.
  *
  * @template V - The type of values stored in the trie-map.
  * @example
@@ -24,7 +24,7 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Makes the `AbstractTrieMap` iterable.
    *
-   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse order.
    * @returns An iterator for the trie-map's entries.
    */
   abstract [Symbol.iterator](
@@ -47,8 +47,8 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the entries in the trie-map.
    *
-   * @param [reversed=false] - If `true`, entries are yielded in reverse insertion order.
-   * @returns An iterator of the trie's entries.
+   * @param [reversed=false] - If `true`, entries are yielded in reverse order.
+   * @returns An iterator of the trie-map's entries.
    */
   abstract entries(reversed?: boolean): Generator<[string, V], void, void>;
 
@@ -93,7 +93,7 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the keys of the entries in the trie-map.
    *
-   * @param [reversed=false] - If `true`, keys are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, keys are yielded in reverse order.
    * @returns An iterator of the trie-map's entries keys.
    */
   abstract keys(reversed?: boolean): Generator<string, void, void>;
@@ -109,7 +109,7 @@ export abstract class AbstractTrieMap<V = unknown> {
   /**
    * Returns an iterator for the values of the entries in the trie-map.
    *
-   * @param [reversed=false] - If `true`, values are yielded in reverse insertion order.
+   * @param [reversed=false] - If `true`, values are yielded in reverse order.
    * @returns An iterator of the trie-map's entries values.
    */
   abstract values(reversed?: boolean): Generator<V, void, void>;
