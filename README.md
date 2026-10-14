@@ -191,9 +191,16 @@ prefix that is not a string or is empty, a `reversed` argument that is not a
 boolean, and a callback that is not a function. The empty string can therefore
 never be stored, and `find('')` throws rather than returning everything. The
 constructors take an optional array to start from (words for the tries,
+<<<<<<< HEAD
 `[word, value]` pairs for the maps) and also throw a `TypeError` for an
 argument that is not an array, or for a map entry that is not a two-element
 array.
+=======
+
+`[word, value]` pairs for the maps) and throw the same error for an argument
+that is not an array, or for a map entry that is not a two-element array.
+
+> > > > > > > c76980e (docs: align the readme and the abstract classes with the code)
 
 ## When not to use it
 
