@@ -24,7 +24,7 @@ each. Its one runtime dependency is
 
 `find` returns every stored word that begins with a prefix. `has` asks a
 different question — whether one exact word was stored — and a prefix of a
-stored word is not itself stored unless it was added:
+stored word is not itself stored unless it was added as a word:
 
 ```typescript
 import { Trie } from 'prefix-tries';
@@ -118,8 +118,7 @@ console.log([...routes]);
 
 ## Iteration order
 
-Every instance keeps a doubly linked list beside the tree, one node per word,
-so iteration yields the words in insertion order, and adding a word that is
+Iteration yields the words in insertion order, and adding a word that is
 already stored leaves it where it was:
 
 ```typescript
@@ -162,28 +161,30 @@ import {
 `CompressedTrieMap<V>` extend `AbstractTrieMap<V>`. The table marks which
 members the tries and the maps have, and gives the time complexity of each in
 a standard and in a compressed trie. **n** is the number of words stored, **m**
-the length of the word or prefix, and **σ** the number of children a
-compressed trie compares at each node on the path.
+the length of the word or prefix, and **σ** the largest number of children of
+a node on the path to that word or prefix (e.g. at most 26 for lowercase English
+words).
 
-| Member                                | Tries | Maps | Time, standard         | Time, compressed       |
-| ------------------------------------- | :---: | :--: | ---------------------- | ---------------------- |
-| `size`                                |   ✓   |  ✓   | `O(1)`                 | `O(1)`                 |
-| `add(word)`                           |   ✓   |      | `O(m)`                 | `O(m·σ)`               |
-| `set(word, value)`                    |       |  ✓   | `O(m)`                 | `O(m·σ)`               |
-| `get(word)`                           |       |  ✓   | `O(m)`                 | `O(m·σ)`               |
-| `has(word)`                           |   ✓   |  ✓   | `O(m)`                 | `O(m·σ)`               |
-| `delete(word)`                        |   ✓   |  ✓   | `O(m)`                 | `O(m·σ)`               |
-| `find(prefix)`                        |   ✓   |  ✓   | `O(m)` + the subtree   | `O(m·σ)` + the subtree |
-| `clear()`                             |   ✓   |  ✓   | `O(n)`                 | `O(n)`                 |
-| `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` call            | `O(1)` call            |
-| `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` call            | `O(1)` call            |
-| `forEach(callback, thisArg?)`         |   ✓   |  ✓   | as a drained `entries` | as a drained `entries` |
-| `[Symbol.iterator](reversed?)`        |   ✓   |  ✓   | `O(1)` call            | `O(1)` call            |
+| Member                                | Tries | Maps | Time, standard                | Time, compressed              |
+| ------------------------------------- | :---: | :--: | ----------------------------- | ----------------------------- |
+| `size`                                |   ✓   |  ✓   | `O(1)`                        | `O(1)`                        |
+| `add(word)`                           |   ✓   |      | `O(m)`                        | `O(m·σ)`                      |
+| `set(word, value)`                    |       |  ✓   | `O(m)`                        | `O(m·σ)`                      |
+| `get(word)`                           |       |  ✓   | `O(m)`                        | `O(m·σ)`                      |
+| `has(word)`                           |   ✓   |  ✓   | `O(m)`                        | `O(m·σ)`                      |
+| `delete(word)`                        |   ✓   |  ✓   | `O(m)`                        | `O(m·σ)`                      |
+| `find(prefix)`                        |   ✓   |  ✓   | `O(m)` + the subtree          | `O(m·σ)` + the subtree        |
+| `clear()`                             |   ✓   |  ✓   | `O(n)`                        | `O(n)`                        |
+| `entries(reversed?)`                  |   ✓   |  ✓   | `O(1)` per call               | `O(1)` per call               |
+| `keys(reversed?)` `values(reversed?)` |       |  ✓   | `O(1)` per call               | `O(1)` per call               |
+| `forEach(callback, thisArg?)`         |   ✓   |  ✓   | `O(n)` as a drained `entries` | `O(n)` as a drained `entries` |
+| `[Symbol.iterator](reversed?)`        |   ✓   |  ✓   | `O(1)` per call               | `O(1)` per call               |
 
-The `O(1)` of the iterators is the cost of the call. The list does not store
-the words, so `entries`, `keys`, `[Symbol.iterator]` and `forEach` rebuild
-each word as they reach it, one step per node from its end up to the root: its
-length in a standard trie, and usually fewer steps in a compressed one.
+The `O(1)` of the iterators is the cost of the call. Insertion order is kept
+in a linked list that does not store the words, so `entries`, `keys`,
+`[Symbol.iterator]` and `forEach` rebuild each word as they reach it, one step
+per node from its end up to the root: its length in a standard trie, and
+usually fewer steps in a compressed one.
 `values` rebuilds nothing.
 
 Every method validates its arguments and throws a `TypeError` for a word or
