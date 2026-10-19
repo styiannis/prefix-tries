@@ -7,9 +7,16 @@ describe.each([
   ['trie' as const, 'trie-node' as const, trie],
   ['compressed-trie' as const, 'compressed-trie-node' as const, compressedTrie],
 ])('Core >> %s', (instanceType, nodeInstanceType, trieNamespace) => {
-  const { entries, includesWord } = trie;
-  const { clear, create, addWord, getPrefixEntries, deleteWord, size } =
-    trieNamespace;
+  const { entries } = trie;
+  const {
+    clear,
+    create,
+    addWord,
+    getPrefixEntries,
+    includesWord,
+    deleteWord,
+    size,
+  } = trieNamespace;
 
   const instance = create();
 
@@ -225,5 +232,64 @@ describe.each([
     });
 
     clear(instance);
+  });
+});
+
+describe('Core >> compressed-trie >> merge on delete', () => {
+  const { addWord, create, deleteWord, includesWord } = compressedTrie;
+
+  it('Deleting a word merges its node with a single remaining child', () => {
+    const instance = create();
+
+    ['a', 'abc', 'abd'].forEach((word) => addWord(instance, word));
+
+    expect(deleteWord(instance, 'a')).toBe(true);
+
+    expect([...instance.root.children.keys()]).toEqual(['ab']);
+
+    const node = instance.root.children.get('ab');
+    expect(node?.parent).toBe(instance.root);
+    expect([...(node?.children.keys() ?? [])]).toEqual(['c', 'd']);
+    node?.children.forEach((child) => expect(child.parent).toBe(node));
+
+    expect(includesWord(instance, 'abc')).toBe(true);
+    expect(includesWord(instance, 'abd')).toBe(true);
+  });
+
+  it('Deleting every prefix of a word leaves the word as a single node', () => {
+    const instance = create();
+
+    const word = 'abcdefghij';
+    const prefixes = [...word].map((_, i) => word.substring(0, i + 1));
+
+    prefixes.forEach((prefix) => addWord(instance, prefix));
+    prefixes.slice(0, -1).forEach((prefix) => deleteWord(instance, prefix));
+
+    expect([...instance.root.children.keys()]).toEqual([word]);
+    expect(instance.root.children.get(word)?.children.size).toBe(0);
+    expect(includesWord(instance, word)).toBe(true);
+  });
+});
+
+describe('Core >> compressed-trie >> split and merge', () => {
+  const { addWord, create, deleteWord } = compressedTrie;
+
+  it('Splitting and merging a node leave the nodes below it in place', () => {
+    const instance = create();
+
+    ['abc', 'abcd', 'abce'].forEach((word) => addWord(instance, word));
+
+    const node = instance.root.children.get('abc');
+    const children = [...(node?.children.values() ?? [])];
+
+    addWord(instance, 'ab'); // Splits 'abc' into 'ab' and 'c'.
+
+    expect(instance.root.children.get('ab')?.children.get('c')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
+
+    deleteWord(instance, 'ab'); // Merges 'ab' and 'c' back into 'abc'.
+
+    expect(instance.root.children.get('abc')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
   });
 });

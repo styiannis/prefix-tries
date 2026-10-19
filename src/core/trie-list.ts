@@ -11,6 +11,11 @@ export function create<L extends ITrieList>() {
 }
 
 export function clear<L extends ITrieList>(instance: L) {
+  let next: L['head'];
+  for (let node = instance.head; node; node = next) {
+    next = node.next;
+    detach(node);
+  }
   return listClear(instance);
 }
 

@@ -4,9 +4,10 @@ import {
   create,
   deleteWord,
   getPrefixEntries,
+  includesWord,
   size,
 } from '../core/compressed-trie';
-import { entries, includesWord } from '../core/trie';
+import { entries } from '../core/trie';
 import { ITrie } from '../types';
 import { AbstractTrie } from './abstract';
 import {
@@ -37,8 +38,10 @@ export class CompressedTrie extends AbstractTrie {
   /**
    * Creates a new `CompressedTrie` instance.
    *
-   * @param [initialWords] - Optional array of words to initialize the compressed-trie with.
-   * @throws `TypeError` if `initialWords` is defined and is not an array or contains an invalid word (empty string or non-string value).
+   * @param [initialWords] - Optional array of words to initialize the
+   *        compressed-trie with.
+   * @throws `TypeError` if `initialWords` is defined and is not an array or
+   *          contains an invalid word (empty string or non-string value).
    * @example
    * ```typescript
    * // Empty trie
@@ -80,6 +83,8 @@ export class CompressedTrie extends AbstractTrie {
    * Makes the `CompressedTrie` iterable.
    *
    * Words are yielded in their insertion order by default.
+   *
+   * Deleting the current word ends the iteration.
    *
    * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator for the compressed-trie's entries.
@@ -176,6 +181,8 @@ export class CompressedTrie extends AbstractTrie {
    *
    * Words are yielded in their insertion order by default.
    *
+   * Deleting the current word ends the iteration.
+   *
    * @param [reversed=false] - If `true`, words are yielded in reverse insertion order.
    * @returns An iterator of the compressed-trie's entries.
    * @throws `TypeError` if `reversed` is not a boolean value.
@@ -234,6 +241,8 @@ export class CompressedTrie extends AbstractTrie {
 
   /**
    * Executes a callback function for each entry in the compressed-trie.
+   *
+   * Deleting the current word from the callback ends the iteration.
    *
    * @throws `TypeError` if `callback` is not a function.
    * @example

@@ -89,3 +89,74 @@ describe.each([
     clear(instance);
   });
 });
+
+describe('Core >> compressed-trie-map >> merge on delete', () => {
+  const { entries } = trieMap;
+  const { create, deleteWord, getWordValue, setWordValue } = compressedTrieMap;
+
+  it('Deleting a word merges its node with a single remaining child', () => {
+    const instance = create();
+
+    (
+      [
+        ['a', 1],
+        ['abc', 2],
+        ['abd', 3],
+      ] as [string, number][]
+    ).forEach(([word, value]) => setWordValue(instance, word, value));
+
+    expect(deleteWord(instance, 'a')).toBe(true);
+
+    expect([...instance.root.children.keys()]).toEqual(['ab']);
+
+    const node = instance.root.children.get('ab');
+    expect(node?.parent).toBe(instance.root);
+    expect([...(node?.children.keys() ?? [])]).toEqual(['c', 'd']);
+    node?.children.forEach((child) => expect(child.parent).toBe(node));
+
+    expect([...entries(instance)]).toEqual([
+      ['abc', 2],
+      ['abd', 3],
+    ]);
+  });
+
+  it('Deleting every prefix of a word leaves the word as a single node', () => {
+    const instance = create();
+
+    const word = 'abcdefghij';
+    const prefixes = [...word].map((_, i) => word.substring(0, i + 1));
+
+    prefixes.forEach((prefix, i) => setWordValue(instance, prefix, i));
+    prefixes.slice(0, -1).forEach((prefix) => deleteWord(instance, prefix));
+
+    expect([...instance.root.children.keys()]).toEqual([word]);
+    expect(instance.root.children.get(word)?.children.size).toBe(0);
+    expect(getWordValue(instance, word)).toBe(word.length - 1);
+  });
+});
+
+describe('Core >> compressed-trie-map >> split and merge', () => {
+  const { create, deleteWord, getWordValue, setWordValue } = compressedTrieMap;
+
+  it('Splitting and merging a node leave the nodes below it in place', () => {
+    const instance = create();
+
+    ['abc', 'abcd', 'abce'].forEach((word, i) =>
+      setWordValue(instance, word, i)
+    );
+
+    const node = instance.root.children.get('abc');
+    const children = [...(node?.children.values() ?? [])];
+
+    setWordValue(instance, 'ab', 3); // Splits 'abc' into 'ab' and 'c'.
+
+    expect(instance.root.children.get('ab')?.children.get('c')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
+
+    deleteWord(instance, 'ab'); // Merges 'ab' and 'c' back into 'abc'.
+
+    expect(instance.root.children.get('abc')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
+    expect(getWordValue(instance, 'abc')).toBe(0);
+  });
+});

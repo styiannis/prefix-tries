@@ -14,6 +14,16 @@ export function validateArray(value: any, name: string) {
   }
 }
 
+export function validatePair(value: any, name: string) {
+  validateArray(value, name);
+
+  if (2 !== value.length) {
+    throw new TypeError(
+      `The "${name}" value must be a [word, value] pair. Current value: "${show(value)}".`
+    );
+  }
+}
+
 export function validateBoolean(value: any, name: string) {
   if ('boolean' !== typeof value) {
     throw new TypeError(

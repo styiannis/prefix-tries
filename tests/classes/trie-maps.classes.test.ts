@@ -381,6 +381,18 @@ describe.each([
       );
     });
 
+    const invalidPairs = [[], ['w'], ['w', 1, 2]] as unknown as [
+      string,
+      number,
+    ][];
+
+    invalidPairs.forEach((e) => {
+      expect(() => new TrieMapClass([e])).toThrow(TypeError);
+      expect(() => new TrieMapClass([e])).toThrow(
+        `The "entry" value must be a [word, value] pair. Current value: "${e}".`
+      );
+    });
+
     expect(
       () => new TrieMapClass([[9, 1]] as unknown as [string, number][])
     ).toThrow(`The "word" value must be a string. Current value: "9".`);
@@ -535,5 +547,156 @@ describe.each([
         `The "callback" value must be a function. Current value: "${f}".`
       );
     });
+  });
+
+  it('Deleting a sibling keeps the remaining subtree reachable', () => {
+    const instance = new TrieMapClass([
+      ['xy', 1],
+      ['xyy', 2],
+      ['xz', 3],
+    ]);
+
+    expect(instance.delete('xz')).toBe(true);
+
+    expect(instance.size).toBe(2);
+    expect(instance.get('xy')).toBe(1);
+    expect(instance.get('xyy')).toBe(2);
+    expect(instance.find('x').sort()).toEqual([
+      ['xy', 1],
+      ['xyy', 2],
+    ]);
+    const entries = [...instance].sort();
+    expect(entries).toEqual([
+      ['xy', 1],
+      ['xyy', 2],
+    ]);
+
+    for (const [word] of entries) {
+      expect(instance.has(word)).toBe(true);
+      expect(instance.delete(word)).toBe(true);
+    }
+
+    expect(instance.size).toBe(0);
+  });
+
+  it('Find returns exactly the words that start with the prefix', () => {
+    expect(
+      new TrieMapClass([
+        ['apple', 1],
+        ['banana', 2],
+      ]).find('apricot')
+    ).toEqual([]);
+    expect(
+      new TrieMapClass([
+        ['ab', 1],
+        ['abc', 2],
+        ['abd', 3],
+      ]).find('abab')
+    ).toEqual([]);
+
+    const instance = new TrieMapClass([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+    expect(instance.find('aab')).toEqual([['aab', 2]]);
+    expect(instance.find('aa')).toEqual([['aab', 2]]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a', 1],
+      ['aab', 2],
+    ]);
+  });
+
+  it('Inserting a lone high surrogate first keeps the full character reachable', () => {
+    const instance = new TrieMapClass([
+      ['\uD83D', 1],
+      ['\u{1F600}', 2],
+    ]);
+
+    expect(instance.has('\u{1F600}')).toBe(true);
+    expect(instance.get('\u{1F600}')).toBe(2);
+    expect(instance.find('\u{1F600}')).toEqual([['\u{1F600}', 2]]);
+    expect(instance.delete('\u{1F600}')).toBe(true);
+    expect(instance.size).toBe(1);
+  });
+
+  it('Words sharing a high surrogate are not split inside the pair', () => {
+    const instance = new TrieMapClass([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+
+    expect(instance.find('a\uD83D')).toEqual([]);
+    expect(instance.find('a').sort()).toEqual([
+      ['a\u{1F600}b', 1],
+      ['a\u{1F601}c', 2],
+    ]);
+    expect(instance.get('a\u{1F601}c')).toBe(2);
+    expect(instance.delete('a\u{1F600}b')).toBe(true);
+    expect([...instance]).toEqual([['a\u{1F601}c', 2]]);
+  });
+
+  it('Find returns a result larger than the call stack limit', () => {
+    const entries = Array.from(
+      { length: 200_000 },
+      (_, i): [string, number] => [`p${i}`, i]
+    );
+
+    expect(new TrieMapClass(entries).find('p')).toHaveLength(entries.length);
+  });
+
+  it('Clearing during iteration ends the loop', () => {
+    const entries: [string, number][] = [
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ];
+    const forward = new TrieMapClass(entries);
+    const seenForward: string[] = [];
+
+    forward.forEach((_, word) => {
+      seenForward.push(word);
+      forward.clear();
+    });
+
+    const reverse = new TrieMapClass(entries);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.keys(true)) {
+      seenReverse.push(word);
+      reverse.clear();
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect(forward.size).toBe(0);
+    expect([...reverse]).toEqual([]);
+  });
+
+  it('Deleting the current word during iteration ends the loop', () => {
+    const entries: [string, number][] = [
+      ['a', 1],
+      ['b', 2],
+      ['c', 3],
+    ];
+    const forward = new TrieMapClass(entries);
+    const seenForward: string[] = [];
+
+    forward.forEach((_, word) => {
+      seenForward.push(word);
+      forward.delete(word);
+    });
+
+    const reverse = new TrieMapClass(entries);
+    const seenReverse: string[] = [];
+
+    for (const word of reverse.keys(true)) {
+      seenReverse.push(word);
+      reverse.delete(word);
+    }
+
+    expect(seenForward).toEqual(['a']);
+    expect(seenReverse).toEqual(['c']);
+    expect([...forward.keys()]).toEqual(['b', 'c']);
+    expect([...reverse.keys()]).toEqual(['a', 'b']);
   });
 });
