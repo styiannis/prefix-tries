@@ -1,6 +1,6 @@
 # Architecture and API
 
-**Last verified:** 2026-10-14 · v1.3.0
+**Last verified:** 2026-10-19 · v1.3.0
 
 ## A tree and a list in every instance
 
@@ -123,8 +123,7 @@ export function triePrefixNode<T extends ITrie>(instance: T, prefix: string) {
 ```
 
 The `classes/` layer contains no algorithm. Each method validates its
-arguments and delegates, and `forEach`, which drives the iterator, is the only
-one that does more:
+arguments and delegates, as `add` does:
 
 ```typescript
 add(word: string) {
@@ -132,6 +131,8 @@ add(word: string) {
   return addWord(this.#trie, word);
 }
 ```
+
+`forEach`, which drives the iterator, is the only method that does more.
 
 Validation lives in this layer only, and `core/` assumes its input is valid.
 That is why a rejected call leaves the instance unchanged: nothing in `core/`
@@ -176,10 +177,10 @@ checkable, not to be a second API.
 
 ## Complexity, as implemented
 
-With **m** the length of the word or prefix, **σ** the number of children
-scanned at a node on the path, **S** the number of nodes in the subtree below
+With **m** the length of the word or prefix, **σ** the largest number of
+children of a node on the path, **S** the number of nodes in the subtree below
 the prefix, **n** the number of stored words and **d** the number of nodes
-between a word's node and the root:
+from a word's node up to the root, the root excluded:
 
 | Operation                            | Standard                     | Compressed                   |
 | ------------------------------------ | ---------------------------- | ---------------------------- |
@@ -195,28 +196,26 @@ between a word's node and the root:
 
 Four of the rows need explaining.
 
-`find` costs one visit per node below the prefix, not per result. It walks
-the subtree breadth-first, one top-level child at a time, and builds a string
-at every node it visits, whether or not a word ends there. A prefix that
-selects a small subtree is cheap. A prefix whose subtree holds a few percent
-of the tree can already cost more than filtering an array of every stored
-word.
-[standard-vs-compressed.md](standard-vs-compressed.md#prefix-search) measures
-where that happens. The traversal order is also why `find` returns neither
-insertion order nor sorted order, and why the two families return the same
-words in different orders.
+`find` costs one visit per node below the prefix, not per result. It walks the
+subtree breadth-first, one top-level child at a time, and builds a string at
+every node it visits, whether or not a word ends there. A prefix that selects a
+small subtree is cheap. A prefix whose subtree holds a few percent of the tree
+can already cost more than filtering an array of every stored word.
+[The comparison of the two structures](standard-vs-compressed.md#prefix-search)
+measures where that happens. The traversal order is also why `find` returns
+neither insertion order nor sorted order, and why the two families return the
+same words in different orders.
 
 The σ factor applies to the compressed family only. Its walk scans a node's
 children for the one sharing a prefix with the rest of the search string,
 where the standard walk looks the next character up in the children map.
 
 Iteration is linear in the total depth of the stored words, **Σd**, not in
-**n**. The list holds no strings, so every word is rebuilt from its node by
-walking up to the root. A compressed path never holds more nodes than the
-standard one, and usually fewer, so the same words cost it at most as many
-steps. `forEach` drains `entries` on the call, and costs the same. `values`
-reads each value through the list node's link to its tree node, and rebuilds
-nothing.
+**n**, because every word is rebuilt from its node by walking up to the root. A
+compressed path never holds more nodes than the standard one, and usually fewer,
+so the same words cost it at most as many steps. `forEach` drains `entries` on
+the call, and costs the same. `values` reads each value through the list node's
+link to its tree node, and rebuilds nothing.
 
 `clear` walks the list once and unlinks every node, so that an iteration in
 progress ends after the current word, as it does when that word is deleted. It

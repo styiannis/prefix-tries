@@ -3,7 +3,7 @@
 Behaviour that surprises readers of the API, every error the library throws,
 and the questions the package shape raises.
 
-**Last verified:** 2026-10-14 · v1.3.0
+**Last verified:** 2026-10-19 · v1.3.0
 
 ## Behaviour
 
@@ -241,30 +241,30 @@ constructing, or add in a loop that handles each failure.
 
 Because `find` visits every node below the prefix, and one letter leaves
 thousands of nodes below it. The standard trie builds a string at each of those
-nodes, not only at the ones that end a word, whereas a filter reads strings
-that already exist. On a 63,875-word corpus, `find('a')` on a `Trie` takes
-longer than `filter` with `startsWith` over the same words. Three letters in,
-on `car` and `pre`, it is 5.2 to 14.8 times faster, and a longer prefix only
-shrinks the subtree it walks. A `CompressedTrie` walks about half as many
-nodes, and stayed ahead of the filter on every prefix measured.
-[standard-vs-compressed.md](standard-vs-compressed.md#prefix-search) has the
-measurements. A trie is an index for selective prefixes.
+nodes, not only at the ones that end a word, whereas a filter reads strings that
+already exist. On a 63,875-word English corpus, `find('a')` on a `Trie` takes
+longer than `filter` with `startsWith` over the same words. Three letters in, on
+`car` and `pre`, it is 3.8 to 16.1 times faster, and a longer prefix only
+shrinks the subtree it walks. A `CompressedTrie` walks about half as many nodes,
+and stayed ahead of the filter on every prefix measured.
+[The comparison of the two structures](standard-vs-compressed.md#prefix-search)
+has the measurements. A trie is an index for selective prefixes.
 
 ### Is the memory cost significant?
 
 Yes, and it is the main reason not to use this structure. The same 63,875
 words take 40.4 MB as a `Trie` and 25.5 MB as a `CompressedTrie`, against
 1.3 MB for a `Set` holding references to strings that already exist.
-[standard-vs-compressed.md](standard-vs-compressed.md#memory) says how each
-figure was taken.
+[The comparison of the two structures](standard-vs-compressed.md#memory) says
+how each figure was taken.
 
 ### Is `has()` faster than `Set.has()`?
 
 No. A `Set` hashes the whole string once. A standard trie looks up one
 character at a time, one `Map.get` each, and a compressed trie scans the
 children of every node on the path. Over the same 63,875 words, `Trie.has`
-measured 7.3 to 7.6 times slower than `Set.has`, and `CompressedTrie.has` 17.5
-to 17.7 times. If exact membership is all you need, use a `Set`.
+measured 7.3 to 7.6 times slower than `Set.has`, and `CompressedTrie.has` 17.4
+to 18.0 times. If exact membership is all you need, use a `Set`.
 
 ## Errors
 
@@ -346,8 +346,8 @@ require('prefix-tries/core/trie');
 
 The four classes and the two abstract classes are the whole public surface,
 and an instance keeps its tree in a private class field.
-[architecture-and-api.md](architecture-and-api.md#the-public-surface) explains
-why.
+[The architecture write-up](architecture-and-api.md#the-public-surface)
+explains why.
 
 ### Will unused classes be dropped from my bundle?
 

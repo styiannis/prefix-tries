@@ -1,9 +1,10 @@
 # Getting started
 
-From an empty project to a prefix search you can add to, iterate in the order
-you filled it, attach values to, and empty again.
+From an empty project to a working prefix search: adding words, asking about
+prefixes and whole words, iterating in insertion order, attaching values, and
+removing words again.
 
-**Last verified:** 2026-10-14 · v1.3.0 · Node ≥ 18.12
+**Last verified:** 2026-10-19 · v1.3.0 · Node ≥ 18.12
 
 ## Install
 
@@ -165,14 +166,15 @@ the instance in one call, and the instance stays usable.
 
 ## Use the compressed structure
 
-Everything above works unchanged with `CompressedTrie` and
-`CompressedTrieMap`: the same methods, with the same signatures and the same
-answers, apart from the order of `find`'s results. They store the same words
-in a tree that never has more nodes and usually has far fewer. On English
-words, that makes each exact lookup and each write slower than in a standard
-trie. On keys with long shared stems, where the compression removes most of
-the nodes, they build faster and look words up faster too. Switching is one
-word:
+Everything above works unchanged with `CompressedTrie` and `CompressedTrieMap`:
+the same methods, with the same signatures and the same answers, apart from the
+order of `find`'s results. They store the same words in a tree that never has
+more nodes and usually has far fewer. To find the next node, a compressed trie
+scans a node's children and compares substrings, where a standard trie looks one
+character up. On English words, that makes each exact lookup and each write
+slower than in a standard trie. On keys with long shared stems, where the
+compression removes most of the nodes, they build faster and look words up
+faster too. Switching is one word:
 
 ```typescript
 import { CompressedTrie } from 'prefix-tries';
@@ -192,7 +194,8 @@ console.log([...commands]);
 ```
 
 Which of the two to use, with measurements of memory, build time and search
-time, is the subject of [standard-vs-compressed.md](standard-vs-compressed.md).
+time, is the subject of
+[the comparison of the two structures](standard-vs-compressed.md).
 
 ## Handle invalid input
 
@@ -223,10 +226,11 @@ for (const call of [
 console.log([...commands]); // [ 'commit' ]
 ```
 
-One consequence is worth planning for. A single invalid element makes the
-constructor throw, and the instance it had partly filled is never returned to
-you. Filter the input first, or add the words in a loop where you can handle
-each failure:
+[The FAQ](faq.md#errors) lists every message and the calls that throw it.
+
+A single invalid element makes the constructor throw, and the instance it had
+partly filled is never returned to you. Filter the input first, or add the words
+in a loop where you can handle each failure:
 
 ```typescript
 import { Trie } from 'prefix-tries';
@@ -250,12 +254,12 @@ console.log([...trie]); // [ 'ok', 'later' ]
 
 ## What this page did not cover
 
-[standard-vs-compressed.md](standard-vs-compressed.md) measures the choice this
-page deferred: what each structure holds in memory, what each costs to build,
-and the point at which a prefix matches so much that the standard trie no
-longer beats a plain scan. [faq.md](faq.md) covers the behaviour that
-surprises people, every error the library throws, and which module system
-resolves to which build.
-[architecture-and-api.md](architecture-and-api.md) explains why every instance
-holds a tree and a list, what each operation costs, and what the abstract
-classes are for.
+[The comparison of the two structures](standard-vs-compressed.md) measures
+the choice this page deferred: what each structure holds in memory, what each
+costs to build, and the point at which a prefix matches so much that the
+standard trie no longer beats a plain scan. [The FAQ](faq.md) covers the
+behaviour that surprises people, every error the library throws, and which
+module system resolves to which build.
+[The architecture write-up](architecture-and-api.md) explains why every
+instance holds a tree and a list, what each operation costs, and what the
+abstract classes are for.
