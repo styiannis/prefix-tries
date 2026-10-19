@@ -270,3 +270,26 @@ describe('Core >> compressed-trie >> merge on delete', () => {
     expect(includesWord(instance, word)).toBe(true);
   });
 });
+
+describe('Core >> compressed-trie >> split and merge', () => {
+  const { addWord, create, deleteWord } = compressedTrie;
+
+  it('Splitting and merging a node leave the nodes below it in place', () => {
+    const instance = create();
+
+    ['abc', 'abcd', 'abce'].forEach((word) => addWord(instance, word));
+
+    const node = instance.root.children.get('abc');
+    const children = [...(node?.children.values() ?? [])];
+
+    addWord(instance, 'ab'); // Splits 'abc' into 'ab' and 'c'.
+
+    expect(instance.root.children.get('ab')?.children.get('c')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
+
+    deleteWord(instance, 'ab'); // Merges 'ab' and 'c' back into 'abc'.
+
+    expect(instance.root.children.get('abc')).toBe(node);
+    children.forEach((child) => expect(child.parent).toBe(node));
+  });
+});

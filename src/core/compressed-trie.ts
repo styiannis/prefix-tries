@@ -31,7 +31,7 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
 
   let found = false;
   while (!current.done && !found) {
-    const [childKey, childNode] = current.value;
+    const [childKey, child] = current.value;
     const common = commonSubstring(childKey, prefix);
 
     if (!common) {
@@ -39,9 +39,8 @@ export function addWord<T extends ITrie>(instance: T, word: string) {
       continue;
     }
 
-    if (common !== childKey) {
-      compressedTrieSplitNode(childNode, common);
-    }
+    const childNode =
+      common === childKey ? child : compressedTrieSplitNode(child, common);
 
     found = common === prefix;
 
@@ -104,9 +103,9 @@ export function deleteWord<T extends ITrie>(instance: T, word: string) {
   removeListRecord(instance, node);
 
   while (node.parent && !trieNode.isEndOfWord(node)) {
-    const parent = node.parent as T['root'];
-
     if (node.children.size === 0) {
+      const parent = node.parent as T['root'];
+
       const removedNode = trieNode.removeChild(parent, node.key);
 
       if (removedNode) {

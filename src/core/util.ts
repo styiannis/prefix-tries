@@ -142,143 +142,79 @@ export function compressedTriePrefixEntriesNode<T extends ITrie>(
 }
 
 export function compressedTrieMergeNode<N extends ITrieNode>(instance: N) {
-  if (1 === instance.children.size) {
-    const child = instance.children.entries().next().value;
+  const parent = instance.parent as N | null;
 
-    if (child) {
-      const [childKey, childNode] = child;
-
-      trieNode.removeChild(instance, childKey);
-
-      const key = instance.key;
-      const parent = instance.parent;
-
-      instance.key = `${key}${childKey}`;
-      instance.children = childNode.children;
-
-      for (const [_, child] of instance.children) {
-        child.parent = instance;
-      }
-
-      instance.listNode = childNode.listNode;
-
-      if (instance.listNode) {
-        instance.listNode.trieNode = instance;
-      }
-
-      childNode.parent = null;
-      childNode.listNode = null;
-
-      if (parent) {
-        parent.children.delete(key);
-        trieNode.insertChild(parent, instance);
-      }
-    }
+  if (!parent || instance.children.size !== 1) {
+    return instance;
   }
 
-  return instance;
+  const [childKey, child] = instance.children.entries().next().value as [
+    string,
+    N,
+  ];
+
+  trieNode.removeChild(parent, instance.key);
+  child.key = `${instance.key}${childKey}`;
+  trieNode.insertChild(parent, child);
+
+  trieNode.clear(instance);
+
+  return child;
 }
 
 export function compressedTrieMapMergeNode<N extends ITrieMapNode>(
   instance: N
 ) {
-  if (1 === instance.children.size) {
-    const child = instance.children.entries().next().value;
+  const parent = instance.parent as N | null;
 
-    if (child) {
-      const [childKey, childNode] = child;
-
-      trieNode.removeChild(instance, childKey);
-
-      const key = instance.key;
-      const parent = instance.parent;
-
-      instance.key = `${key}${childKey}`;
-      instance.value = childNode.value;
-      instance.children = childNode.children;
-
-      for (const [_, child] of instance.children) {
-        child.parent = instance;
-      }
-
-      instance.listNode = childNode.listNode;
-
-      if (instance.listNode) {
-        instance.listNode.trieNode = instance;
-      }
-
-      childNode.parent = null;
-      childNode.listNode = null;
-
-      if (parent) {
-        parent.children.delete(key);
-        trieNode.insertChild(parent, instance);
-      }
-    }
+  if (!parent || instance.children.size !== 1) {
+    return instance;
   }
 
-  return instance;
+  const [childKey, child] = instance.children.entries().next().value as [
+    string,
+    N,
+  ];
+
+  trieNode.removeChild(parent, instance.key);
+  child.key = `${instance.key}${childKey}`;
+  trieNode.insertChild(parent, child);
+
+  trieMapNode.clear(instance);
+
+  return child;
 }
 
 export function compressedTrieSplitNode<N extends ITrieNode>(
   instance: N,
   splitPrefix: string
 ) {
-  const newNode = trieNode.create(
-    instance.key.substring(splitPrefix.length),
-    instance,
-    instance.children,
-    instance.listNode
-  );
+  const parent = instance.parent as N;
+  const prefixNode = trieNode.create<N>(splitPrefix);
 
-  for (const [_, child] of newNode.children) {
-    child.parent = newNode;
-  }
+  trieNode.removeChild(parent, instance.key);
 
-  if (newNode.listNode) {
-    newNode.listNode.trieNode = newNode;
-  }
+  instance.key = instance.key.substring(splitPrefix.length);
 
-  if (instance.parent) {
-    trieNode.removeChild(instance.parent, instance.key);
-    instance.key = splitPrefix;
-    trieNode.insertChild(instance.parent, instance);
-  }
+  trieNode.insertChild(parent, prefixNode);
+  trieNode.insertChild(prefixNode, instance);
 
-  instance.listNode = null;
-  instance.children = new Map();
-
-  trieNode.insertChild(instance, newNode);
+  return prefixNode;
 }
 
 export function compressedTrieMapSplitNode<N extends ITrieMapNode>(
   instance: N,
   splitPrefix: string
 ) {
-  const newNode = trieMapNode.create(
-    instance.key.substring(splitPrefix.length),
-    instance.value,
-    instance,
-    instance.children,
-    instance.listNode
-  );
+  const parent = instance.parent as N;
+  const prefixNode = trieMapNode.create<N>(splitPrefix, undefined);
 
-  for (const [_, child] of newNode.children) {
-    child.parent = newNode;
-  }
+  trieNode.removeChild(parent, instance.key);
 
-  if (newNode.listNode) {
-    newNode.listNode.trieNode = newNode;
-  }
+  instance.key = instance.key.substring(splitPrefix.length);
 
-  if (instance.parent) {
-    trieNode.removeChild(instance.parent, instance.key);
-    instance.key = splitPrefix;
-    trieNode.insertChild(instance.parent, instance);
-  }
+  trieNode.insertChild(parent, prefixNode);
+  trieNode.insertChild(prefixNode, instance);
 
-  instance.listNode = null;
-  instance.children = new Map();
-
-  trieNode.insertChild(instance, newNode);
+  return prefixNode;
 }

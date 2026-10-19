@@ -36,7 +36,7 @@ export function setWordValue<T extends ITrieMap>(
 
   let found = false;
   while (!current.done && !found) {
-    const [childKey, childNode] = current.value;
+    const [childKey, child] = current.value;
     const common = commonSubstring(childKey, prefix);
 
     if (!common) {
@@ -44,9 +44,8 @@ export function setWordValue<T extends ITrieMap>(
       continue;
     }
 
-    if (common !== childKey) {
-      compressedTrieMapSplitNode(childNode, common);
-    }
+    const childNode =
+      common === childKey ? child : compressedTrieMapSplitNode(child, common);
 
     found = common === prefix;
 
@@ -117,9 +116,9 @@ export function deleteWord<T extends ITrieMap>(instance: T, word: string) {
   removeListRecord(instance, node);
 
   while (node.parent && !trieNode.isEndOfWord(node)) {
-    const parent = node.parent as T['root'];
-
     if (node.children.size === 0) {
+      const parent = node.parent as T['root'];
+
       const removedNode = trieNode.removeChild(parent, node.key);
 
       if (removedNode) {
